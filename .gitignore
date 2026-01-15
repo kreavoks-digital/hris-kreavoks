@@ -24,3 +24,6 @@ logs
 !.env.example
 
 /app/generated/prisma
+
+#package-lock.json
+.package-lock.json
