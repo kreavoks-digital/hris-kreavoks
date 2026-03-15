@@ -5,7 +5,7 @@
         <h2>KREAVOKS HRIS</h2>
       </div>
       <nav class="nav-menu">
-        <NuxtLink to="/" class="nav-item">
+        <NuxtLink to="/dashboard" class="nav-item">
           <span class="icon">📊</span>
           <span>Dashboard</span>
         </NuxtLink>
@@ -35,8 +35,8 @@
         </div>
         <div class="header-right">
           <div class="user-info">
-            <span class="user-name">{{ user.name }}</span>
-            <div class="user-avatar">{{ user.initials }}</div>
+            <span class="user-name">{{ user?.fullName || "-" }}</span>
+            <div class="user-avatar">{{ initials || "-" }}</div>
           </div>
           <button @click="logout" class="btn-logout">Logout</button>
         </div>
@@ -51,15 +51,11 @@
 
 <script setup lang="ts">
 const route = useRoute();
-
-const user = ref({
-  name: "Admin User",
-  initials: "AU",
-});
+const { user, logout: doLogout } = useAuth();
 
 const pageTitle = computed(() => {
   const titles: Record<string, string> = {
-    "/": "Dashboard",
+    "/dashboard": "Dashboard",
     "/karyawan": "Data Karyawan",
     "/absensi": "Absensi",
     "/cuti": "Manajemen Cuti",
@@ -68,8 +64,18 @@ const pageTitle = computed(() => {
   return titles[route.path] || "HRIS";
 });
 
+const initials = computed(() => {
+  if (!user.value?.fullName) return "?";
+  return user.value.fullName
+    .split(" ")
+    .map((n: any[]) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase();
+});
+
 const logout = () => {
-  // TODO: Implement logout
+  doLogout();
   navigateTo("/login");
 };
 </script>
