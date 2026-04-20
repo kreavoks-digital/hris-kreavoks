@@ -3,57 +3,54 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight">Data Karyawan</h1>
-        <p class="text-slate-500 mt-1 text-sm">Kelola informasi seluruh karyawan dalam satu tempat.</p>
+        <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">Data Karyawan</h1>
+        <p class="text-slate-400 mt-1 text-sm">Kelola informasi seluruh karyawan dalam satu tempat.</p>
       </div>
-      <Button @click="navigateTo('/karyawan/tambah')" class="gap-2 shadow-lg shadow-primary/20">
+      <Button @click="navigateTo('/karyawan/tambah')" class="gap-2 rounded-3xl bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
         <UserPlus class="h-4 w-4" />
         Tambah Karyawan
       </Button>
     </div>
 
-    <!-- Filters Card -->
-    <Card class="border-none shadow-sm bg-white/50 backdrop-blur-sm">
-      <CardContent class="p-4 sm:p-6">
-        <div class="flex flex-col sm:flex-row gap-4">
-          <div class="relative flex-1">
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input v-model="searchQuery" placeholder="Cari nama atau NIK..." class="pl-10 bg-white border-slate-200" />
-          </div>
-          <div class="w-full sm:w-64">
-            <Select v-model="filterDepartment">
-              <SelectTrigger class="bg-white border-slate-200">
-                <SelectValue placeholder="Pilih Departemen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Semua Departemen</SelectItem>
-                <SelectItem value="IT">IT</SelectItem>
-                <SelectItem value="HR">HR</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
-                <SelectItem value="Operations">Operations</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <Button variant="outline" class="gap-2" @click="fetchEmployees">
-            <RefreshCw class="h-4 w-4" :class="{ 'animate-spin': loading }" />
-            Reset
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <!-- Filters Section -->
+    <div class="flex flex-col sm:flex-row gap-4">
+      <div class="relative flex-1">
+        <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <Input v-model="searchQuery" placeholder="Cari nama atau NIK..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12" />
+      </div>
+      <div class="w-full sm:w-64">
+        <Select v-model="filterDepartment">
+          <SelectTrigger class="bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12 px-5">
+            <SelectValue placeholder="Pilih Departemen" />
+          </SelectTrigger>
+          <SelectContent class="rounded-2xl border-slate-100">
+            <SelectItem value="none">Semua Departemen</SelectItem>
+            <SelectItem value="IT">IT</SelectItem>
+            <SelectItem value="HR">HR</SelectItem>
+            <SelectItem value="Finance">Finance</SelectItem>
+            <SelectItem value="Marketing">Marketing</SelectItem>
+            <SelectItem value="Operations">Operations</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Button variant="outline" class="gap-2 rounded-3xl h-12 border-slate-100 bg-white shadow-sm shadow-slate-100/50 text-slate-600 hover:bg-slate-50 px-6" @click="fetchEmployees">
+        <RefreshCw class="h-4 w-4 text-kv-primary" :class="{ 'animate-spin': loading }" />
+        Reset
+      </Button>
+    </div>
+
 
     <!-- Table Section -->
-    <Card class="border-none shadow-md overflow-hidden">
+    <Card class="border border-slate-100 overflow-hidden rounded-3xl">
       <Table>
-        <TableHeader class="bg-slate-50/50">
+        <TableHeader>
           <TableRow>
-            <TableHead class="w-[100px] font-bold">NIK</TableHead>
-            <TableHead class="font-bold">Karyawan</TableHead>
-            <TableHead class="font-bold">Departemen</TableHead>
-            <TableHead class="font-bold">Posisi</TableHead>
-            <TableHead class="font-bold">Status</TableHead>
-            <TableHead class="text-right font-bold">Aksi</TableHead>
+            <TableHead class="w-[100px]">NIK</TableHead>
+            <TableHead>Karyawan</TableHead>
+            <TableHead>Departemen</TableHead>
+            <TableHead>Posisi</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead class="text-right">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -61,13 +58,13 @@
             <TableCell class="font-medium text-slate-500">{{ emp.nik }}</TableCell>
             <TableCell>
               <div class="flex items-center gap-3">
-                <Avatar class="h-9 w-9 border-2 border-white shadow-sm">
+                <Avatar class="h-9 w-9 border-2 border-white">
                   <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${emp.name}`" />
                   <AvatarFallback>{{ emp.name.charAt(0) }}</AvatarFallback>
                 </Avatar>
                 <div class="flex flex-col">
-                  <span class="font-semibold text-slate-900 leading-tight">{{ emp.name }}</span>
-                  <span class="text-xs text-slate-400">{{ emp.email }}</span>
+                  <span class="font-medium text-kv-black leading-tight">{{ emp.name }}</span>
+                  <span class="text-sm text-slate-400">{{ emp.email }}</span>
                 </div>
               </div>
             </TableCell>
@@ -76,22 +73,22 @@
                 {{ emp.department }}
               </Badge>
             </TableCell>
-            <TableCell class="text-slate-600 text-sm italic">{{ emp.position }}</TableCell>
+            <TableCell class="text-slate-600 text-sm">{{ emp.position }}</TableCell>
             <TableCell>
               <Badge 
                 :variant="emp.status === 'Aktif' ? 'default' : 'secondary'"
-                class="capitalize px-2 py-0.5 rounded-full text-[10px] font-bold"
-                :class="emp.status === 'Aktif' ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-slate-200 text-slate-600'"
+                class="px-3 py-1 rounded-3xl text-sm font-medium"
+                :class="emp.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200'"
               >
                 {{ emp.status }}
               </Badge>
             </TableCell>
             <TableCell class="text-right">
               <div class="flex justify-end gap-2">
-                <Button variant="ghost" size="icon" @click="editEmployee(emp)" class="h-8 w-8 text-blue-600 hover:bg-blue-50">
+                <Button variant="ghost" size="icon" @click="editEmployee(emp)" class="h-8 w-8 text-kv-primary hover:bg-kv-primary/10 rounded-2xl">
                   <Edit2 class="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-rose-600 hover:bg-rose-50">
+                <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-rose-500 hover:bg-rose-50 rounded-2xl">
                   <Trash2 class="h-4 w-4" />
                 </Button>
               </div>

@@ -3,10 +3,10 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-bold tracking-tight text-slate-900">Manajemen Cuti</h1>
+        <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">Manajemen Cuti</h1>
         <p class="text-slate-500 mt-1 text-sm">Kelola pengajuan, riwayat, dan sisa jatah cuti Anda.</p>
       </div>
-      <Button @click="navigateTo('/cuti/ajukan')" class="gap-2 shadow-sm">
+      <Button @click="navigateTo('/cuti/ajukan')" class="gap-2 rounded-3xl h-10">
         <PlusCircle class="h-4 w-4" />
         Ajukan Cuti
       </Button>
@@ -14,111 +14,112 @@
 
     <!-- Balance Overview -->
     <div class="grid gap-6 md:grid-cols-2">
-      <Card class="border-none shadow-sm relative overflow-hidden group transition-all hover:shadow-md">
+      <Card class="border border-slate-100 overflow-hidden relative group rounded-3xl">
         <CardContent class="p-6">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-sm font-medium text-slate-500 uppercase tracking-widest pb-1">Sisa Cuti Tahunan</p>
-              <h2 class="text-5xl font-black text-blue-600 tracking-tighter">{{ leaveBalance.annual }}</h2>
-              <p class="text-xs font-semibold text-slate-400 mt-1">Hari Tersedia</p>
+              <p class="text-sm font-medium text-slate-400 pb-1">Sisa Cuti Tahunan</p>
+              <h2 class="text-4xl font-semibold text-kv-primary">{{ leaveBalance.annual }}</h2>
+              <p class="text-sm text-slate-400 mt-1">Hari Tersedia</p>
             </div>
-            <div class="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
+            <div class="h-12 w-12 rounded-3xl bg-kv-primary/10 flex items-center justify-center text-kv-primary transition-colors group-hover:bg-kv-primary/20">
               <CalendarDays class="h-6 w-6" />
             </div>
           </div>
         </CardContent>
-        <div class="absolute bottom-0 left-0 w-full h-1 bg-blue-500/20"></div>
       </Card>
 
-      <Card class="border-none shadow-sm relative overflow-hidden group transition-all hover:shadow-md">
+      <Card class="border border-slate-100 overflow-hidden relative group rounded-3xl">
         <CardContent class="p-6">
           <div class="flex justify-between items-start">
             <div>
-              <p class="text-sm font-medium text-slate-500 uppercase tracking-widest pb-1">Cuti Terpakai</p>
-              <h2 class="text-5xl font-black text-slate-900 tracking-tighter">{{ leaveBalance.used }}</h2>
-              <p class="text-xs font-semibold text-slate-400 mt-1">Hari Tahun Ini</p>
+              <p class="text-sm font-medium text-slate-400 pb-1">Cuti Terpakai</p>
+              <h2 class="text-4xl font-semibold text-kv-black">{{ leaveBalance.used }}</h2>
+              <p class="text-sm text-slate-400 mt-1">Hari Tahun Ini</p>
             </div>
-            <div class="h-12 w-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-600 group-hover:scale-110 transition-transform">
+            <div class="h-12 w-12 rounded-3xl bg-blue-500/10 flex items-center justify-center text-blue-600 transition-colors group-hover:bg-blue-500/20">
               <History class="h-6 w-6" />
             </div>
           </div>
         </CardContent>
-        <div class="absolute bottom-0 left-0 w-full h-1 bg-slate-200"></div>
       </Card>
     </div>
 
-    <!-- History and Filters -->
-    <Card class="border-none shadow-md overflow-hidden">
-      <CardHeader class="pb-4">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <CardTitle class="text-lg font-bold">Riwayat Pengajuan</CardTitle>
-          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-            <Select v-model="filterStatus">
-              <SelectTrigger class="w-[140px] bg-white">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Semua Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="approved">Disetujui</SelectItem>
-                <SelectItem value="rejected">Ditolak</SelectItem>
-              </SelectContent>
-            </Select>
+    <!-- Filters and History Section -->
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 mb-2">
+      <h2 class="text-xl font-semibold text-kv-black">Riwayat Pengajuan</h2>
+      <div class="flex flex-wrap gap-3 w-full md:w-auto">
+        <Select v-model="filterStatus">
+          <SelectTrigger class="w-[150px] bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12 px-5">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent class="rounded-2xl border-slate-100">
+            <SelectItem value="none">Semua Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="approved">Disetujui</SelectItem>
+            <SelectItem value="rejected">Ditolak</SelectItem>
+          </SelectContent>
+        </Select>
 
-            <Select v-model="filterType">
-              <SelectTrigger class="w-[160px] bg-white">
-                <SelectValue placeholder="Jenis Cuti" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Semua Jenis</SelectItem>
-                <SelectItem value="annual">Cuti Tahunan</SelectItem>
-                <SelectItem value="sick">Cuti Sakit</SelectItem>
-                <SelectItem value="emergency">Cuti Darurat</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </CardHeader>
+        <Select v-model="filterType">
+          <SelectTrigger class="w-[180px] bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12 px-5">
+            <SelectValue placeholder="Jenis Cuti" />
+          </SelectTrigger>
+          <SelectContent class="rounded-2xl border-slate-100">
+            <SelectItem value="none">Semua Jenis</SelectItem>
+            <SelectItem value="annual">Cuti Tahunan</SelectItem>
+            <SelectItem value="sick">Cuti Sakit</SelectItem>
+            <SelectItem value="emergency">Cuti Darurat</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <Card class="border border-slate-100 overflow-hidden rounded-3xl mt-4">
+
 
       <div class="relative overflow-x-auto">
         <Table>
-          <TableHeader class="bg-slate-50/50">
-            <TableRow>
-              <TableHead class="text-xs font-bold uppercase text-slate-500 tracking-wider">Tgl Pengajuan</TableHead>
-              <TableHead class="text-xs font-bold uppercase text-slate-500 tracking-wider">Jenis</TableHead>
-              <TableHead class="text-xs font-bold uppercase text-slate-500 tracking-wider">Periode</TableHead>
-              <TableHead class="text-xs font-bold uppercase text-slate-500 tracking-wider text-center">Durasi</TableHead>
-              <TableHead class="text-xs font-bold uppercase text-slate-500 tracking-wider">Status</TableHead>
-              <TableHead class="text-right text-xs font-bold uppercase text-slate-500 tracking-wider px-6">Aksi</TableHead>
+          <TableHeader>
+            <TableRow class="hover:bg-transparent border-slate-100">
+              <TableHead>Tgl Pengajuan</TableHead>
+              <TableHead>Jenis</TableHead>
+              <TableHead>Periode</TableHead>
+              <TableHead class="text-center">Durasi</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead class="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="leave in filteredLeaves" :key="leave.id" class="hover:bg-slate-50/30 transition-colors group">
-              <TableCell class="text-sm text-slate-600">{{ formatDate(leave.createdAt) }}</TableCell>
+            <TableRow v-for="leave in filteredLeaves" :key="leave.id" class="hover:bg-slate-50/30 transition-colors group border-slate-50">
+              <TableCell class="text-sm text-slate-400">{{ formatDate(leave.createdAt) }}</TableCell>
               <TableCell>
-                <div class="font-medium text-slate-900 leading-none">{{ getLeaveTypeLabel(leave.type) }}</div>
-                <div class="text-[10px] text-slate-400 mt-1 uppercase font-bold">{{ leave.reason || '-' }}</div>
+                <div class="font-medium text-kv-black leading-none">{{ getLeaveTypeLabel(leave.type) }}</div>
+                <div class="text-sm text-slate-400 mt-1">{{ leave.reason || '-' }}</div>
               </TableCell>
               <TableCell>
-                <div class="flex items-center gap-2 text-xs font-medium text-slate-600">
+                <div class="flex items-center gap-2 text-sm font-medium text-slate-600">
                   <span>{{ formatDate(leave.startDate) }}</span>
                   <ArrowRight class="h-3 w-3 text-slate-300" />
                   <span>{{ formatDate(leave.endDate) }}</span>
                 </div>
               </TableCell>
               <TableCell class="text-center">
-                <Badge variant="outline" class="text-[10px] font-bold border-slate-200">{{ leave.duration }} Hari</Badge>
+                <Badge variant="outline" class="text-sm font-semibold border-slate-200 rounded-3xl">
+                  {{ leave.duration }} Hari
+                </Badge>
               </TableCell>
               <TableCell>
                 <Badge 
                   :variant="getStatusVariant(leave.status)"
-                  class="capitalize text-[10px] font-extrabold px-2 py-0.5 rounded-full"
+                  class="text-sm font-semibold px-2.5 py-0.5 rounded-3xl border-none"
                 >
-                  <span class="mr-1 h-1.5 w-1.5 rounded-full bg-current"></span>
+                  <span class="mr-1.5 h-1.5 w-1.5 rounded-full bg-current opacity-70"></span>
                   {{ getStatusLabel(leave.status) }}
                 </Badge>
               </TableCell>
-              <TableCell class="text-right px-6">
+              <TableCell class="text-right">
                 <div class="flex justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button v-if="leave.status === 'pending'" variant="ghost" size="sm" class="h-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 px-2" @click="cancelLeave(leave.id)">
                     <XCircle class="h-4 w-4" />

@@ -3,74 +3,74 @@
     <!-- Header Section -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" @click="navigateTo('/karyawan')" class="rounded-full h-10 w-10">
+        <Button variant="ghost" size="icon" @click="navigateTo('/karyawan')" class="rounded-full h-10 w-10 text-slate-400 hover:text-kv-black hover:bg-slate-100">
           <ArrowLeft class="h-5 w-5" />
         </Button>
         <div>
-          <h1 class="text-3xl font-bold tracking-tight">Tambah Karyawan</h1>
-          <p class="text-slate-500 text-sm">Lengkapi formulir di bawah untuk mendaftarkan karyawan baru.</p>
+          <h1 class="text-3xl font-semibold text-kv-black">Tambah Karyawan</h1>
+          <p class="text-slate-400 text-sm">Lengkapi formulir di bawah untuk mendaftarkan karyawan baru.</p>
         </div>
       </div>
     </div>
 
     <form @submit.prevent="submitForm" class="space-y-8">
       <!-- Data Pribadi -->
-      <Card class="border-none shadow-md overflow-hidden bg-white/50 backdrop-blur-sm">
+      <Card class="border border-slate-100 overflow-hidden bg-white/50 backdrop-blur-sm rounded-3xl">
         <CardHeader class="bg-slate-50/50 border-b border-slate-100">
           <div class="flex items-center gap-2">
-            <UserCircle class="h-5 w-5 text-primary" />
-            <CardTitle class="text-lg">Data Pribadi</CardTitle>
+            <UserCircle class="h-5 w-5 text-kv-primary" />
+            <CardTitle class="text-lg font-semibold text-kv-black">Data Pribadi</CardTitle>
           </div>
-          <CardDescription>Informasi identitas dan kontak personil karyawan.</CardDescription>
+          <CardDescription class="text-slate-400">Informasi identitas dan kontak personil karyawan.</CardDescription>
         </CardHeader>
         <CardContent class="p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2">
-              <Label for="nik">NIK (Nomor Induk Karyawan)</Label>
-              <Input id="nik" v-model="formData.nik" required placeholder="Contoh: 2024001" />
+              <Label for="nik" class="text-slate-600 font-medium ml-1">NIK (Nomor Induk Karyawan)</Label>
+              <Input id="nik" v-model="formData.nik" required placeholder="Contoh: 2024001" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
-              <Label for="name">Nama Lengkap</Label>
-              <Input id="name" v-model="formData.name" required placeholder="Nama lengkap sesuai KTP" />
+              <Label for="name" class="text-slate-600 font-medium ml-1">Nama Lengkap</Label>
+              <Input id="name" v-model="formData.name" required placeholder="Nama lengkap sesuai KTP" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
-              <Label for="email">Alamat Email</Label>
-              <Input id="email" v-model="formData.email" type="email" required placeholder="email@kreavoks.com" />
+              <Label for="email" class="text-slate-600 font-medium ml-1">Alamat Email</Label>
+              <Input id="email" v-model="formData.email" type="email" required placeholder="email@kreavoks.com" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
-              <Label for="phone">No. Telepon / WhatsApp</Label>
-              <Input id="phone" v-model="formData.phone" required placeholder="08xxxxxxxxxx" />
+              <Label for="phone" class="text-slate-600 font-medium ml-1">No. Telepon / WhatsApp</Label>
+              <Input id="phone" v-model="formData.phone" required placeholder="08xxxxxxxxxx" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
-              <Label for="birthDate">Tanggal Lahir</Label>
-              <Input id="birthDate" v-model="formData.birthDate" type="date" required />
+              <Label for="birthDate" class="text-slate-600 font-medium ml-1">Tanggal Lahir</Label>
+              <Input id="birthDate" v-model="formData.birthDate" type="date" required class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2 md:col-span-2">
-              <Label for="address">Alamat Domisili</Label>
-              <Input id="address" v-model="formData.address" required placeholder="Alamat lengkap saat ini" />
+              <Label for="address" class="text-slate-600 font-medium ml-1">Alamat Domisili</Label>
+              <Input id="address" v-model="formData.address" required placeholder="Alamat lengkap saat ini" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
           </div>
         </CardContent>
       </Card>
 
       <!-- Data Pekerjaan -->
-      <Card class="border-none shadow-md overflow-hidden bg-white/50 backdrop-blur-sm">
+      <Card class="border border-slate-100 overflow-hidden bg-white/50 backdrop-blur-sm rounded-3xl">
         <CardHeader class="bg-slate-50/50 border-b border-slate-100">
           <div class="flex items-center gap-2">
-            <Briefcase class="h-5 w-5 text-primary" />
-            <CardTitle class="text-lg">Data Pekerjaan</CardTitle>
+            <Briefcase class="h-5 w-5 text-kv-primary" />
+            <CardTitle class="text-lg font-semibold text-kv-black">Data Pekerjaan</CardTitle>
           </div>
-          <CardDescription>Detail penempatan departemen dan status kepegawaian.</CardDescription>
+          <CardDescription class="text-slate-400">Detail penempatan departemen dan status kepegawaian.</CardDescription>
         </CardHeader>
         <CardContent class="p-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2">
-              <Label for="department">Departemen</Label>
+              <Label for="department" class="text-slate-600 font-medium ml-1">Departemen</Label>
               <Select v-model="formData.department">
-                <SelectTrigger>
+                <SelectTrigger class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary">
                   <SelectValue placeholder="Pilih Departemen" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent class="rounded-3xl">
                   <SelectItem v-for="dept in departments" :key="dept.value" :value="dept.value">
                     {{ dept.label }}
                   </SelectItem>
@@ -78,20 +78,20 @@
               </Select>
             </div>
             <div class="space-y-2">
-              <Label for="position">Jabatan / Posisi</Label>
-              <Input id="position" v-model="formData.position" required placeholder="Jabatan spesifik" />
+              <Label for="position" class="text-slate-600 font-medium ml-1">Jabatan / Posisi</Label>
+              <Input id="position" v-model="formData.position" required placeholder="Jabatan spesifik" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
-              <Label for="joinDate">Tanggal Bergabung</Label>
-              <Input id="joinDate" v-model="formData.joinDate" type="date" required />
+              <Label for="joinDate" class="text-slate-600 font-medium ml-1">Tanggal Bergabung</Label>
+              <Input id="joinDate" v-model="formData.joinDate" type="date" required class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
-              <Label for="employmentType">Jenis Kontrak</Label>
+              <Label for="employmentType" class="text-slate-600 font-medium ml-1">Jenis Kontrak</Label>
               <Select v-model="formData.employmentType">
-                <SelectTrigger>
+                <SelectTrigger class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary">
                   <SelectValue placeholder="Pilih Jenis Kontrak" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent class="rounded-3xl">
                   <SelectItem v-for="type in employmentTypes" :key="type.value" :value="type.value">
                     {{ type.label }}
                   </SelectItem>
@@ -99,10 +99,10 @@
               </Select>
             </div>
             <div class="space-y-2">
-              <Label for="salary">Gaji Pokok (IDR)</Label>
+              <Label for="salary" class="text-slate-600 font-medium ml-1">Gaji Pokok (IDR)</Label>
               <div class="relative">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">Rp</span>
-                <Input id="salary" v-model="formData.salary" type="number" required class="pl-10" />
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">Rp</span>
+                <Input id="salary" v-model="formData.salary" type="number" required class="rounded-3xl h-11 pl-12 border-slate-200 focus:ring-kv-primary" />
               </div>
             </div>
           </div>
@@ -111,8 +111,8 @@
 
       <!-- Form Actions -->
       <div class="flex items-center justify-end gap-4 p-4">
-        <Button type="button" variant="ghost" @click="navigateTo('/karyawan')">Batal</Button>
-        <Button type="submit" class="w-full sm:w-48 gap-2 shadow-lg shadow-primary/20" :disabled="loading">
+        <Button type="button" variant="ghost" class="rounded-3xl h-11 px-6 text-slate-500 hover:text-kv-black" @click="navigateTo('/karyawan')">Batal</Button>
+        <Button type="submit" class="w-full sm:w-48 gap-2 rounded-3xl h-11 bg-kv-primary hover:bg-kv-primary/90 text-white border-none" :disabled="loading">
           <Save v-if="!loading" class="h-4 w-4" />
           <RefreshCw v-else class="h-4 w-4 animate-spin" />
           {{ loading ? "Menyimpan..." : "Simpan Data" }}

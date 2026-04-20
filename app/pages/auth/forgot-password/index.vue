@@ -10,11 +10,11 @@
         />
       </div>
 
-      <Card class="w-full max-w-md mx-auto shadow-xl border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
+      <Card class="w-full max-w-md mx-auto border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm rounded-3xl shadow-none">
         <CardHeader class="pb-4">
           <div class="flex justify-between items-start">
             <div>
-              <CardTitle class="text-2xl font-bold tracking-tight">Lupa Password</CardTitle>
+              <CardTitle class="text-2xl font-semibold">Lupa Password</CardTitle>
               <CardDescription class="mt-2">
                 Masukkan email Anda dan kami akan mengirimkan instruksi untuk reset password.
               </CardDescription>
@@ -36,20 +36,20 @@
                   v-model="email"
                   type="email"
                   placeholder="nama@perusahaan.com"
-                  class="pl-10 h-12"
+                  class="pl-10 h-12 rounded-3xl"
                   required
                 />
               </div>
             </div>
 
-            <div class="flex gap-3 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100/50 dark:border-blue-800/50 text-sm text-blue-700 dark:text-blue-300">
+             <div class="flex gap-3 p-4 rounded-3xl bg-kv-primary/5 dark:bg-kv-primary/10 border border-kv-primary/10 text-sm text-kv-primary dark:text-blue-300">
               <Info class="h-5 w-5 shrink-0" />
               <p>Link reset password akan dikirimkan ke email tersebut jika terdaftar di sistem kami.</p>
             </div>
 
-            <Button
+             <Button
               type="submit"
-              class="w-full h-12 text-base font-bold shadow-sm"
+              class="w-full h-12 text-base font-semibold rounded-3xl"
               :disabled="loading"
             >
               <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
@@ -61,7 +61,7 @@
         <CardFooter class="pt-2 border-t border-slate-100 dark:border-slate-800 mt-6 flex justify-center">
           <p class="text-sm text-slate-600 dark:text-slate-400">
             Ingat password?
-            <NuxtLink to="/auth/login" class="text-primary font-bold hover:underline ml-1">
+             <NuxtLink to="/auth/login" class="text-kv-primary font-semibold hover:underline ml-1">
               Kembali Masuk
             </NuxtLink>
           </p>
@@ -76,10 +76,10 @@
       <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-indigo-950/20 z-0"></div>
       
       <div class="relative z-10 text-center max-w-md">
-        <div class="mb-8 inline-flex p-4 rounded-full bg-white dark:bg-slate-800 shadow-xl shadow-blue-500/10">
+        <div class="mb-8 inline-flex p-4 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800">
           <KeyRound class="h-12 w-12 text-primary" />
         </div>
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-50">Keamanan Utama Kami</h2>
+        <h2 class="text-3xl font-semibold text-slate-900 dark:text-slate-50">Keamanan Utama Kami</h2>
         <p class="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
           Jangan khawatir, kami membantu Anda mengembalikan akses ke akun HRIS Anda dengan cepat dan aman.
         </p>

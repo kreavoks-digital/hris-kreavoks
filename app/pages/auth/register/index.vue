@@ -10,7 +10,7 @@
           class="w-40 h-auto object-contain mb-6"
         />
         <div class="text-center">
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-50">
             Buat Akun Baru
           </h1>
           <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-[340px] mx-auto">
@@ -25,12 +25,12 @@
             <Label for="name" class="text-sm font-medium">Nama Lengkap</Label>
             <div class="relative">
               <User class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
+               <Input
                 id="name"
                 v-model="form.name"
                 type="text"
                 placeholder="Masukkan nama Anda"
-                class="pl-10 h-11"
+                class="pl-10 h-11 rounded-3xl"
                 required
               />
             </div>
@@ -40,12 +40,12 @@
             <Label for="email" class="text-sm font-medium">Email Perusahaan</Label>
             <div class="relative">
               <Mail class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
+               <Input
                 id="email"
                 v-model="form.email"
                 type="email"
                 placeholder="nama@perusahaan.com"
-                class="pl-10 h-11"
+                class="pl-10 h-11 rounded-3xl"
                 required
               />
             </div>
@@ -55,12 +55,12 @@
             <Label for="password" class="text-sm font-medium">Password</Label>
             <div class="relative">
               <Lock class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-              <Input
+               <Input
                 id="password"
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="Buat password minimal 8 karakter"
-                class="pl-10 pr-10 h-11"
+                class="pl-10 pr-10 h-11 rounded-3xl"
                 required
               />
               <button
@@ -78,15 +78,15 @@
             <Checkbox id="terms" required />
             <label
               for="terms"
-              class="text-xs text-slate-500 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              class="text-sm text-slate-500 leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
             >
-              Saya setuju dengan <a href="#" class="text-primary hover:underline">Ketentuan Layanan</a> dan <a href="#" class="text-primary hover:underline">Kebijakan Privasi</a>.
+               Saya setuju dengan <a href="#" class="text-kv-primary hover:underline">Ketentuan Layanan</a> dan <a href="#" class="text-kv-primary hover:underline">Kebijakan Privasi</a>.
             </label>
           </div>
 
-          <Button
+           <Button
             type="submit"
-            class="w-full h-11 text-base font-bold shadow-sm shadow-primary/20"
+            class="w-full h-11 text-base font-semibold rounded-3xl"
             :disabled="loading"
           >
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
@@ -98,7 +98,7 @@
           Sudah punya akun?
           <NuxtLink
             to="/auth/login"
-            class="text-primary font-bold hover:underline ml-1 transition-all"
+            class="text-primary font-semibold hover:underline ml-1 transition-all"
           >
             Masuk
           </NuxtLink>
@@ -117,12 +117,12 @@
           <img
             src="/images/login/computer-login.png"
             alt="Illustration"
-            class="max-w-[85%] h-auto object-contain relative z-10 transition-all duration-700 hover:scale-105"
+            class="max-w-[85%] h-auto object-contain relative z-10 transition-all duration-700"
           />
         </div>
         
         <div class="mt-12 text-center max-w-md">
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100 italic">"Transformasi Digital HR"</h2>
+          <h2 class="text-2xl font-semibold text-slate-800 dark:text-slate-100">"Transformasi Digital HR"</h2>
           <p class="mt-4 text-slate-500 dark:text-slate-400 leading-relaxed">
             Daftarkan perusahaan Anda dan mulai kelola kehadiran, cuti, serta performa karyawan dengan lebih cerdas.
           </p>

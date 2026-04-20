@@ -22,7 +22,7 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
 - **Rounding**:
     - **Universal**: `rounded-3xl` for all UI components (Buttons, Sections, Cards, Inputs).
     - **Exception**: `rounded-full` only for profile avatars.
-- **Effects**: Subtle glassmorphism is encouraged for depth.
+- **Effects**: Subtle glassmorphism is encouraged for depth. **NEVER** use shadow effects (`shadow-*`). Avoid excessive hover effects like `transform` or `scale` unless it's a critical interactive element.
 
 ## 3. Architecture (Simplified FSD)
 - **Directory**: `app/pages/[feature]/`
@@ -61,6 +61,9 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
     - **DO NOT** use random colors. Stick to Primary `#4082E6`, Accent `#FEF747`, and the soft grayscale palette.
 - **Rounding**:
     - **DO NOT** use `rounded-md` or `rounded-lg` for primary elements. Use `rounded-3xl` globally.
+- **Effects Restrictions**:
+    - **NO SHADOWS**: Do not use `shadow-*` effects (e.g., `shadow-sm`, `shadow-md`, `shadow-lg`). Shadows are considered unprofessional for this project's aesthetic.
+    - **NO EXCESSIVE HOVER**: Avoid using `group-hover:scale-*` or `hover:scale-*` and `transition-transform` for standard cards or icons. Keep interactions static or extremely subtle.
 
 ## 6. Interaction Principles
 - Be extremely detailed.

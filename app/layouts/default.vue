@@ -6,42 +6,27 @@
         <!-- Logo -->
         <div class="flex h-16 items-center border-b border-slate-200 px-6 dark:border-slate-800">
           <div class="flex items-center gap-2">
-            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <div class="flex h-8 w-8 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               <Building2 class="h-5 w-5" />
             </div>
-            <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-50">KVHRIS</span>
+            <span class="text-xl font-semibold text-kv-black dark:text-slate-50">KVHRIS</span>
           </div>
         </div>
 
         <!-- Navigation -->
         <nav class="flex-1 space-y-1 overflow-y-auto px-3 py-4">
           <NuxtLink v-for="item in navigation" :key="item.name" :to="item.to" 
-            class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all hover:bg-slate-100 dark:hover:bg-slate-800 group"
-            :class="[route.path === item.to ? 'bg-slate-100 text-primary dark:bg-slate-800 dark:text-slate-50' : 'text-slate-600 dark:text-slate-400']"
+            class="flex items-center gap-3 rounded-3xl px-3 py-2 text-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-800 group"
+            :class="[route.path === item.to ? 'bg-kv-primary/10 text-kv-primary dark:bg-slate-800 dark:text-slate-50 font-medium' : 'text-slate-500 dark:text-slate-400']"
           >
             <component :is="item.icon" class="h-4 w-4 shrink-0 transition-colors" 
-              :class="[route.path === item.to ? 'text-primary' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300']" 
+              :class="[route.path === item.to ? 'text-kv-primary' : 'text-slate-400 group-hover:text-slate-500 dark:group-hover:text-slate-300']" 
             />
             {{ item.name }}
           </NuxtLink>
         </nav>
 
-        <!-- Sidebar Footer -->
-        <div class="border-t border-slate-200 p-4 dark:border-slate-800">
-          <div class="flex items-center gap-3 px-2 py-2">
-            <div class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 ring-2 ring-primary/10 dark:bg-slate-800">
-              <span class="text-xs font-bold text-primary">{{ initials }}</span>
-            </div>
-            <div class="flex flex-col">
-              <span class="text-sm font-semibold truncate max-w-[120px]">{{ user?.fullName || 'User' }}</span>
-              <span class="text-[10px] text-slate-400 uppercase tracking-wider font-bold">Administrator</span>
-            </div>
-          </div>
-          <Button variant="ghost" class="w-full justify-start gap-2 mt-2 text-rose-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30" @click="logout">
-            <LogOut class="h-4 w-4" />
-            Logout
-          </Button>
-        </div>
+        <!-- Sidebar Navigation End -->
       </div>
     </aside>
 
@@ -54,12 +39,12 @@
             <Menu class="h-5 w-5" />
           </Button>
           <div>
-            <h2 class="text-sm font-semibold text-slate-900 dark:text-slate-50">{{ pageTitle }}</h2>
+            <h2 class="text-sm font-medium text-kv-black dark:text-slate-50">{{ pageTitle }}</h2>
             <!-- Breadcrumbs style -->
-            <div class="flex items-center gap-1 text-[10px] text-slate-400 uppercase tracking-widest font-bold">
+            <div class="flex items-center gap-1 text-sm text-slate-400">
               <span>Main</span>
-              <ChevronRight class="h-3 w-3" />
-              <span class="text-primary">{{ pageTitle }}</span>
+              <ChevronRight class="h-2.5 w-2.5" />
+              <span class="text-kv-primary">{{ pageTitle }}</span>
             </div>
           </div>
         </div>
@@ -73,15 +58,38 @@
           
           <Separator orientation="vertical" class="h-6 mx-1 sm:mx-2" />
           
-          <div class="flex items-center gap-3">
-             <div class="hidden sm:flex flex-col text-right">
-                <span class="text-xs font-semibold">{{ user?.fullName }}</span>
-                <span class="text-[10px] text-slate-400">Online</span>
-             </div>
-             <div class="h-8 w-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
+          <DropdownMenu>
+            <DropdownMenuTrigger class="flex items-center gap-3 px-3 py-1.5 hover:bg-slate-100/80 dark:hover:bg-slate-800/80 rounded-3xl transition-all cursor-pointer outline-none border-none bg-transparent">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-kv-primary text-white font-bold text-sm">
                 {{ initials }}
-             </div>
-          </div>
+              </div>
+              <div class="hidden md:flex flex-col items-start gap-0">
+                <span class="text-sm font-semibold text-kv-black dark:text-slate-100 leading-tight">{{ user?.fullName || 'User' }}</span>
+                <span class="text-[12px] text-slate-400 leading-tight">Administrator</span>
+              </div>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent :side-offset="8" align="end" class="w-56 p-1.5 z-50">
+              <div class="px-3 py-2 border-b border-slate-50 dark:border-slate-800/50 mb-1">
+                <div class="text-sm font-semibold text-kv-black dark:text-slate-100">{{ user?.fullName || 'Administrator' }}</div>
+                <div class="text-[12px] text-slate-400">Online</div>
+              </div>
+
+              <div class="space-y-0.5">
+                <DropdownMenuItem class="flex items-center gap-3 px-3 py-2 cursor-pointer focus:bg-slate-50 dark:focus:bg-slate-800 focus:text-kv-primary rounded-3xl group transition-colors">
+                  <UserCircle class="h-4 w-4 text-slate-400 group-hover:text-kv-primary transition-colors" />
+                  <span class="text-sm font-medium text-slate-700 dark:text-slate-200">Profil Saya</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator class="mx-2 my-1" />
+
+                <DropdownMenuItem class="flex items-center gap-3 px-3 py-2 cursor-pointer text-rose-500 focus:bg-rose-50 focus:text-rose-600 rounded-3xl group transition-colors" @click="logout">
+                  <LogOut class="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                  <span class="text-sm font-medium">Log out</span>
+                </DropdownMenuItem>
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
@@ -93,10 +101,10 @@
       </main>
 
       <!-- Footer -->
-      <footer class="border-t border-slate-200 py-6 px-8 dark:border-slate-800">
-        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 opacity-50">
-          <p class="text-xs text-slate-500 italic">© 2024 Kreavoks Digital Agency - HRIS Ecosystem</p>
-          <div class="flex gap-4 text-xs text-slate-500 font-medium uppercase tracking-tighter">
+      <footer class="border-t border-slate-100 py-6 px-8 dark:border-slate-800">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p class="text-sm text-slate-400">© 2024 Kreavoks Digital Agency - HRIS Ecosystem</p>
+          <div class="flex gap-4 text-sm text-slate-400">
             <span>Support</span>
             <span>Terms</span>
             <span>Privacy</span>
@@ -123,6 +131,13 @@ import {
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Separator } from '~/components/ui/separator'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '~/components/ui/dropdown-menu'
 import { toast } from 'vue-sonner'
 
 const route = useRoute();

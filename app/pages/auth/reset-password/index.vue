@@ -10,9 +10,9 @@
         />
       </div>
 
-      <Card class="w-full max-w-md mx-auto shadow-xl border-slate-200/60 dark:border-slate-800/60">
+      <Card class="w-full max-w-md mx-auto border-slate-200/60 dark:border-slate-800/60 font-sans">
         <CardHeader>
-          <CardTitle class="text-2xl font-bold tracking-tight">Atur Ulang Password</CardTitle>
+          <CardTitle class="text-2xl font-semibold">Atur Ulang Password</CardTitle>
           <CardDescription class="mt-2">
             Silakan masukkan password baru untuk mengamankan akun Anda.
           </CardDescription>
@@ -64,14 +64,14 @@
                   <EyeOff v-else class="h-4 w-4" />
                 </button>
               </div>
-              <p v-if="password && confirmPassword && password !== confirmPassword" class="text-destructive text-xs font-medium animate-in fade-in slide-in-from-top-1">
+              <p v-if="password && confirmPassword && password !== confirmPassword" class="text-destructive text-sm font-medium animate-in fade-in slide-in-from-top-1">
                 Password tidak cocok. Periksa kembali inputan Anda.
               </p>
             </div>
 
             <Button
               type="submit"
-              class="w-full h-12 text-base font-bold shadow-sm"
+              class="w-full h-12 text-base font-semibold"
               :disabled="loading || password !== confirmPassword || !password"
             >
               <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
@@ -86,10 +86,10 @@
       <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-slate-900 dark:to-indigo-950/20 z-0"></div>
       
       <div class="relative z-10 text-center max-w-md">
-        <div class="mb-8 inline-flex p-4 rounded-full bg-white dark:bg-slate-800 shadow-xl border border-slate-100 dark:border-slate-700">
+        <div class="mb-8 inline-flex p-4 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
           <RefreshCcw class="h-12 w-12 text-primary animate-spin-slow" />
         </div>
-        <h2 class="text-3xl font-bold text-slate-900 dark:text-slate-50">Satu Langkah Lagi</h2>
+        <h2 class="text-3xl font-semibold text-slate-900 dark:text-slate-50">Satu Langkah Lagi</h2>
         <p class="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
           Amankan kembali akun Anda dengan password yang kuat dan unik untuk melindungi data penting perusahaan.
         </p>

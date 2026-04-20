@@ -1,13 +1,13 @@
 <template>
   <div class="max-w-xl mx-auto py-10 px-4">
     <div class="flex items-center gap-3 mb-8">
-      <div class="p-2 rounded-lg bg-primary/10 text-primary">
+      <div class="p-2 rounded-2xl bg-primary/10 text-primary">
         <KeyRound class="h-6 w-6" />
       </div>
-      <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">Ganti Password</h1>
+      <h1 class="text-2xl font-semibold text-slate-900 dark:text-slate-50">Ganti Password</h1>
     </div>
 
-    <Card class="shadow-lg border-slate-200/60 dark:border-slate-800/60">
+    <Card class="border-slate-200/60 dark:border-slate-800/60">
       <CardHeader>
         <CardTitle>Keamanan Akun</CardTitle>
         <CardDescription>
@@ -86,14 +86,14 @@
                 <EyeOff v-else class="h-4 w-4" />
               </button>
             </div>
-            <p v-if="form.newPassword && form.confirmPassword && form.newPassword !== form.confirmPassword" class="text-destructive text-xs font-medium">
+            <p v-if="form.newPassword && form.confirmPassword && form.newPassword !== form.confirmPassword" class="text-destructive text-sm font-medium">
               Password tidak cocok.
             </p>
           </div>
 
           <Button
             type="submit"
-            class="w-full h-11 font-bold shadow-md transition-all active:scale-[0.98]"
+            class="w-full h-11 font-semibold transition-all"
             :disabled="loading || form.newPassword !== form.confirmPassword || !form.newPassword"
           >
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />

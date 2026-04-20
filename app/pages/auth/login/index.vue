@@ -11,7 +11,7 @@
           class="w-40 h-auto object-contain mb-6"
         />
         <div class="text-center">
-          <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+          <h1 class="text-2xl font-medium text-[#131313] dark:text-slate-50">
             Selamat Datang Kembali
           </h1>
           <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-[340px] mx-auto">
@@ -31,7 +31,7 @@
                 v-model="form.email"
                 type="email"
                 placeholder="nama@perusahaan.com"
-                class="pl-10 h-12"
+                class="pl-10 h-12 rounded-3xl"
                 required
               />
             </div>
@@ -42,7 +42,7 @@
               <Label for="password" class="text-sm font-medium">Password</Label>
               <NuxtLink
                 to="/auth/forgot-password"
-                class="text-xs font-semibold text-primary hover:underline hover:text-primary/80 transition-colors"
+                class="text-sm text-kv-primary hover:underline hover:text-kv-primary/80 transition-colors"
               >
                 Lupa password?
               </NuxtLink>
@@ -54,7 +54,7 @@
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="Masukkan password"
-                class="pl-10 pr-10 h-12"
+                class="pl-10 pr-10 h-12 rounded-3xl"
                 required
               />
               <button
@@ -70,7 +70,7 @@
 
           <Button
             type="submit"
-            class="w-full h-12 text-base font-bold shadow-sm shadow-primary/20"
+            class="w-full h-12 text-base font-medium rounded-3xl"
             :disabled="loading"
           >
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
@@ -78,11 +78,11 @@
           </Button>
         </form>
 
-        <div class="mt-8 text-center text-sm text-slate-600 dark:text-slate-400">
+        <div class="mt-8 text-center text-sm text-slate-500">
           Belum punya akun?
           <NuxtLink
             to="/auth/register"
-            class="text-primary font-bold hover:underline ml-1 transition-all"
+            class="text-kv-primary font-medium hover:underline ml-1 transition-all"
           >
             Daftar Sekarang
           </NuxtLink>
@@ -104,11 +104,11 @@
         <img
           src="/images/login/computer-login.png"
           alt="Illustration"
-          class="max-w-[90%] max-h-[70%] w-auto h-auto object-contain drop-shadow-2xl animate-float"
+          class="max-w-[90%] max-h-[70%] w-auto h-auto object-contain"
         />
         <div class="mt-12 text-center max-w-md">
-          <h2 class="text-2xl font-bold text-slate-800 dark:text-slate-100">Efisiensi Dalam Genggaman</h2>
-          <p class="mt-4 text-slate-500 dark:text-slate-400">Kreavoks HRIS membantu HR dan karyawan berkolaborasi dalam satu platform yang terintegrasi dan modern.</p>
+          <h2 class="text-2xl font-medium text-[#131313] dark:text-slate-100">Efisiensi Dalam Genggaman</h2>
+          <p class="mt-4 text-slate-400">Kreavoks HRIS membantu HR dan karyawan berkolaborasi dalam satu platform yang terintegrasi dan modern.</p>
         </div>
       </div>
     </div>

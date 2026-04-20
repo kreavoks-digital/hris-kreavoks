@@ -17,10 +17,10 @@ const delegatedProps = reactiveOmit(props, "toastOptions", "position")
     :visible-toasts="5"
     :toast-options="{
       classes: {
-        toast: '!flex !items-center !gap-4 !w-80 !bg-white/90 dark:!bg-slate-950/90 !backdrop-blur-xl !border !border-slate-200/50 dark:!border-slate-800/50 !p-3.5 !rounded-3xl !shadow-2xl !min-h-0 transition-all duration-500',
+        toast: '!flex !items-center !gap-4 !w-80 !bg-white/90 dark:!bg-slate-950/90 !backdrop-blur-xl !border !border-slate-200/50 dark:!border-slate-800/50 !p-3.5 !rounded-3xl !min-h-0 transition-all duration-500',
         content: '!flex !flex-col !gap-0.5',
         title: '!text-sm !font-semibold !text-slate-900 dark:!text-slate-100 !leading-tight',
-        description: '!text-xs !text-slate-500 dark:!text-slate-400 !font-medium !leading-tight',
+        description: '!text-sm !text-slate-500 dark:!text-slate-400 !font-medium !leading-tight',
         closeButton: '!hidden',
       },
     }"

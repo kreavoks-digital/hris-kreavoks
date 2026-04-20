@@ -3,13 +3,13 @@
     <!-- Header Section -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Payroll Karyawan</h1>
+        <h1 class="text-3xl font-semibold text-kv-black">Payroll Karyawan</h1>
         <p class="text-slate-500 mt-1 text-sm">Kelola penggajian, tunjangan, dan potongan bulanan.</p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 bg-white p-1 rounded-lg border shadow-sm">
+        <div class="flex items-center gap-2 bg-white p-1 rounded-3xl border border-slate-100">
           <Select v-model="selectedMonth">
-            <SelectTrigger class="w-[130px] border-none shadow-none focus:ring-0">
+            <SelectTrigger class="w-[130px] border-none shadow-none focus:ring-0 rounded-3xl">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -20,7 +20,7 @@
           </Select>
           <div class="h-4 w-px bg-slate-200"></div>
           <Select v-model="selectedYear">
-            <SelectTrigger class="w-[100px] border-none shadow-none focus:ring-0">
+            <SelectTrigger class="w-[100px] border-none shadow-none focus:ring-0 rounded-3xl">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -30,7 +30,7 @@
             </SelectContent>
           </Select>
         </div>
-        <Button class="gap-2 shadow-sm" @click="processPayroll">
+        <Button class="gap-2 rounded-3xl font-semibold" @click="processPayroll">
           <Coins class="h-4 w-4" />
           Proses Payroll
         </Button>
@@ -39,108 +39,105 @@
 
     <!-- Summary Statistics -->
     <div class="grid gap-6 md:grid-cols-3">
-      <Card class="border-none shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
+      <Card class="border border-slate-100 rounded-3xl overflow-hidden relative">
         <CardContent class="p-6">
           <div class="flex items-center gap-4">
-            <div class="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm border border-emerald-100">
+            <div class="h-12 w-12 rounded-2xl bg-kv-primary/10 flex items-center justify-center text-kv-primary border border-kv-primary/20">
               <Wallet class="h-6 w-6" />
             </div>
             <div>
-              <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">Total Gaji Pokok</p>
-              <h3 class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ formatCurrency(summary.totalSalary) }}</h3>
+              <p class="text-sm font-semibold text-slate-400">Total Gaji Pokok</p>
+              <h3 class="text-2xl font-semibold text-kv-black leading-tight">Rp {{ formatCurrency(summary.totalSalary) }}</h3>
             </div>
           </div>
         </CardContent>
-        <div class="absolute bottom-0 left-0 w-full h-1 bg-emerald-500/20"></div>
       </Card>
 
-      <Card class="border-none shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
+      <Card class="border border-slate-100 rounded-3xl overflow-hidden relative">
         <CardContent class="p-6">
           <div class="flex items-center gap-4">
-            <div class="h-12 w-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform shadow-sm border border-rose-100">
+            <div class="h-12 w-12 rounded-2xl bg-rose-500/10 flex items-center justify-center text-rose-600 border border-rose-100">
               <ArrowDownCircle class="h-6 w-6" />
             </div>
             <div>
-              <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">Total Potongan</p>
-              <h3 class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ formatCurrency(summary.totalDeduction) }}</h3>
+              <p class="text-sm font-semibold text-slate-400">Total Potongan</p>
+              <h3 class="text-2xl font-semibold text-kv-black leading-tight">Rp {{ formatCurrency(summary.totalDeduction) }}</h3>
             </div>
           </div>
         </CardContent>
-        <div class="absolute bottom-0 left-0 w-full h-1 bg-rose-500/20"></div>
       </Card>
 
-      <Card class="border-none shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
+      <Card class="border border-slate-100 rounded-3xl overflow-hidden relative">
         <CardContent class="p-6">
           <div class="flex items-center gap-4">
-            <div class="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform shadow-sm border border-blue-100">
+            <div class="h-12 w-12 rounded-2xl bg-kv-primary/10 flex items-center justify-center text-kv-primary border border-kv-primary/20">
               <Banknote class="h-6 w-6" />
             </div>
             <div>
-              <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">Total Dibayarkan</p>
-              <h3 class="text-2xl font-bold text-blue-600 leading-tight">Rp {{ formatCurrency(summary.totalPaid) }}</h3>
+              <p class="text-sm font-semibold text-slate-400">Total Dibayarkan</p>
+              <h3 class="text-2xl font-semibold text-kv-primary leading-tight">Rp {{ formatCurrency(summary.totalPaid) }}</h3>
             </div>
           </div>
         </CardContent>
-        <div class="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></div>
       </Card>
     </div>
 
-    <!-- Filters and Table -->
-    <Card class="border-none shadow-md overflow-hidden">
-      <CardHeader class="pb-4">
-        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div class="relative w-full sm:max-w-sm">
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-10 bg-white" />
-          </div>
-          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-            <Select v-model="filterDepartment">
-              <SelectTrigger class="w-[160px] bg-white">
-                <SelectValue placeholder="Departemen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Semua Dep.</SelectItem>
-                <SelectItem value="IT">IT</SelectItem>
-                <SelectItem value="HR">HR</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Marketing">Marketing</SelectItem>
-              </SelectContent>
-            </Select>
+    <!-- Filters Section -->
+    <div class="flex flex-col md:flex-row gap-4 mb-2">
+      <div class="relative flex-1">
+        <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12" />
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <Select v-model="filterDepartment">
+          <SelectTrigger class="w-[180px] bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12 px-5">
+            <SelectValue placeholder="Departemen" />
+          </SelectTrigger>
+          <SelectContent class="rounded-2xl border-slate-100">
+            <SelectItem value="none">Semua Dep.</SelectItem>
+            <SelectItem value="IT">IT</SelectItem>
+            <SelectItem value="HR">HR</SelectItem>
+            <SelectItem value="Finance">Finance</SelectItem>
+            <SelectItem value="Marketing">Marketing</SelectItem>
+          </SelectContent>
+        </Select>
 
-            <Select v-model="filterStatus">
-              <SelectTrigger class="w-[140px] bg-white">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Semua Status</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="processed">Diproses</SelectItem>
-                <SelectItem value="paid">Dibayar</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </CardHeader>
+        <Select v-model="filterStatus">
+          <SelectTrigger class="w-[150px] bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12 px-5">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent class="rounded-2xl border-slate-100">
+            <SelectItem value="none">Semua Status</SelectItem>
+            <SelectItem value="pending">Pending</SelectItem>
+            <SelectItem value="processed">Diproses</SelectItem>
+            <SelectItem value="paid">Dibayar</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <Card class="border border-slate-100 overflow-hidden rounded-3xl mt-4">
 
       <div class="relative overflow-x-auto">
         <Table>
-          <TableHeader class="bg-slate-50/50">
+          <TableHeader>
             <TableRow>
-              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Karyawan</TableHead>
-              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Gaji Pokok</TableHead>
-              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider text-emerald-600">Tunjangan</TableHead>
-              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider text-rose-600">Potongan</TableHead>
-              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider text-slate-900 border-l border-slate-100 pl-4">Thp (Take Home Pay)</TableHead>
-              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Status</TableHead>
-              <TableHead class="text-right px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Aksi</TableHead>
+              <TableHead>Karyawan</TableHead>
+              <TableHead>Gaji Pokok</TableHead>
+              <TableHead>Tunjangan</TableHead>
+              <TableHead>Potongan</TableHead>
+              <TableHead class="border-l border-slate-100 pl-4">Thp (Take Home Pay)</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead class="text-right">Aksi</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="payroll in filteredPayroll" :key="payroll.id" class="hover:bg-slate-50/30 transition-colors group">
+            <TableRow v-for="payroll in filteredPayroll" :key="payroll.id" class="hover:bg-slate-50/30 transition-colors">
               <TableCell>
                 <div class="flex flex-col">
-                  <span class="font-semibold text-slate-900">{{ payroll.employeeName }}</span>
-                  <span class="text-[10px] text-slate-400 uppercase font-mono tracking-tight">{{ payroll.nik }} • {{ payroll.department }}</span>
+                  <span class="font-semibold text-kv-black">{{ payroll.employeeName }}</span>
+                  <span class="text-sm text-slate-400">{{ payroll.nik }} • {{ payroll.department }}</span>
                 </div>
               </TableCell>
               <TableCell class="text-sm font-medium">Rp {{ formatCurrency(payroll.basicSalary) }}</TableCell>
@@ -150,13 +147,18 @@
               <TableCell>
                 <Badge 
                   :variant="getStatusVariant(payroll.status)"
-                  class="capitalize text-[10px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full"
+                  class="text-sm font-semibold px-3 py-1 rounded-3xl border-none"
+                  :class="{
+                    'bg-emerald-500/10 text-emerald-600': payroll.status === 'paid',
+                    'bg-blue-500/10 text-blue-600': payroll.status === 'processed',
+                    'bg-slate-100 text-slate-500': payroll.status === 'pending'
+                  }"
                 >
                   {{ getStatusLabel(payroll.status) }}
                 </Badge>
               </TableCell>
-              <TableCell class="text-right px-6">
-                <Button variant="outline" size="sm" class="h-8 gap-1.5 text-xs font-semibold hover:bg-slate-50 border-slate-200" @click="viewSlip(payroll.id)">
+              <TableCell class="text-right">
+                <Button variant="outline" size="sm" class="h-8 gap-1.5 text-sm font-semibold hover:bg-slate-50 border-slate-100 rounded-3xl" @click="viewSlip(payroll.id)">
                   <FileText class="h-3.5 w-3.5" />
                   Slip
                 </Button>
@@ -280,12 +282,7 @@ const viewSlip = (payrollId: string) => {
 };
 
 const getStatusVariant = (status: string) => {
-  switch (status) {
-    case 'pending': return 'secondary'
-    case 'processed': return 'outline'
-    case 'paid': return 'default'
-    default: return 'outline'
-  }
+  return 'secondary'
 }
 
 onMounted(() => {
