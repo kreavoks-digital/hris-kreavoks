@@ -127,7 +127,7 @@ import {
 } from 'lucide-vue-next'
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { cutiApi } from '../api/cuti.api'
+import { cutiApi } from './api/cuti.api'
 import type { LeaveRecord } from '~/types'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'

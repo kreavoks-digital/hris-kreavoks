@@ -30,6 +30,7 @@
     "vue-sonner": "^2.0.9"
   },
   "devDependencies": {
+    "@radix-icons/vue": "^1.0.0",
     "@types/node": "^20.19.25",
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
