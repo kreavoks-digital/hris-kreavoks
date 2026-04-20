@@ -1,108 +1,233 @@
 <template>
-  <div class="payroll-page">
-    <div class="page-header">
-      <h1>Payroll</h1>
-      <div class="header-actions">
-        <select v-model="selectedMonth" class="month-select">
-          <option v-for="month in months" :key="month.value" :value="month.value">
-            {{ month.label }}
-          </option>
-        </select>
-        <select v-model="selectedYear" class="year-select">
-          <option v-for="year in years" :key="year" :value="year">
-            {{ year }}
-          </option>
-        </select>
-        <button @click="processPayroll" class="btn-primary">💰 Proses Payroll</button>
+  <div class="space-y-8 animate-in fade-in duration-500">
+    <!-- Header Section -->
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-3xl font-semibold tracking-tight text-slate-900">Payroll Karyawan</h1>
+        <p class="text-slate-500 mt-1 text-sm">Kelola penggajian, tunjangan, dan potongan bulanan.</p>
+      </div>
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2 bg-white p-1 rounded-lg border shadow-sm">
+          <Select v-model="selectedMonth">
+            <SelectTrigger class="w-[130px] border-none shadow-none focus:ring-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="month in months" :key="month.value" :value="month.value">
+                {{ month.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <div class="h-4 w-px bg-slate-200"></div>
+          <Select v-model="selectedYear">
+            <SelectTrigger class="w-[100px] border-none shadow-none focus:ring-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem v-for="year in years" :key="year" :value="year">
+                {{ year }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button class="gap-2 shadow-sm" @click="processPayroll">
+          <Coins class="h-4 w-4" />
+          Proses Payroll
+        </Button>
       </div>
     </div>
 
-    <div class="payroll-summary">
-      <div class="summary-card">
-        <h3>Total Gaji</h3>
-        <p class="amount">Rp {{ formatCurrency(summary.totalSalary) }}</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Potongan</h3>
-        <p class="amount deduction">Rp {{ formatCurrency(summary.totalDeduction) }}</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Dibayarkan</h3>
-        <p class="amount paid">Rp {{ formatCurrency(summary.totalPaid) }}</p>
-      </div>
+    <!-- Summary Statistics -->
+    <div class="grid gap-6 md:grid-cols-3">
+      <Card class="border-none shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
+        <CardContent class="p-6">
+          <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform shadow-sm border border-emerald-100">
+              <Wallet class="h-6 w-6" />
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">Total Gaji Pokok</p>
+              <h3 class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ formatCurrency(summary.totalSalary) }}</h3>
+            </div>
+          </div>
+        </CardContent>
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-emerald-500/20"></div>
+      </Card>
+
+      <Card class="border-none shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
+        <CardContent class="p-6">
+          <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-600 group-hover:scale-110 transition-transform shadow-sm border border-rose-100">
+              <ArrowDownCircle class="h-6 w-6" />
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">Total Potongan</p>
+              <h3 class="text-2xl font-bold text-slate-900 leading-tight">Rp {{ formatCurrency(summary.totalDeduction) }}</h3>
+            </div>
+          </div>
+        </CardContent>
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-rose-500/20"></div>
+      </Card>
+
+      <Card class="border-none shadow-sm overflow-hidden relative group transition-all hover:shadow-md">
+        <CardContent class="p-6">
+          <div class="flex items-center gap-4">
+            <div class="h-12 w-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform shadow-sm border border-blue-100">
+              <Banknote class="h-6 w-6" />
+            </div>
+            <div>
+              <p class="text-xs font-medium text-slate-400 uppercase tracking-widest">Total Dibayarkan</p>
+              <h3 class="text-2xl font-bold text-blue-600 leading-tight">Rp {{ formatCurrency(summary.totalPaid) }}</h3>
+            </div>
+          </div>
+        </CardContent>
+        <div class="absolute bottom-0 left-0 w-full h-1 bg-blue-500"></div>
+      </Card>
     </div>
 
-    <div class="filters">
-      <input v-model="searchQuery" type="text" placeholder="Cari nama karyawan..." class="search-input" />
-      <select v-model="filterDepartment" class="filter-select">
-        <option value="">Semua Departemen</option>
-        <option value="IT">IT</option>
-        <option value="HR">HR</option>
-        <option value="Finance">Finance</option>
-        <option value="Marketing">Marketing</option>
-      </select>
-      <select v-model="filterStatus" class="filter-select">
-        <option value="">Semua Status</option>
-        <option value="pending">Pending</option>
-        <option value="processed">Diproses</option>
-        <option value="paid">Dibayar</option>
-      </select>
-    </div>
+    <!-- Filters and Table -->
+    <Card class="border-none shadow-md overflow-hidden">
+      <CardHeader class="pb-4">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div class="relative w-full sm:max-w-sm">
+            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-10 bg-white" />
+          </div>
+          <div class="flex flex-wrap gap-2 w-full sm:w-auto">
+            <Select v-model="filterDepartment">
+              <SelectTrigger class="w-[160px] bg-white">
+                <SelectValue placeholder="Departemen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Semua Dep.</SelectItem>
+                <SelectItem value="IT">IT</SelectItem>
+                <SelectItem value="HR">HR</SelectItem>
+                <SelectItem value="Finance">Finance</SelectItem>
+                <SelectItem value="Marketing">Marketing</SelectItem>
+              </SelectContent>
+            </Select>
 
-    <div class="table-container">
-      <table class="payroll-table">
-        <thead>
-          <tr>
-            <th>NIK</th>
-            <th>Nama</th>
-            <th>Departemen</th>
-            <th>Gaji Pokok</th>
-            <th>Tunjangan</th>
-            <th>Potongan</th>
-            <th>Total Gaji</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="payroll in filteredPayroll" :key="payroll.id">
-            <td>{{ payroll.nik }}</td>
-            <td>{{ payroll.employeeName }}</td>
-            <td>{{ payroll.department }}</td>
-            <td>Rp {{ formatCurrency(payroll.basicSalary) }}</td>
-            <td>Rp {{ formatCurrency(payroll.allowance) }}</td>
-            <td class="deduction">Rp {{ formatCurrency(payroll.deduction) }}</td>
-            <td class="total">Rp {{ formatCurrency(payroll.totalSalary) }}</td>
-            <td>
-              <span :class="['status-badge', payroll.status]">
-                {{ getStatusLabel(payroll.status) }}
-              </span>
-            </td>
-            <td>
-              <button @click="viewSlip(payroll.id)" class="btn-detail">📄 Slip Gaji</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            <Select v-model="filterStatus">
+              <SelectTrigger class="w-[140px] bg-white">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Semua Status</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="processed">Diproses</SelectItem>
+                <SelectItem value="paid">Dibayar</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </CardHeader>
+
+      <div class="relative overflow-x-auto">
+        <Table>
+          <TableHeader class="bg-slate-50/50">
+            <TableRow>
+              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Karyawan</TableHead>
+              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Gaji Pokok</TableHead>
+              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider text-emerald-600">Tunjangan</TableHead>
+              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider text-rose-600">Potongan</TableHead>
+              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider text-slate-900 border-l border-slate-100 pl-4">Thp (Take Home Pay)</TableHead>
+              <TableHead class="text-xs font-semibold uppercase text-slate-500 tracking-wider">Status</TableHead>
+              <TableHead class="text-right px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Aksi</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow v-for="payroll in filteredPayroll" :key="payroll.id" class="hover:bg-slate-50/30 transition-colors group">
+              <TableCell>
+                <div class="flex flex-col">
+                  <span class="font-semibold text-slate-900">{{ payroll.employeeName }}</span>
+                  <span class="text-[10px] text-slate-400 uppercase font-mono tracking-tight">{{ payroll.nik }} • {{ payroll.department }}</span>
+                </div>
+              </TableCell>
+              <TableCell class="text-sm font-medium">Rp {{ formatCurrency(payroll.basicSalary) }}</TableCell>
+              <TableCell class="text-sm font-semibold text-emerald-600">+ Rp {{ formatCurrency(payroll.allowance) }}</TableCell>
+              <TableCell class="text-sm font-semibold text-rose-600">- Rp {{ formatCurrency(payroll.deduction) }}</TableCell>
+              <TableCell class="text-sm font-semibold text-blue-600 border-l border-slate-100 pl-4">Rp {{ formatCurrency(payroll.totalSalary) }}</TableCell>
+              <TableCell>
+                <Badge 
+                  :variant="getStatusVariant(payroll.status)"
+                  class="capitalize text-[10px] font-semibold tracking-wide px-2.5 py-0.5 rounded-full"
+                >
+                  {{ getStatusLabel(payroll.status) }}
+                </Badge>
+              </TableCell>
+              <TableCell class="text-right px-6">
+                <Button variant="outline" size="sm" class="h-8 gap-1.5 text-xs font-semibold hover:bg-slate-50 border-slate-200" @click="viewSlip(payroll.id)">
+                  <FileText class="h-3.5 w-3.5" />
+                  Slip
+                </Button>
+              </TableCell>
+            </TableRow>
+
+            <TableRow v-if="filteredPayroll.length === 0">
+              <TableCell colspan="7" class="h-48 text-center text-slate-400">
+                <div class="flex flex-col items-center justify-center space-y-2">
+                  <BadgeCent class="h-10 w-10 opacity-20" />
+                  <p class="text-sm font-medium">Tidak ada data payroll pada periode ini</p>
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </div>
+    </Card>
   </div>
 </template>
 
 <script setup lang="ts">
+import { 
+  Coins, 
+  Wallet, 
+  Banknote, 
+  ArrowDownCircle, 
+  Search, 
+  FileText, 
+  BadgeCent
+} from 'lucide-vue-next'
+import { usePayroll } from './hooks/usePayroll'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
+import { Badge } from '~/components/ui/badge'
+import { 
+  Table, 
+  TableBody, 
+  TableCell, 
+  TableHead, 
+  TableHeader, 
+  TableRow 
+} from '~/components/ui/table'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
+import { toast } from 'vue-sonner'
+
 definePageMeta({
   layout: "default",
   middleware: "auth",
 });
 
-const currentYear = new Date().getFullYear();
-const currentMonth = new Date().getMonth() + 1;
+const {
+  selectedMonth,
+  selectedYear,
+  searchQuery,
+  filterStatus,
+  filteredPayrolls: filteredPayroll,
+  fetchPayroll,
+  formatCurrency,
+  getStatusLabel,
+  loading
+} = usePayroll()
 
-const selectedMonth = ref(currentMonth);
-const selectedYear = ref(currentYear);
-const searchQuery = ref("");
-const filterDepartment = ref("");
-const filterStatus = ref("");
-const payrollData = ref([]);
+const filterDepartment = ref("none");
 
 const months = [
   { value: 1, label: "Januari" },
@@ -119,6 +244,7 @@ const months = [
   { value: 12, label: "Desember" },
 ];
 
+const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
 const summary = ref({
@@ -127,70 +253,25 @@ const summary = ref({
   totalPaid: 0,
 });
 
-const filteredPayroll = computed(() => {
-  let result = payrollData.value;
+const processPayroll = async () => {
+  // Use a proper confirm or dialog ideally, but for now we'll stick to a simple flow
+  // In a real premium app, we'd use a Dialog component from Shadcn
+  const confirmed = confirm("Proses payroll untuk periode ini?");
+  if (!confirmed) return;
 
-  if (searchQuery.value) {
-    result = result.filter((p) => p.employeeName.toLowerCase().includes(searchQuery.value.toLowerCase()));
-  }
-
-  if (filterDepartment.value) {
-    result = result.filter((p) => p.department === filterDepartment.value);
-  }
-
-  if (filterStatus.value) {
-    result = result.filter((p) => p.status === filterStatus.value);
-  }
-
-  return result;
-});
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat("id-ID").format(amount);
-};
-
-const getStatusLabel = (status: string) => {
-  const labels: Record<string, string> = {
-    pending: "Pending",
-    processed: "Diproses",
-    paid: "Dibayar",
-  };
-  return labels[status] || status;
-};
-
-const fetchPayroll = async () => {
   try {
-    const { data } = await useFetch("/api/payroll", {
-      query: {
+    await $fetch("/api/payroll/process", {
+      method: "POST",
+      body: {
         month: selectedMonth.value,
         year: selectedYear.value,
       },
     });
-    if (data.value) {
-      payrollData.value = data.value.payroll;
-      summary.value = data.value.summary;
-    }
+    toast.success("Payroll berhasil diproses!");
+    fetchPayroll();
   } catch (error) {
-    console.error("Error fetching payroll:", error);
-  }
-};
-
-const processPayroll = async () => {
-  if (confirm("Proses payroll untuk periode ini?")) {
-    try {
-      await $fetch("/api/payroll/process", {
-        method: "POST",
-        body: {
-          month: selectedMonth.value,
-          year: selectedYear.value,
-        },
-      });
-      alert("Payroll berhasil diproses!");
-      fetchPayroll();
-    } catch (error) {
-      console.error("Error processing payroll:", error);
-      alert("Gagal memproses payroll");
-    }
+    console.error("Error processing payroll:", error);
+    toast.error("Gagal memproses payroll");
   }
 };
 
@@ -198,165 +279,16 @@ const viewSlip = (payrollId: string) => {
   navigateTo(`/payroll/slip/${payrollId}`);
 };
 
-watch([selectedMonth, selectedYear], () => {
-  fetchPayroll();
-});
+const getStatusVariant = (status: string) => {
+  switch (status) {
+    case 'pending': return 'secondary'
+    case 'processed': return 'outline'
+    case 'paid': return 'default'
+    default: return 'outline'
+  }
+}
 
 onMounted(() => {
   fetchPayroll();
 });
 </script>
-
-<style scoped>
-.payroll-page {
-  padding: 2rem;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.header-actions {
-  display: flex;
-  gap: 1rem;
-}
-
-.month-select,
-.year-select,
-.filter-select {
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-  background: white;
-}
-
-.payroll-summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.summary-card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.summary-card h3 {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-bottom: 0.5rem;
-}
-
-.amount {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #10b981;
-  margin: 0;
-}
-
-.amount.deduction {
-  color: #ef4444;
-}
-
-.amount.paid {
-  color: #3b82f6;
-}
-
-.filters {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.search-input {
-  flex: 1;
-  max-width: 400px;
-  padding: 0.75rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
-}
-
-.table-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow-x: auto;
-}
-
-.payroll-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.payroll-table th,
-.payroll-table td {
-  padding: 1rem;
-  text-align: left;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.payroll-table th {
-  background: #f9fafb;
-  font-weight: 600;
-  color: #374151;
-}
-
-.payroll-table td.deduction {
-  color: #ef4444;
-}
-
-.payroll-table td.total {
-  font-weight: 600;
-  color: #3b82f6;
-}
-
-.status-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.status-badge.pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.status-badge.processed {
-  background: #dbeafe;
-  color: #1e40af;
-}
-
-.status-badge.paid {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn-detail {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.875rem;
-  background: #dbeafe;
-  color: #1e40af;
-}
-</style>

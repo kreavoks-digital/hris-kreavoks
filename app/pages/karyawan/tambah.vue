@@ -1,45 +1,148 @@
 <template>
-  <div class="add-employee-page">
-    <div class="page-header">
-      <h1>Tambah Karyawan Baru</h1>
-      <button @click="navigateTo('/karyawan')" class="btn-secondary">← Kembali</button>
+  <div class="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <!-- Header Section -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <Button variant="ghost" size="icon" @click="navigateTo('/karyawan')" class="rounded-full h-10 w-10">
+          <ArrowLeft class="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 class="text-3xl font-bold tracking-tight">Tambah Karyawan</h1>
+          <p class="text-slate-500 text-sm">Lengkapi formulir di bawah untuk mendaftarkan karyawan baru.</p>
+        </div>
+      </div>
     </div>
 
-    <form @submit.prevent="submitForm" class="employee-form">
-      <div class="form-section">
-        <h2>Data Pribadi</h2>
-        <div class="form-grid">
-          <FormInput v-model="formData.nik" label="NIK" required placeholder="Nomor Induk Karyawan" />
-          <FormInput v-model="formData.name" label="Nama Lengkap" required placeholder="Nama lengkap karyawan" />
-          <FormInput v-model="formData.email" label="Email" type="email" required placeholder="email@example.com" />
-          <FormInput v-model="formData.phone" label="No. Telepon" required placeholder="08xxxxxxxxxx" />
-          <FormInput v-model="formData.birthDate" label="Tanggal Lahir" type="date" required />
-          <FormInput v-model="formData.address" label="Alamat" type="textarea" required />
-        </div>
-      </div>
+    <form @submit.prevent="submitForm" class="space-y-8">
+      <!-- Data Pribadi -->
+      <Card class="border-none shadow-md overflow-hidden bg-white/50 backdrop-blur-sm">
+        <CardHeader class="bg-slate-50/50 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <UserCircle class="h-5 w-5 text-primary" />
+            <CardTitle class="text-lg">Data Pribadi</CardTitle>
+          </div>
+          <CardDescription>Informasi identitas dan kontak personil karyawan.</CardDescription>
+        </CardHeader>
+        <CardContent class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <Label for="nik">NIK (Nomor Induk Karyawan)</Label>
+              <Input id="nik" v-model="formData.nik" required placeholder="Contoh: 2024001" />
+            </div>
+            <div class="space-y-2">
+              <Label for="name">Nama Lengkap</Label>
+              <Input id="name" v-model="formData.name" required placeholder="Nama lengkap sesuai KTP" />
+            </div>
+            <div class="space-y-2">
+              <Label for="email">Alamat Email</Label>
+              <Input id="email" v-model="formData.email" type="email" required placeholder="email@kreavoks.com" />
+            </div>
+            <div class="space-y-2">
+              <Label for="phone">No. Telepon / WhatsApp</Label>
+              <Input id="phone" v-model="formData.phone" required placeholder="08xxxxxxxxxx" />
+            </div>
+            <div class="space-y-2">
+              <Label for="birthDate">Tanggal Lahir</Label>
+              <Input id="birthDate" v-model="formData.birthDate" type="date" required />
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <Label for="address">Alamat Domisili</Label>
+              <Input id="address" v-model="formData.address" required placeholder="Alamat lengkap saat ini" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div class="form-section">
-        <h2>Data Pekerjaan</h2>
-        <div class="form-grid">
-          <FormSelect v-model="formData.department" label="Departemen" :options="departments" required />
-          <FormInput v-model="formData.position" label="Posisi" required placeholder="Jabatan" />
-          <FormInput v-model="formData.joinDate" label="Tanggal Bergabung" type="date" required />
-          <FormSelect v-model="formData.employmentType" label="Jenis Kontrak" :options="employmentTypes" required />
-          <FormInput v-model="formData.salary" label="Gaji Pokok" type="number" required placeholder="0" />
-        </div>
-      </div>
+      <!-- Data Pekerjaan -->
+      <Card class="border-none shadow-md overflow-hidden bg-white/50 backdrop-blur-sm">
+        <CardHeader class="bg-slate-50/50 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <Briefcase class="h-5 w-5 text-primary" />
+            <CardTitle class="text-lg">Data Pekerjaan</CardTitle>
+          </div>
+          <CardDescription>Detail penempatan departemen dan status kepegawaian.</CardDescription>
+        </CardHeader>
+        <CardContent class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="space-y-2">
+              <Label for="department">Departemen</Label>
+              <Select v-model="formData.department">
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Departemen" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="dept in departments" :key="dept.value" :value="dept.value">
+                    {{ dept.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div class="space-y-2">
+              <Label for="position">Jabatan / Posisi</Label>
+              <Input id="position" v-model="formData.position" required placeholder="Jabatan spesifik" />
+            </div>
+            <div class="space-y-2">
+              <Label for="joinDate">Tanggal Bergabung</Label>
+              <Input id="joinDate" v-model="formData.joinDate" type="date" required />
+            </div>
+            <div class="space-y-2">
+              <Label for="employmentType">Jenis Kontrak</Label>
+              <Select v-model="formData.employmentType">
+                <SelectTrigger>
+                  <SelectValue placeholder="Pilih Jenis Kontrak" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="type in employmentTypes" :key="type.value" :value="type.value">
+                    {{ type.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div class="space-y-2">
+              <Label for="salary">Gaji Pokok (IDR)</Label>
+              <div class="relative">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">Rp</span>
+                <Input id="salary" v-model="formData.salary" type="number" required class="pl-10" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div class="form-actions">
-        <button type="button" @click="navigateTo('/karyawan')" class="btn-secondary">Batal</button>
-        <button type="submit" class="btn-primary" :disabled="loading">
+      <!-- Form Actions -->
+      <div class="flex items-center justify-end gap-4 p-4">
+        <Button type="button" variant="ghost" @click="navigateTo('/karyawan')">Batal</Button>
+        <Button type="submit" class="w-full sm:w-48 gap-2 shadow-lg shadow-primary/20" :disabled="loading">
+          <Save v-if="!loading" class="h-4 w-4" />
+          <RefreshCw v-else class="h-4 w-4 animate-spin" />
           {{ loading ? "Menyimpan..." : "Simpan Data" }}
-        </button>
+        </Button>
       </div>
     </form>
   </div>
 </template>
 
 <script setup lang="ts">
+import { 
+  ArrowLeft, 
+  Save, 
+  RefreshCw, 
+  UserCircle, 
+  Briefcase 
+} from 'lucide-vue-next'
+import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
+import { Label } from '~/components/ui/label'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
+import { toast } from 'vue-sonner'
+
 definePageMeta({
   layout: "default",
   middleware: "auth",
@@ -62,115 +165,44 @@ const formData = ref({
 });
 
 const departments = [
-  { value: "IT", label: "IT" },
-  { value: "HR", label: "HR" },
-  { value: "Finance", label: "Finance" },
-  { value: "Marketing", label: "Marketing" },
+  { value: "IT", label: "Information Technology" },
+  { value: "HR", label: "Human Resources" },
+  { value: "Finance", label: "Finance & Accounting" },
+  { value: "Marketing", label: "Marketing & Sales" },
   { value: "Operations", label: "Operations" },
 ];
 
 const employmentTypes = [
-  { value: "permanent", label: "Tetap" },
-  { value: "contract", label: "Kontrak" },
-  { value: "intern", label: "Magang" },
+  { value: "permanent", label: "Karyawan Tetap" },
+  { value: "contract", label: "Karyawan Kontrak" },
+  { value: "intern", label: "Magang / Internship" },
 ];
 
 const submitForm = async () => {
+  if (!formData.value.department || !formData.value.employmentType) {
+    toast.warning("Peringatan", {
+      description: "Mohon pilih departemen dan jenis kontrak"
+    })
+    return
+  }
+
   loading.value = true;
   try {
     await $fetch("/api/employees", {
       method: "POST",
       body: formData.value,
     });
-    alert("Karyawan berhasil ditambahkan!");
+    toast.success("Berhasil", {
+      description: `Karyawan ${formData.value.name} berhasil ditambahkan!`
+    });
     navigateTo("/karyawan");
   } catch (error) {
     console.error("Error adding employee:", error);
-    alert("Gagal menambahkan karyawan");
+    toast.error("Gagal", {
+      description: "Terjadi kesalahan saat menambahkan karyawan"
+    });
   } finally {
     loading.value = false;
   }
 };
 </script>
-
-<style scoped>
-.add-employee-page {
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.page-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-}
-
-.employee-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.form-section {
-  margin-bottom: 2rem;
-}
-
-.form-section h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: #374151;
-  border-bottom: 2px solid #e5e7eb;
-  padding-bottom: 0.5rem;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid #e5e7eb;
-}
-
-.btn-primary,
-.btn-secondary {
-  padding: 0.75rem 2rem;
-  border-radius: 4px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-}
-
-.btn-primary {
-  background: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2563eb;
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.btn-secondary:hover {
-  background: #d1d5db;
-}
-</style>
