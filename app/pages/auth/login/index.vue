@@ -1,14 +1,14 @@
 <template>
-  <div class="min-h-screen flex bg-slate-50 dark:bg-slate-950 font-sans">
+  <div class="h-screen flex bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden lg:overflow-hidden">
     <!-- Left Side: Form -->
     <div
-      class="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-10"
+      class="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-6 md:py-10"
     >
-      <div class="mb-10 flex flex-col items-center">
+      <div class="mb-8 flex flex-col items-center">
         <img
           src="/images/logo/logo.png"
           alt="Kreavoks Logo"
-          class="w-40 h-auto object-contain mb-6"
+          class="w-32 md:w-40 h-auto object-contain mb-6"
         />
         <div class="text-center">
           <h1 class="text-2xl font-medium text-[#131313] dark:text-slate-50">
@@ -100,15 +100,15 @@
       <div class="absolute top-[-10%] right-[-10%] w-80 h-80 bg-blue-400/10 rounded-full blur-3xl"></div>
       <div class="absolute bottom-[-10%] left-[-10%] w-80 h-80 bg-indigo-400/10 rounded-full blur-3xl"></div>
 
-      <div class="relative z-10 w-full h-full flex flex-col items-center justify-center scale-110">
+      <div class="relative z-10 w-full h-full flex flex-col items-center justify-center">
         <img
           src="/images/login/computer-login.png"
           alt="Illustration"
-          class="max-w-[90%] max-h-[70%] w-auto h-auto object-contain"
+          class="max-w-[85%] max-h-[65%] w-auto h-auto object-contain"
         />
-        <div class="mt-12 text-center max-w-md">
+        <div class="mt-8 text-center max-w-sm">
           <h2 class="text-2xl font-medium text-[#131313] dark:text-slate-100">Efisiensi Dalam Genggaman</h2>
-          <p class="mt-4 text-slate-400">Kreavoks HRIS membantu HR dan karyawan berkolaborasi dalam satu platform yang terintegrasi dan modern.</p>
+          <p class="mt-3 text-slate-400 text-sm">Kreavoks HRIS membantu HR dan karyawan berkolaborasi dalam satu platform yang terintegrasi dan modern.</p>
         </div>
       </div>
     </div>
