@@ -1,8 +1,10 @@
 export const useApi = () => {
   const { accessToken, refreshAccessToken, logout } = useAuth()
+  const config = useRuntimeConfig()
+  const apiUrl = config.public.apiUrl || API_BASE_URL
   
   const customFetch = $fetch.create({
-    baseURL: API_BASE_URL,
+    baseURL: apiUrl,
     async onRequest({ options }) {
       if (accessToken.value) {
         const headers = options.headers || {}

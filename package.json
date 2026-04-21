@@ -7,15 +7,7 @@
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "nuxt prepare",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed",
-    "prisma:studio": "prisma studio",
-    "db:reset": "prisma migrate reset"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "postinstall": "nuxt prepare"
   },
   "dependencies": {
     "@nuxtjs/google-fonts": "^3.2.0",

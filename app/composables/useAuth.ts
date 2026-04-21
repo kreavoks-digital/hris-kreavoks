@@ -1,4 +1,7 @@
 export const useAuth = () => {
+  const config = useRuntimeConfig()
+  const apiUrl = config.public.apiUrl || API_BASE_URL
+  
   const accessToken = useState<string | null>('auth_access_token', () => null)
   const refreshToken = useState<string | null>('auth_refresh_token', () => null)
   const user = useState<any | null>('auth_user', () => null)
@@ -31,7 +34,7 @@ export const useAuth = () => {
     if (!accessToken.value) return
 
     try {
-      const res = await $fetch<{ data: any }>(`${API_BASE_URL}/profile/me`, {
+      const res = await $fetch<{ data: any }>(`${apiUrl}/profile/me`, {
         headers: {
           Authorization: `Bearer ${accessToken.value}`,
         },
@@ -47,7 +50,7 @@ export const useAuth = () => {
     if (!refreshToken.value) throw new Error('No refresh token available')
 
     try {
-      const res = await $fetch<any>(`${API_BASE_URL}/auth/refresh-token`, {
+      const res = await $fetch<any>(`${apiUrl}/auth/refresh-token`, {
         method: 'POST',
         body: { refreshToken: refreshToken.value }
       })
