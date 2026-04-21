@@ -1,0 +1,1 @@
+import{aL as o,a0 as i,aM as l,n as t}from"./BvfFV1Xx.js";const f=o(async e=>{let u,s;const{accessToken:a,user:r,loadAuth:n,fetchUser:h}=i();if(n(),a.value&&!r.value)try{[u,s]=l(()=>h()),await u,s()}catch{return t("/auth/login")}if(!a.value&&!e.path.startsWith("/auth/"))return t("/auth/login");if(a.value&&e.path==="/auth/login")return t("/dashboard")});export{f as default};

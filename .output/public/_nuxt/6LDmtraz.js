@@ -1,0 +1,1 @@
+import{u as e}from"./DHVdSOwd.js";import"./BvfFV1Xx.js";const n={getLeaves:async()=>await e()("/leaves"),getLeaveById:async a=>await e()(`/leaves/${a}`),createLeave:async a=>await e()("/leaves",{method:"POST",body:a}),cancelLeave:async a=>await e()(`/leaves/${a}`,{method:"DELETE"})};export{n as cutiApi};
