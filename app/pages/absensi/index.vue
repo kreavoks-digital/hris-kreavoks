@@ -7,8 +7,8 @@
         <p class="text-slate-400 mt-1 text-sm">Monitor kehadiran dan logs harian seluruh karyawan.</p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <Input v-model="selectedDate" type="date" class="w-48 bg-white rounded-3xl h-10 px-4 border-slate-200" />
-        <Button variant="outline" class="gap-2 rounded-3xl h-10 border-slate-200 text-slate-600 hover:bg-slate-50" @click="exportAttendance">
+        <Input v-model="selectedDate" type="date" class="w-48 bg-white px-4 border-slate-200" />
+        <Button variant="outline" class="gap-2 border-slate-200 text-slate-600 hover:bg-slate-50" @click="exportAttendance">
           <Download class="h-4 w-4" />
           Export CSV
         </Button>
@@ -34,7 +34,7 @@
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
         <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-white rounded-3xl h-12 border-slate-100 shadow-sm shadow-slate-100/50" />
+        <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
       </div>
       <div class="w-full sm:w-64">
         <Select v-model="filterStatus">

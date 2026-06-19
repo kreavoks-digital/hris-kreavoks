@@ -30,7 +30,7 @@
             </SelectContent>
           </Select>
         </div>
-        <Button class="gap-2 rounded-3xl font-semibold" @click="processPayroll">
+        <Button class="gap-2 font-semibold" @click="processPayroll">
           <Coins class="h-4 w-4" />
           Proses Payroll
         </Button>
@@ -86,7 +86,7 @@
     <div class="flex flex-col md:flex-row gap-4 mb-2">
       <div class="relative flex-1">
         <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12" />
+        <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
       </div>
       <div class="flex flex-wrap items-center gap-3">
         <Select v-model="filterDepartment">
@@ -158,7 +158,7 @@
                 </Badge>
               </TableCell>
               <TableCell class="text-right">
-                <Button variant="outline" size="sm" class="h-8 gap-1.5 text-sm font-semibold hover:bg-slate-50 border-slate-100 rounded-3xl" @click="viewSlip(payroll.id)">
+                <Button variant="outline" size="sm" class="h-8 gap-1.5 text-sm font-semibold hover:bg-slate-50 border-slate-100" @click="viewSlip(payroll.id)">
                   <FileText class="h-3.5 w-3.5" />
                   Slip
                 </Button>

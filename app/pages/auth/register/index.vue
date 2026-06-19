@@ -30,7 +30,7 @@
                 v-model="form.name"
                 type="text"
                 placeholder="Masukkan nama Anda"
-                class="pl-10 h-11 rounded-3xl"
+                class="pl-10"
                 required
               />
             </div>
@@ -45,7 +45,7 @@
                 v-model="form.email"
                 type="email"
                 placeholder="nama@perusahaan.com"
-                class="pl-10 h-11 rounded-3xl"
+                class="pl-10"
                 required
               />
             </div>
@@ -60,7 +60,7 @@
                 v-model="form.password"
                 :type="showPassword ? 'text' : 'password'"
                 placeholder="Buat password minimal 8 karakter"
-                class="pl-10 pr-10 h-11 rounded-3xl"
+                class="pl-10 pr-10"
                 required
               />
               <button
@@ -86,7 +86,7 @@
 
            <Button
             type="submit"
-            class="w-full h-11 text-base font-semibold rounded-3xl"
+            class="w-full text-base font-semibold"
             :disabled="loading"
           >
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />

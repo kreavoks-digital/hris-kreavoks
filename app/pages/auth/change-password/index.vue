@@ -26,7 +26,7 @@
                 v-model="form.oldPassword"
                 :type="showOldPassword ? 'text' : 'password'"
                 placeholder="Password saat ini"
-                class="pl-10 pr-10 h-11"
+                class="pl-10 pr-10"
                 required
               />
               <button
@@ -51,7 +51,7 @@
                 v-model="form.newPassword"
                 :type="showNewPassword ? 'text' : 'password'"
                 placeholder="Minimal 8 karakter"
-                class="pl-10 pr-10 h-11"
+                class="pl-10 pr-10"
                 required
               />
               <button
@@ -74,7 +74,7 @@
                 v-model="form.confirmPassword"
                 :type="showConfirmPassword ? 'text' : 'password'"
                 placeholder="Ulangi password baru"
-                class="pl-10 pr-10 h-11"
+                class="pl-10 pr-10"
                 required
               />
               <button
@@ -93,7 +93,7 @@
 
           <Button
             type="submit"
-            class="w-full h-11 font-semibold transition-all"
+            class="w-full font-semibold transition-all"
             :disabled="loading || form.newPassword !== form.confirmPassword || !form.newPassword"
           >
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />

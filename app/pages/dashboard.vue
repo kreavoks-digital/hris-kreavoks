@@ -12,7 +12,7 @@
           <p class="text-sm text-slate-400">{{ currentDate }}</p>
         </div>
         <Separator orientation="vertical" class="h-8 hidden sm:block" />
-        <Button variant="outline" size="sm" class="gap-2 rounded-3xl border-slate-200 text-slate-600">
+        <Button variant="outline" size="sm" class="gap-2 border-slate-200 text-slate-600">
           <Download class="h-4 w-4 text-kv-primary" />
           Ekspor Laporan
         </Button>
@@ -153,7 +153,7 @@
               </div>
             </div>
           </div>
-          <Button variant="ghost" class="w-full mt-6 text-sm text-kv-primary hover:bg-kv-primary/5 rounded-3xl">
+          <Button variant="ghost" class="w-full mt-6 text-sm text-kv-primary hover:bg-kv-primary/5">
             Lihat Semua Aktivitas
           </Button>
         </CardContent>

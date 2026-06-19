@@ -6,7 +6,7 @@
         <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">Manajemen Cuti</h1>
         <p class="text-slate-500 mt-1 text-sm">Kelola pengajuan, riwayat, dan sisa jatah cuti Anda.</p>
       </div>
-      <Button @click="navigateTo('/cuti/ajukan')" class="gap-2 rounded-3xl h-10">
+      <Button @click="navigateTo('/cuti/ajukan')" class="gap-2">
         <PlusCircle class="h-4 w-4" />
         Ajukan Cuti
       </Button>

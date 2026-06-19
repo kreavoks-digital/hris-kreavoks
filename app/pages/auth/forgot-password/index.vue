@@ -36,7 +36,7 @@
                   v-model="email"
                   type="email"
                   placeholder="nama@perusahaan.com"
-                  class="pl-10 h-12 rounded-3xl"
+                  class="pl-10"
                   required
                 />
               </div>
@@ -49,7 +49,7 @@
 
              <Button
               type="submit"
-              class="w-full h-12 text-base font-semibold rounded-3xl"
+              class="w-full text-base font-semibold"
               :disabled="loading"
             >
               <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />

@@ -29,7 +29,7 @@
                   v-model="password"
                   :type="showPassword ? 'text' : 'password'"
                   placeholder="Password baru"
-                  class="pl-10 pr-10 h-12"
+                  class="pl-10 pr-10"
                   required
                 />
                 <button
@@ -52,7 +52,7 @@
                   v-model="confirmPassword"
                   :type="showConfirmPassword ? 'text' : 'password'"
                   placeholder="Ulangi password baru"
-                  class="pl-10 pr-10 h-12"
+                  class="pl-10 pr-10"
                   required
                 />
                 <button
@@ -71,7 +71,7 @@
 
             <Button
               type="submit"
-              class="w-full h-12 text-base font-semibold"
+              class="w-full text-base font-semibold"
               :disabled="loading || password !== confirmPassword || !password"
             >
               <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />

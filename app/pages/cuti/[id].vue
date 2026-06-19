@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" @click="navigateTo('/cuti')" class="rounded-3xl text-slate-500">
+        <Button variant="ghost" size="icon" @click="navigateTo('/cuti')" class="text-slate-500">
           <ChevronLeft class="h-5 w-5" />
         </Button>
         <div>
@@ -90,7 +90,7 @@
 
       <!-- Action Buttons -->
       <div v-if="leave.status === 'pending'" class="flex gap-4">
-        <Button variant="outline" class="flex-1 h-12 rounded-3xl border-rose-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600 font-semibold transition-colors" @click="handleCancel">
+        <Button variant="outline" class="flex-1 border-rose-100 text-rose-500 hover:bg-rose-50 hover:text-rose-600 font-semibold transition-colors" @click="handleCancel">
           <XCircle class="h-4 w-4 mr-2" />
           Batalkan Pengajuan
         </Button>

@@ -2,7 +2,7 @@
   <div class="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
     <!-- Header -->
     <div class="flex items-center gap-4">
-      <Button variant="ghost" size="icon" @click="navigateTo('/cuti')" class="rounded-3xl">
+      <Button variant="ghost" size="icon" @click="navigateTo('/cuti')" class="">
         <ChevronLeft class="h-5 w-5" />
       </Button>
       <div>
@@ -52,7 +52,7 @@
                   type="date" 
                   v-model="form.startDate"
                   required
-                  class="rounded-3xl border-slate-200 h-11"
+                  class="border-slate-200"
                 />
               </div>
             </div>
@@ -66,7 +66,7 @@
                   type="date" 
                   v-model="form.endDate"
                   required
-                  class="rounded-3xl border-slate-200 h-11"
+                  class="border-slate-200"
                   :min="form.startDate"
                 />
               </div>
@@ -86,10 +86,10 @@
           </div>
 
           <div class="pt-4 flex flex-col-reverse sm:flex-row gap-3">
-            <Button type="button" variant="outline" class="flex-1 h-11 rounded-3xl border-slate-200 text-slate-600" @click="navigateTo('/cuti')">
+            <Button type="button" variant="outline" class="flex-1 border-slate-200 text-slate-600" @click="navigateTo('/cuti')">
               Batal
             </Button>
-            <Button type="submit" class="flex-1 h-11 rounded-3xl bg-kv-primary hover:bg-kv-primary/90" :disabled="loading">
+            <Button type="submit" class="flex-1 bg-kv-primary hover:bg-kv-primary/90" :disabled="loading">
               <template v-if="loading">
                 <Loader2 class="mr-2 h-4 w-4 animate-spin" />
                 Mengajukan...

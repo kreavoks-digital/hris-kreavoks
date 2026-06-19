@@ -3,7 +3,7 @@
     <!-- Header Section -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" @click="navigateTo('/karyawan')" class="rounded-full h-10 w-10 text-slate-400 hover:text-kv-black hover:bg-slate-100">
+        <Button variant="ghost" size="icon" @click="navigateTo('/karyawan')" class="rounded-full w-10 text-slate-400 hover:text-kv-black hover:bg-slate-100">
           <ArrowLeft class="h-5 w-5" />
         </Button>
         <div>
@@ -27,27 +27,27 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-2">
               <Label for="nik" class="text-slate-600 font-medium ml-1">NIK (Nomor Induk Karyawan)</Label>
-              <Input id="nik" v-model="formData.nik" required placeholder="Contoh: 2024001" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="nik" v-model="formData.nik" required placeholder="Contoh: 2024001" class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
               <Label for="name" class="text-slate-600 font-medium ml-1">Nama Lengkap</Label>
-              <Input id="name" v-model="formData.name" required placeholder="Nama lengkap sesuai KTP" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="name" v-model="formData.name" required placeholder="Nama lengkap sesuai KTP" class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
               <Label for="email" class="text-slate-600 font-medium ml-1">Alamat Email</Label>
-              <Input id="email" v-model="formData.email" type="email" required placeholder="email@kreavoks.com" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="email" v-model="formData.email" type="email" required placeholder="email@kreavoks.com" class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
               <Label for="phone" class="text-slate-600 font-medium ml-1">No. Telepon / WhatsApp</Label>
-              <Input id="phone" v-model="formData.phone" required placeholder="08xxxxxxxxxx" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="phone" v-model="formData.phone" required placeholder="08xxxxxxxxxx" class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
               <Label for="birthDate" class="text-slate-600 font-medium ml-1">Tanggal Lahir</Label>
-              <Input id="birthDate" v-model="formData.birthDate" type="date" required class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="birthDate" v-model="formData.birthDate" type="date" required class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2 md:col-span-2">
               <Label for="address" class="text-slate-600 font-medium ml-1">Alamat Domisili</Label>
-              <Input id="address" v-model="formData.address" required placeholder="Alamat lengkap saat ini" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="address" v-model="formData.address" required placeholder="Alamat lengkap saat ini" class="border-slate-200 focus:ring-kv-primary" />
             </div>
           </div>
         </CardContent>
@@ -79,11 +79,11 @@
             </div>
             <div class="space-y-2">
               <Label for="position" class="text-slate-600 font-medium ml-1">Jabatan / Posisi</Label>
-              <Input id="position" v-model="formData.position" required placeholder="Jabatan spesifik" class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="position" v-model="formData.position" required placeholder="Jabatan spesifik" class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
               <Label for="joinDate" class="text-slate-600 font-medium ml-1">Tanggal Bergabung</Label>
-              <Input id="joinDate" v-model="formData.joinDate" type="date" required class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary" />
+              <Input id="joinDate" v-model="formData.joinDate" type="date" required class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
               <Label for="employmentType" class="text-slate-600 font-medium ml-1">Jenis Kontrak</Label>
@@ -102,7 +102,7 @@
               <Label for="salary" class="text-slate-600 font-medium ml-1">Gaji Pokok (IDR)</Label>
               <div class="relative">
                 <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">Rp</span>
-                <Input id="salary" v-model="formData.salary" type="number" required class="rounded-3xl h-11 pl-12 border-slate-200 focus:ring-kv-primary" />
+                <Input id="salary" v-model="formData.salary" type="number" required class="pl-12 border-slate-200 focus:ring-kv-primary" />
               </div>
             </div>
           </div>
@@ -111,8 +111,8 @@
 
       <!-- Form Actions -->
       <div class="flex items-center justify-end gap-4 p-4">
-        <Button type="button" variant="ghost" class="rounded-3xl h-11 px-6 text-slate-500 hover:text-kv-black" @click="navigateTo('/karyawan')">Batal</Button>
-        <Button type="submit" class="w-full sm:w-48 gap-2 rounded-3xl h-11 bg-kv-primary hover:bg-kv-primary/90 text-white border-none" :disabled="loading">
+        <Button type="button" variant="ghost" class="px-6 text-slate-500 hover:text-kv-black" @click="navigateTo('/karyawan')">Batal</Button>
+        <Button type="submit" class="w-full sm:w-48 gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none" :disabled="loading">
           <Save v-if="!loading" class="h-4 w-4" />
           <RefreshCw v-else class="h-4 w-4 animate-spin" />
           {{ loading ? "Menyimpan..." : "Simpan Data" }}
@@ -188,7 +188,8 @@ const submitForm = async () => {
 
   loading.value = true;
   try {
-    await $fetch("/api/employees", {
+    const api = useApi();
+    await api("/users", {
       method: "POST",
       body: formData.value,
     });

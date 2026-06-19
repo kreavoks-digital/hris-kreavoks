@@ -6,7 +6,7 @@
         <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">Data Karyawan</h1>
         <p class="text-slate-400 mt-1 text-sm">Kelola informasi seluruh karyawan dalam satu tempat.</p>
       </div>
-      <Button @click="navigateTo('/karyawan/tambah')" class="gap-2 rounded-3xl bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
+      <Button @click="navigateTo('/karyawan/tambah')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
         <UserPlus class="h-4 w-4" />
         Tambah Karyawan
       </Button>
@@ -16,7 +16,7 @@
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
         <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input v-model="searchQuery" placeholder="Cari nama atau NIK..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12" />
+        <Input v-model="searchQuery" placeholder="Cari nama atau NIK..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
       </div>
       <div class="w-full sm:w-64">
         <Select v-model="filterDepartment">
@@ -33,7 +33,7 @@
           </SelectContent>
         </Select>
       </div>
-      <Button variant="outline" class="gap-2 rounded-3xl h-12 border-slate-100 bg-white shadow-sm shadow-slate-100/50 text-slate-600 hover:bg-slate-50 px-6" @click="fetchEmployees">
+      <Button variant="outline" class="gap-2 border-slate-100 bg-white shadow-sm shadow-slate-100/50 text-slate-600 hover:bg-slate-50 px-6" @click="fetchEmployees">
         <RefreshCw class="h-4 w-4 text-kv-primary" :class="{ 'animate-spin': loading }" />
         Reset
       </Button>
@@ -85,10 +85,10 @@
             </TableCell>
             <TableCell class="text-right">
               <div class="flex justify-end gap-2">
-                <Button variant="ghost" size="icon" @click="editEmployee(emp)" class="h-8 w-8 text-kv-primary hover:bg-kv-primary/10 rounded-2xl">
+                <Button variant="ghost" size="icon" @click="editEmployee(emp)" class="h-8 w-8 text-kv-primary hover:bg-kv-primary/10">
                   <Edit2 class="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-rose-500 hover:bg-rose-50 rounded-2xl">
+                <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-rose-500 hover:bg-rose-50">
                   <Trash2 class="h-4 w-4" />
                 </Button>
               </div>
@@ -165,7 +165,8 @@ const confirmDelete = async (employee: any) => {
   // In a real premium app, we'd use the Shadcn Dialog
   if (confirm(`Apakah Anda yakin ingin menghapus karyawan ${employee.name}?`)) {
     try {
-      await $fetch(`/api/employees/${employee.id}`, { method: "DELETE" });
+      const api = useApi();
+      await api(`/users/${employee.id}`, { method: "DELETE" });
       fetchEmployees();
     } catch (error) {
       console.error("Error deleting employee:", error);
