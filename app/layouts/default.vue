@@ -158,7 +158,8 @@ import {
   Menu,
   ChevronRight,
   UserCircle,
-  Search
+  Search,
+  Shield
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Separator } from '~/components/ui/separator'
@@ -184,6 +185,7 @@ const navigation = [
   { name: 'Absensi', to: '/absensi', icon: CheckCircle2 },
   { name: 'Cuti', to: '/cuti', icon: CalendarDays },
   { name: 'Payroll', to: '/payroll', icon: CircleDollarSign },
+  { name: 'RBAC', to: '/rbac', icon: Shield, permission: 'manage_roles' },
 ]
 
 const filteredNavigation = computed(() => {
