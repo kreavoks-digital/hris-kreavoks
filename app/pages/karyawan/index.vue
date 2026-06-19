@@ -16,7 +16,7 @@
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
         <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input v-model="searchQuery" placeholder="Cari nama atau NIK..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
+        <Input v-model="searchQuery" placeholder="Cari nama atau NPK..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
       </div>
       <div class="w-full sm:w-64">
         <Select v-model="filterDepartment">
@@ -45,7 +45,7 @@
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead class="w-[100px]">NIK</TableHead>
+            <TableHead class="w-[120px] whitespace-nowrap">NPK</TableHead>
             <TableHead>Karyawan</TableHead>
             <TableHead>Departemen</TableHead>
             <TableHead>Posisi</TableHead>
@@ -55,7 +55,7 @@
         </TableHeader>
         <TableBody>
           <TableRow v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-slate-50/50 transition-colors">
-            <TableCell class="font-medium text-slate-500">{{ emp.nik }}</TableCell>
+            <TableCell class="font-medium text-slate-500 whitespace-nowrap">{{ emp.npk || '-' }}</TableCell>
             <TableCell>
               <div class="flex items-center gap-3">
                 <Avatar class="h-9 w-9 border-2 border-white">
@@ -146,7 +146,7 @@ import {
 
 definePageMeta({
   layout: "default",
-  middleware: "auth",
+  middleware: ["auth", "admin"],
 });
 
 const {

@@ -4,6 +4,7 @@ export interface User {
   name: string;
   role?: string;
   avatar?: string;
+  permissions?: string[];
 }
 
 export interface AuthResponse {

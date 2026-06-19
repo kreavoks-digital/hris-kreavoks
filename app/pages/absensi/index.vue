@@ -58,64 +58,113 @@
       
       <div class="relative overflow-x-auto">
         <Table>
-          <TableHeader>
-            <TableRow class="hover:bg-transparent border-slate-100">
-              <TableHead>NIK</TableHead>
-              <TableHead>Karyawan</TableHead>
-              <TableHead>Departemen</TableHead>
-              <TableHead>Jam Masuk</TableHead>
-              <TableHead>Jam Keluar</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Keterangan</TableHead>
-            </TableRow>
-          </TableHeader>
           <TableBody>
-            <TableRow v-for="record in filteredAttendance" :key="record.id" class="hover:bg-slate-50/30 transition-colors border-slate-50">
-              <TableCell class="text-sm font-mono text-slate-400">{{ record.nik }}</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-3">
-                  <div class="h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center text-sm font-semibold text-kv-primary border border-slate-200/50">
-                    {{ record.employeeName.charAt(0) }}
+            <template v-for="(group, key) in groupedAttendance" :key="key">
+              <TableRow class="bg-slate-50/50 border-y border-slate-100" :class="{ 'cursor-pointer hover:bg-slate-100/50': canViewAll }" @click="canViewAll && toggleGroup(key as string)">
+                <TableCell :colspan="isAdmin ? 6 : 5" class="py-3">
+                  <div class="flex items-center gap-3">
+                    <ChevronRight v-if="canViewAll" :class="{'rotate-90': expandedGroups[key as string]}" class="h-4 w-4 text-slate-400 transition-transform" />
+                    <Avatar class="h-9 w-9 border-2 border-white">
+                      <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${(key as string).split(' - ')[1] || 'Unknown'}`" />
+                      <AvatarFallback>{{ (key as string).split(' - ')[1]?.charAt(0) || 'U' }}</AvatarFallback>
+                    </Avatar>
+                    <div class="flex flex-col">
+                      <span class="font-semibold text-kv-black leading-tight">{{ (key as string).split(' - ')[1] || 'Unknown' }}</span>
+                      <span class="text-xs text-slate-400">NPK: {{ (key as string).split(' - ')[0] || '-' }}</span>
+                    </div>
+                    <Badge variant="outline" class="ml-auto bg-white shadow-sm border-slate-200 text-slate-500">{{ group.length }} Riwayat</Badge>
                   </div>
-                  <span class="font-medium text-kv-black">{{ record.employeeName }}</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <span class="text-sm text-slate-500">{{ record.department }}</span>
-              </TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5 text-sm font-medium text-slate-600">
-                  <Clock class="h-3.5 w-3.5 text-kv-primary" />
-                  {{ record.checkIn || "--:--" }}
-                </div>
-              </TableCell>
-              <TableCell>
-                <div class="flex items-center gap-1.5 text-sm font-medium text-slate-600">
-                  <LogOutIcon class="h-3.5 w-3.5 text-slate-400" />
-                  {{ record.checkOut || "--:--" }}
-                </div>
-              </TableCell>
-              <TableCell>
-                <Badge 
-                  variant="secondary"
-                  class="text-sm font-semibold px-2.5 py-0.5 rounded-3xl border-none"
-                  :class="{
-                    'bg-emerald-500/10 text-emerald-600': record.status === 'present',
-                    'bg-amber-500/10 text-amber-600': record.status === 'permission',
-                    'bg-blue-500/10 text-blue-600': record.status === 'sick',
-                    'bg-rose-500/10 text-rose-600': record.status === 'absent'
-                  }"
-                >
-                  {{ getStatusLabel(record.status) }}
-                </Badge>
-              </TableCell>
-              <TableCell class="text-sm text-slate-400 max-w-[150px] truncate">
-                {{ record.notes || "-" }}
-              </TableCell>
-            </TableRow>
+                </TableCell>
+              </TableRow>
 
-            <TableRow v-if="filteredAttendance.length === 0 && !loading">
-              <TableCell colspan="7" class="h-64 text-center">
+              <template v-if="!canViewAll || expandedGroups[key as string]">
+                <TableRow class="hover:bg-transparent border-b border-slate-100 bg-slate-50/30">
+                  <TableCell :colspan="isAdmin ? 6 : 5" class="p-0">
+                    <div class="px-8 py-6">
+                      <Table class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                        <TableHeader>
+                          <TableRow class="bg-slate-50/80 hover:bg-slate-50/80">
+                            <TableHead class="font-semibold">Tanggal</TableHead>
+                            <TableHead class="font-semibold">Jam Masuk</TableHead>
+                            <TableHead class="font-semibold">Jam Keluar</TableHead>
+                            <TableHead class="font-semibold">Status</TableHead>
+                            <TableHead class="font-semibold">Keterangan</TableHead>
+                            <TableHead v-if="isAdmin" class="text-right font-semibold">Aksi</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          <TableRow v-for="record in group" :key="record.id" class="hover:bg-slate-50/50 transition-colors border-slate-50">
+                            <TableCell>
+                              <div class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                                <Calendar class="h-3.5 w-3.5 text-slate-400" />
+                                {{ (record as any).date }}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div class="flex items-center gap-1.5 text-sm font-medium text-slate-600">
+                                <Clock class="h-3.5 w-3.5 text-kv-primary" />
+                                {{ record.checkIn || "--:--" }}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div class="flex items-center gap-1.5 text-sm font-medium text-slate-600">
+                                <LogOutIcon class="h-3.5 w-3.5 text-slate-400" />
+                                {{ record.checkOut || "--:--" }}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge 
+                                variant="secondary"
+                                class="text-sm font-semibold px-2.5 py-0.5 rounded-3xl border-none"
+                                :class="{
+                                  'bg-emerald-500/10 text-emerald-600': record.status === 'present',
+                                  'bg-amber-500/10 text-amber-600': record.status === 'permission',
+                                  'bg-blue-500/10 text-blue-600': record.status === 'sick',
+                                  'bg-rose-500/10 text-rose-600': record.status === 'absent'
+                                }"
+                              >
+                                {{ getStatusLabel(record.status) }}
+                              </Badge>
+                            </TableCell>
+                            <TableCell class="text-sm text-slate-400 max-w-[150px] truncate">
+                              {{ record.notes || "-" }}
+                            </TableCell>
+                            <TableCell v-if="isAdmin" class="text-right">
+                              <AlertDialog>
+                                <AlertDialogTrigger as-child>
+                                  <Button variant="ghost" size="icon" class="text-rose-500 hover:text-rose-600 hover:bg-rose-50">
+                                    <Trash2 class="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent class="pointer-events-auto">
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Hapus Data Absensi?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Data absensi milik {{ record.employeeName }} akan dihapus permanen. Aksi ini tidak dapat dibatalkan.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel as-child>
+                                      <Button variant="outline">Batal</Button>
+                                    </AlertDialogCancel>
+                                    <AlertDialogAction as-child>
+                                      <Button @click="deleteRecord(record.id)" class="bg-rose-500 text-white hover:bg-rose-600">Hapus</Button>
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              </template>
+            </template>
+
+            <TableRow v-if="Object.keys(groupedAttendance).length === 0 && !loading">
+              <TableCell :colspan="isAdmin ? 6 : 5" class="h-64 text-center">
                 <div class="flex flex-col items-center justify-center text-slate-300">
                   <ClipboardList class="h-12 w-12 mb-3 opacity-20" />
                   <p class="text-sm font-medium">Data absensi tidak ditemukan</p>
@@ -139,13 +188,28 @@ import {
   UserMinus, 
   AlertCircle, 
   XCircle,
-  ClipboardList
+  ClipboardList,
+  Trash2,
+  ChevronRight,
+  Calendar
 } from 'lucide-vue-next'
 import { useAbsensi } from './hooks/useAbsensi'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog'
 import { 
   Table, 
   TableBody, 
@@ -173,10 +237,16 @@ const {
   filterStatus,
   summary,
   filteredAttendance,
+  groupedAttendance,
+  expandedGroups,
+  toggleGroup,
   fetchAttendance,
   getStatusLabel,
   exportAttendance,
-  loading
+  loading,
+  deleteRecord,
+  isAdmin,
+  canViewAll
 } = useAbsensi()
 
 const summaryItems = computed(() => ({

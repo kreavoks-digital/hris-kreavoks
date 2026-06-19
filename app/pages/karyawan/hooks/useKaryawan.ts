@@ -15,7 +15,7 @@ export const useKaryawan = () => {
       const query = searchQuery.value.toLowerCase()
       result = result.filter((emp) => 
         emp.name.toLowerCase().includes(query) ||
-        emp.nik.toLowerCase().includes(query)
+        emp.npk?.toLowerCase().includes(query) || false
       )
     }
 

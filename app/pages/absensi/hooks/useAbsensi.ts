@@ -1,13 +1,20 @@
 import { absensiApi } from '../api/absensi.api'
+import { useAuth } from '~/composables/useAuth'
 import type { AttendanceRecord, AttendanceSummary } from '~/types'
 
 export const useAbsensi = () => {
-  const selectedDate = ref(new Date().toISOString().split("T")[0])
+  const selectedDate = ref("")
   const searchQuery = ref("")
   const filterStatus = ref("")
   const attendance = ref<AttendanceRecord[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
+  
+  const expandedGroups = ref<Record<string, boolean>>({})
+
+  const auth = useAuth()
+  const isAdmin = computed(() => auth.user.value?.role === 'ADMIN')
+  const canViewAll = computed(() => auth.user.value?.permissions?.includes('view_all_users_attendance') || isAdmin.value)
 
   const summary = ref<AttendanceSummary>({
     present: 0,
@@ -21,23 +28,40 @@ export const useAbsensi = () => {
 
     if (searchQuery.value) {
       result = result.filter((record) => 
-        record.employeeName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        record.nik.toLowerCase().includes(searchQuery.value.toLowerCase())
+        (record.employeeName || "").toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        (record.npk || "").toLowerCase().includes(searchQuery.value.toLowerCase())
       )
     }
 
-    if (filterStatus.value) {
+    if (filterStatus.value && filterStatus.value !== "none") {
       result = result.filter((record) => record.status === filterStatus.value)
     }
 
     return result
   })
 
+  const groupedAttendance = computed(() => {
+    const groups: Record<string, AttendanceRecord[]> = {}
+    filteredAttendance.value.forEach((record) => {
+      const key = `${record.npk} - ${record.employeeName}`
+      if (!groups[key]) {
+        groups[key] = []
+      }
+      groups[key]!.push(record)
+    })
+    return groups
+  })
+
+  const toggleGroup = (key: string) => {
+    expandedGroups.value[key] = !expandedGroups.value[key]
+  }
+
   const fetchAttendance = async () => {
     loading.value = true
     error.value = null
     try {
-      const response = await absensiApi.getAttendance(selectedDate.value as string)
+      const response = await absensiApi.getAttendance(selectedDate.value as string, canViewAll.value)
+      console.log("Attendance API Response:", response)
       if (response.success) {
         attendance.value = response.data.records
         summary.value = response.data.summary
@@ -64,6 +88,23 @@ export const useAbsensi = () => {
     alert("Fitur export akan segera tersedia")
   }
 
+  const deleteRecord = async (id: string) => {
+    console.log("Tombol hapus diklik untuk ID:", id)
+    if (!isAdmin.value) {
+      console.warn("Ditolak: Bukan Admin")
+      return
+    }
+    try {
+      console.log("Memanggil API delete untuk ID:", id)
+      await absensiApi.deleteAttendance(id)
+      console.log("Sukses dihapus, memuat ulang data...")
+      await fetchAttendance()
+    } catch (err) {
+      console.error("Gagal menghapus absensi", err)
+      alert("Gagal menghapus absensi")
+    }
+  }
+
   watch(selectedDate, () => {
     fetchAttendance()
   })
@@ -75,10 +116,16 @@ export const useAbsensi = () => {
     attendance,
     summary,
     filteredAttendance,
+    groupedAttendance,
+    expandedGroups,
+    toggleGroup,
     loading,
     error,
     fetchAttendance,
     getStatusLabel,
     exportAttendance,
+    deleteRecord,
+    isAdmin,
+    canViewAll,
   }
 }

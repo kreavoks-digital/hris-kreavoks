@@ -3,8 +3,10 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   const { accessToken, user, loadAuth, fetchUser } = useAuth()
 
-  // LOAD dari localStorage dulu
-  loadAuth()
+  // LOAD dari localStorage hanya jika token belum ada di state
+  if (!accessToken.value) {
+    loadAuth()
+  }
 
   // Jika ada token tapi user belum ada → fetch ulang
   if (accessToken.value && !user.value) {

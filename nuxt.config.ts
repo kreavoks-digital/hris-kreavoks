@@ -40,5 +40,11 @@ export default defineNuxtConfig({
 
   experimental: {
     appManifest: false
+  },
+
+  router: {
+    options: {
+      scrollBehaviorType: 'smooth'
+    }
   }
 })

@@ -2,18 +2,19 @@ export * from './auth'
 
 export interface Employee {
   id: string;
-  nik: string;
+  npk: string;
   name: string;
   email: string;
   phone: string;
   department: string;
   position: string;
   status: string;
+  role: string;
 }
 
 export interface AttendanceRecord {
   id: string;
-  nik: string;
+  npk: string;
   employeeName: string;
   department: string;
   checkIn: string;
@@ -42,7 +43,7 @@ export interface LeaveRecord {
 
 export interface PayrollRecord {
   id: string;
-  nik: string;
+  npk: string;
   employeeName: string;
   department: string;
   basicSalary: number;

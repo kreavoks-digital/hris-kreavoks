@@ -1,8 +1,10 @@
 <template>
-  <Toaster />
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div>
+    <Toaster />
+    <NuxtLayout>
+      <NuxtPage :key="$route.fullPath" />
+    </NuxtLayout>
+  </div>
 </template>
 
 <script setup>
