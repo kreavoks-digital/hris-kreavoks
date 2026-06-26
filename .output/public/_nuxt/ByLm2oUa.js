@@ -1,0 +1,1 @@
+import{u as i}from"./HFAabMFX.js";import"./DxM42NzW.js";const e={getPermissions:async()=>await i()("/permissions"),getUsers:async()=>await i()("/users"),assignPermissions:async(s,a)=>await i()(`/permissions/${s}/assign`,{method:"POST",body:{permissionIds:a}})};export{e as rbacApi};

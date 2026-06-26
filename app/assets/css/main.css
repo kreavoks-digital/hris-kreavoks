@@ -4,25 +4,29 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 7%;
-    --card: 0 0% 100%;
+    /* ========================================================
+       🎨 LIGHT THEME CONFIGURATION
+       To change colors, use HSL format: Hue(0-360) Saturation(%) Lightness(%)
+       ======================================================== */
+    --background: 0 0% 98%; /* Background paling luar (app bg) */
+    --foreground: 0 0% 7%;  /* Text utama */
+    --card: 0 0% 100%;      /* Background card/sidebar */
     --card-foreground: 0 0% 7%;
-    --popover: 0 0% 100%;
+    --popover: 0 0% 100%;   /* Dropdown/Tooltip background */
     --popover-foreground: 0 0% 7%;
-    --primary: 216 77% 58%;
+    --primary: 216 77% 58%; /* Warna utama (Biru) */
     --primary-foreground: 0 0% 98%;
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 0 0% 7%;
     --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 210 40% 96.1%;
+    --muted-foreground: 220 8.9% 46.1%; /* Text sekunder/icons */
+    --accent: 210 40% 96.1%;  /* Hover state */
     --accent-foreground: 0 0% 7%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
+    --border: 220 13% 91%;    /* Warna garis tepi (border) */
     --input: 220 13% 91%;
-    --ring: 216 77% 58%;
+    --ring: 216 77% 58%;      /* Focus ring color */
     --radius: 1rem;
 
     /* Kreavoks Design Tokens */
@@ -33,9 +37,16 @@
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
+    /* ========================================================
+       🌙 DARK THEME CONFIGURATION
+       Best Practice Tips:
+       - Pure Black (OLED): --background: 0 0% 0%; --card: 0 0% 5%;
+       - Modern Slate (Default): --background: 224 71.4% 4.1%;
+       - Deep Blue/Indigo: --background: 230 40% 8%; --card: 230 35% 12%;
+       ======================================================== */
+    --background: 224 71% 3%; /* Sedikit lebih gelap */
     --foreground: 210 20% 98%;
-    --card: 224 71.4% 4.1%;
+    --card: 224 71% 8%;       /* Lebih terang agar kontras dgn background */
     --card-foreground: 210 20% 98%;
     --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 20% 98%;
@@ -43,13 +54,13 @@
     --primary-foreground: 220.9 39.3% 11%;
     --secondary: 215 27.9% 16.9%;
     --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
+    --muted: 215 27.9% 16.9%;     /* Background untuk elemen yg redup */
+    --muted-foreground: 217.9 10.6% 64.9%; /* Text redup */
+    --accent: 215 27.9% 16.9%;    /* Hover state background */
     --accent-foreground: 210 20% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
+    --border: 215 27.9% 16.9%;    /* Garis pembatas dark mode */
     --input: 215 27.9% 16.9%;
     --ring: 216 12.2% 83.9%;
   }

@@ -1,0 +1,1 @@
+import{V as i,e as o,W as l,n as a}from"./DxM42NzW.js";const d=i(async t=>{let u,s;const{accessToken:e,user:r,loadAuth:n,fetchUser:h}=o();if(e.value||n(),e.value&&!r.value)try{[u,s]=l(()=>h()),await u,s()}catch{return a("/auth/login")}if(!e.value&&!t.path.startsWith("/auth/"))return a("/auth/login");if(e.value&&t.path==="/auth/login")return a("/dashboard")});export{d as default};

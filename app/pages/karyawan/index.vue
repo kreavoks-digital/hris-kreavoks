@@ -3,8 +3,8 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">Data Karyawan</h1>
-        <p class="text-slate-400 mt-1 text-sm">Kelola informasi seluruh karyawan dalam satu tempat.</p>
+        <h1 class="text-3xl font-semibold text-foreground">Data Karyawan</h1>
+        <p class="text-muted-foreground mt-1 text-sm">Kelola informasi seluruh karyawan dalam satu tempat.</p>
       </div>
       <Button @click="navigateTo('/karyawan/tambah')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
         <UserPlus class="h-4 w-4" />
@@ -15,15 +15,15 @@
     <!-- Filters Section -->
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1">
-        <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input v-model="searchQuery" placeholder="Cari nama atau NPK..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
+        <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input v-model="searchQuery" placeholder="Cari nama atau NPK..." class="pl-11 bg-background border-border shadow-sm" />
       </div>
       <div class="w-full sm:w-64">
         <Select v-model="filterDepartment">
-          <SelectTrigger class="bg-white border-slate-100 shadow-sm shadow-slate-100/50 rounded-3xl h-12 px-5">
+          <SelectTrigger class="bg-background border-border shadow-sm rounded-3xl h-12 px-5">
             <SelectValue placeholder="Pilih Departemen" />
           </SelectTrigger>
-          <SelectContent class="rounded-2xl border-slate-100">
+          <SelectContent class="rounded-2xl border-border">
             <SelectItem value="none">Semua Departemen</SelectItem>
             <SelectItem value="IT">IT</SelectItem>
             <SelectItem value="HR">HR</SelectItem>
@@ -33,7 +33,7 @@
           </SelectContent>
         </Select>
       </div>
-      <Button variant="outline" class="gap-2 border-slate-100 bg-white shadow-sm shadow-slate-100/50 text-slate-600 hover:bg-slate-50 px-6" @click="fetchEmployees">
+      <Button variant="outline" class="gap-2 border-border bg-background shadow-sm text-foreground hover:bg-accent px-6" @click="fetchEmployees">
         <RefreshCw class="h-4 w-4 text-kv-primary" :class="{ 'animate-spin': loading }" />
         Reset
       </Button>
@@ -41,7 +41,7 @@
 
 
     <!-- Table Section -->
-    <Card class="border border-slate-100 overflow-hidden rounded-3xl">
+    <Card class="border border-border bg-card overflow-hidden rounded-3xl">
       <Table>
         <TableHeader>
           <TableRow>
@@ -54,31 +54,31 @@
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-slate-50/50 transition-colors">
-            <TableCell class="font-medium text-slate-500 whitespace-nowrap">{{ emp.npk || '-' }}</TableCell>
+          <TableRow v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-accent/50 transition-colors">
+            <TableCell class="font-medium text-muted-foreground whitespace-nowrap">{{ emp.npk || '-' }}</TableCell>
             <TableCell>
               <div class="flex items-center gap-3">
-                <Avatar class="h-9 w-9 border-2 border-white">
+                <Avatar class="h-9 w-9 border-2 border-card">
                   <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${emp.name}`" />
                   <AvatarFallback>{{ emp.name.charAt(0) }}</AvatarFallback>
                 </Avatar>
                 <div class="flex flex-col">
-                  <span class="font-medium text-kv-black leading-tight">{{ emp.name }}</span>
-                  <span class="text-sm text-slate-400">{{ emp.email }}</span>
+                  <span class="font-medium text-foreground leading-tight">{{ emp.name }}</span>
+                  <span class="text-sm text-muted-foreground">{{ emp.email }}</span>
                 </div>
               </div>
             </TableCell>
             <TableCell>
-              <Badge variant="outline" class="font-medium bg-slate-50 text-slate-600 border-slate-200">
+              <Badge variant="outline" class="font-medium bg-accent text-accent-foreground border-border">
                 {{ emp.department }}
               </Badge>
             </TableCell>
-            <TableCell class="text-slate-600 text-sm">{{ emp.position }}</TableCell>
+            <TableCell class="text-foreground text-sm">{{ emp.position }}</TableCell>
             <TableCell>
               <Badge 
                 :variant="emp.status === 'Aktif' ? 'default' : 'secondary'"
                 class="px-3 py-1 rounded-3xl text-sm font-medium"
-                :class="emp.status === 'Aktif' ? 'bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500/20 border-emerald-100' : 'bg-slate-100 text-slate-500 border-slate-200'"
+                :class="emp.status === 'Aktif' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border-transparent' : 'bg-muted text-muted-foreground border-border'"
               >
                 {{ emp.status }}
               </Badge>
@@ -88,7 +88,7 @@
                 <Button variant="ghost" size="icon" @click="editEmployee(emp)" class="h-8 w-8 text-kv-primary hover:bg-kv-primary/10">
                   <Edit2 class="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-rose-500 hover:bg-rose-50">
+                <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-destructive hover:bg-destructive/10">
                   <Trash2 class="h-4 w-4" />
                 </Button>
               </div>
@@ -97,7 +97,7 @@
 
           <TableRow v-if="filteredEmployees.length === 0 && !loading">
             <TableCell colspan="6" class="h-64 text-center">
-              <div class="flex flex-col items-center justify-center text-slate-400">
+              <div class="flex flex-col items-center justify-center text-muted-foreground">
                 <Users class="h-12 w-12 mb-2 opacity-20" />
                 <p>Tidak ada data karyawan ditemukan</p>
                 <Button variant="link" @click="searchQuery = ''; filterDepartment = ''" class="mt-2">Hapus Filter</Button>

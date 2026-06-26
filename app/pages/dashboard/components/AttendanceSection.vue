@@ -1,13 +1,13 @@
 <template>
   <div class="grid gap-4 lg:grid-cols-12">
     <!-- Column 1: Attendance Log Table (span 4) -->
-    <Card class="lg:col-span-4 bg-white dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/60 backdrop-blur-md flex flex-col shadow-none">
+    <Card class="lg:col-span-4 bg-card p-6 rounded-3xl border border-border flex flex-col shadow-none">
       <div class="flex items-center justify-between gap-4 mb-4">
         <div class="flex items-start gap-2">
           <Clock class="h-5 w-5 text-kv-primary mt-0.5" />
           <div class="flex flex-col">
-            <span class="text-sm font-semibold text-slate-800 dark:text-slate-200">Riwayat Kehadiran</span>
-            <p class="text-xs text-slate-400 mt-0.5">25 Nov – 28 Nov 2025</p>
+            <span class="text-sm font-semibold text-foreground">Riwayat Kehadiran</span>
+            <p class="text-xs text-muted-foreground mt-0.5">25 Nov – 28 Nov 2025</p>
           </div>
         </div>
         <Button variant="link" class="text-xs font-bold text-kv-primary p-0 h-auto hover:underline" @click="$router.push('/attendance')">
@@ -18,32 +18,32 @@
       <div class="overflow-x-auto flex-1">
         <Table>
           <TableHeader>
-            <TableRow class="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
-              <TableHead class="text-sm font-medium text-slate-500 dark:text-slate-400">Tanggal</TableHead>
-              <TableHead class="text-sm font-medium text-slate-500 dark:text-slate-400">
+            <TableRow class="border-b border-border hover:bg-transparent">
+              <TableHead class="text-sm font-semibold text-foreground">Tanggal</TableHead>
+              <TableHead class="text-sm font-semibold text-foreground">
                 <span class="inline-flex items-center gap-1">
-                  <ArrowDown class="h-3.5 w-3.5 text-slate-400" />
+                  <ArrowDown class="h-3.5 w-3.5 text-foreground/70" />
                   Mulai
                 </span>
               </TableHead>
-              <TableHead class="text-sm font-medium text-slate-500 dark:text-slate-400">
+              <TableHead class="text-sm font-semibold text-foreground">
                 <span class="inline-flex items-center gap-1">
-                  <ArrowUp class="h-3.5 w-3.5 text-slate-400" />
+                  <ArrowUp class="h-3.5 w-3.5 text-foreground/70" />
                   Selesai
                 </span>
               </TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody class="divide-y divide-slate-50 dark:divide-slate-800/30">
-            <TableRow v-for="(log, idx) in logs" :key="idx" class="hover:bg-slate-50/50 dark:hover:bg-slate-900/30 transition-colors border-none">
-              <TableCell class="text-sm text-slate-600 dark:text-slate-300 py-2 whitespace-nowrap">{{ log.tanggal }}</TableCell>
+          <TableBody class="divide-y divide-border/50">
+            <TableRow v-for="(log, idx) in logs" :key="idx" class="hover:bg-accent/50 transition-colors border-none">
+              <TableCell class="text-sm text-foreground py-2 whitespace-nowrap">{{ log.tanggal }}</TableCell>
               <TableCell class="text-sm py-2 whitespace-nowrap">
-                <span :class="log.isIzin ? 'text-rose-500 font-medium' : 'text-slate-600 dark:text-slate-300'">
+                <span :class="log.isIzin ? 'text-rose-500 font-medium' : 'text-foreground'">
                   {{ log.datang }}
                 </span>
               </TableCell>
               <TableCell class="text-sm py-2 whitespace-nowrap">
-                <span :class="log.isIzin ? 'text-rose-500 font-medium' : 'text-slate-600 dark:text-slate-300'">
+                <span :class="log.isIzin ? 'text-rose-500 font-medium' : 'text-foreground'">
                   {{ log.pulang }}
                 </span>
               </TableCell>
@@ -54,18 +54,18 @@
     </Card>
 
     <!-- Column 2: Clock-in/Clock-out (span 3) -->
-    <Card class="lg:col-span-3 bg-white dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/60 backdrop-blur-md flex flex-col justify-between text-center shadow-none">
+    <Card class="lg:col-span-3 bg-card p-6 rounded-3xl border border-border flex flex-col justify-between text-center shadow-none">
       <div>
-        <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">Absensi</div>
-        <hr class="border-t border-slate-100 dark:border-slate-800/60 mt-3" />
+        <div class="text-sm font-semibold text-foreground">Absensi</div>
+        <hr class="border-t border-border mt-3" />
       </div>
       <div class="space-y-4 my-auto">
         <!-- Big clock duration -->
         <div>
-          <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-50 tabular-nums">
+          <h2 class="text-2xl font-bold text-foreground tabular-nums">
             {{ attendanceState === 'clocked_out' ? clockRangeText : currentTime }}
           </h2>
-          <p class="text-xs text-slate-400 mt-2" v-html="statusText"></p>
+          <p class="text-xs text-muted-foreground mt-2" v-html="statusText"></p>
         </div>
       </div>
 
@@ -141,7 +141,7 @@
     </Card>
 
     <!-- Column 3: Calendar & Upcoming Events (span 5) -->
-    <Card class="lg:col-span-5 bg-white dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-800/60 backdrop-blur-md grid grid-cols-1 md:grid-cols-12 gap-4 shadow-none">
+    <Card class="lg:col-span-5 bg-card p-6 rounded-3xl border border-border grid grid-cols-1 md:grid-cols-12 gap-4 shadow-none">
       
       <!-- Calendar Area (span 7) -->
       <Calendar 
@@ -152,12 +152,12 @@
       />
 
       <!-- Events Area (span 5) -->
-      <div class="md:col-span-5 flex flex-col justify-between border-l border-slate-100 dark:border-slate-800/80 pl-0 md:pl-6">
+      <div class="md:col-span-5 flex flex-col justify-between border-l border-border pl-0 md:pl-6">
         <div>
           <h4 class="text-sm font-bold text-kv-primary">{{ selectedDate }} November 2024</h4>
           
           <div class="mt-4 space-y-3">
-            <div v-if="events.length === 0" class="text-xs text-slate-400 dark:text-slate-500 py-4 italic">
+            <div v-if="events.length === 0" class="text-xs text-muted-foreground py-4 italic">
               Tidak ada agenda, hari libur, atau logbook pada tanggal ini.
             </div>
             <div 
@@ -171,8 +171,8 @@
                 'border-emerald-500': event.type === 'green'
               }"
             >
-              <p class="text-xs font-semibold text-slate-800 dark:text-slate-200">{{ event.title }}</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">
+              <p class="text-xs font-semibold text-foreground">{{ event.title }}</p>
+              <p class="text-[10px] text-muted-foreground mt-0.5">
                 {{ event.date }}<span v-if="event.time">, {{ event.time }}</span>
               </p>
             </div>
