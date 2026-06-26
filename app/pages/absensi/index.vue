@@ -3,12 +3,32 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">Absensi Karyawan</h1>
-        <p class="text-slate-400 mt-1 text-sm">Monitor kehadiran dan logs harian seluruh karyawan.</p>
+        <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">
+          {{ canViewAll ? 'Absensi Karyawan' : 'Absensi Saya' }}
+        </h1>
+        <p class="text-slate-400 mt-1 text-sm">
+          {{ canViewAll ? 'Monitor kehadiran dan logs harian seluruh karyawan.' : 'Monitor kehadiran harian Anda.' }}
+        </p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
-        <Input v-model="selectedDate" type="date" class="w-48 bg-white px-4 border-slate-200" />
-        <Button variant="outline" class="gap-2 border-slate-200 text-slate-600 hover:bg-slate-50" @click="exportAttendance">
+        <Popover>
+          <PopoverTrigger as-child>
+            <Button
+              variant="outline"
+              :class="cn(
+                'w-[240px] justify-start text-left font-normal bg-white border-slate-200 rounded-2xl hover:bg-slate-50',
+                !selectedDate && 'text-slate-400'
+              )"
+            >
+              <CalendarIcon class="mr-2 h-4 w-4 text-slate-500" />
+              {{ selectedDate ? format(new Date(selectedDate), 'dd MMMM yyyy', { locale: idLocale }) : 'Pilih Tanggal' }}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent class="w-auto p-0 border-slate-100 rounded-2xl shadow-sm" align="end">
+            <Calendar v-model="dateValue" initial-focus />
+          </PopoverContent>
+        </Popover>
+        <Button v-if="canViewAll" variant="outline" class="gap-2 border-slate-200 text-slate-600 hover:bg-slate-50" @click="exportAttendance">
           <Download class="h-4 w-4" />
           Export CSV
         </Button>
@@ -32,10 +52,11 @@
 
     <!-- Filters Section -->
     <div class="flex flex-col sm:flex-row gap-4">
-      <div class="relative flex-1">
+      <div class="relative flex-1" v-if="canViewAll">
         <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
         <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
       </div>
+      <div v-else class="flex-1"></div>
       <div class="w-full sm:w-64">
         <Select v-model="filterStatus">
           <SelectTrigger class="bg-white rounded-3xl h-12 border-slate-100 px-5 shadow-sm shadow-slate-100/50">
@@ -191,8 +212,14 @@ import {
   ClipboardList,
   Trash2,
   ChevronRight,
-  Calendar
+  Calendar as CalendarIcon
 } from 'lucide-vue-next'
+import { format } from 'date-fns'
+import { id as idLocale } from 'date-fns/locale'
+import { parseDate } from '@internationalized/date'
+import { cn } from '@/lib/utils'
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+import { Calendar } from '~/components/ui/calendar'
 import { useAbsensi } from './hooks/useAbsensi'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -248,6 +275,13 @@ const {
   isAdmin,
   canViewAll
 } = useAbsensi()
+
+const dateValue = computed({
+  get: () => selectedDate.value ? parseDate(selectedDate.value) : undefined,
+  set: (val) => {
+    selectedDate.value = val ? val.toString() : ''
+  }
+})
 
 const summaryItems = computed(() => ({
   present: { 

@@ -3,6 +3,31 @@
     <!-- Section Header -->
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-50">Logbook</h2>
+      
+      <!-- Filters -->
+      <div class="flex items-center gap-3">
+        <Select v-model="filterMonth">
+          <SelectTrigger class="w-[140px] bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+            <SelectValue placeholder="Pilih Bulan" />
+          </SelectTrigger>
+          <SelectContent class="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+            <SelectItem v-for="m in months" :key="m.value" :value="m.value.toString()">
+              {{ m.label }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select v-model="filterYear">
+          <SelectTrigger class="w-[110px] bg-white dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+            <SelectValue placeholder="Pilih Tahun" />
+          </SelectTrigger>
+          <SelectContent class="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+            <SelectItem v-for="y in years" :key="y" :value="y.toString()">
+              {{ y }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
 
     <!-- Table -->
@@ -10,7 +35,7 @@
       <Table>
         <TableHeader class="bg-slate-50/70 dark:bg-slate-950/40">
           <TableRow class="border-b border-slate-100 dark:border-slate-800 hover:bg-transparent">
-            <TableHead class="font-semibold text-slate-700 dark:text-slate-300 rounded-l-2xl">Divisi</TableHead>
+            <TableHead class="font-semibold text-slate-700 dark:text-slate-300 rounded-l-2xl">Posisi</TableHead>
             <TableHead class="font-semibold text-slate-700 dark:text-slate-300">Tanggal</TableHead>
             <TableHead class="font-semibold text-slate-700 dark:text-slate-300">Deskripsi Kegiatan</TableHead>
             <TableHead class="font-semibold text-slate-700 dark:text-slate-300">Kendala</TableHead>
@@ -57,10 +82,48 @@ import {
   DialogTrigger,
   DialogFooter,
 } from '~/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
 
 const props = defineProps<{
   logbooks: LogbookEntry[]
 }>()
 
 const emit = defineEmits(['add-logbook'])
+
+const monthModel = defineModel<number>('month')
+const yearModel = defineModel<number>('year')
+
+const filterMonth = computed({
+  get: () => monthModel.value?.toString() ?? '',
+  set: (val: string) => monthModel.value = parseInt(val, 10)
+})
+
+const filterYear = computed({
+  get: () => yearModel.value?.toString() ?? '',
+  set: (val: string) => yearModel.value = parseInt(val, 10)
+})
+
+const months = [
+  { value: 1, label: 'Januari' },
+  { value: 2, label: 'Februari' },
+  { value: 3, label: 'Maret' },
+  { value: 4, label: 'April' },
+  { value: 5, label: 'Mei' },
+  { value: 6, label: 'Juni' },
+  { value: 7, label: 'Juli' },
+  { value: 8, label: 'Agustus' },
+  { value: 9, label: 'September' },
+  { value: 10, label: 'Oktober' },
+  { value: 11, label: 'November' },
+  { value: 12, label: 'Desember' }
+]
+
+const currentYear = new Date().getFullYear()
+const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i)
 </script>

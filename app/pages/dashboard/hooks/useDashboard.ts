@@ -201,18 +201,27 @@ export const useDashboard = () => {
     }
   }
 
+  // Filters for Logbook
+  const logbookFilterMonth = ref(new Date().getMonth() + 1)
+  const logbookFilterYear = ref(new Date().getFullYear())
+
   const fetchLogbooks = async () => {
     try {
       const api = useApi()
-      const res: any = await api('/logbook')
+      const res: any = await api(`/logbook?month=${logbookFilterMonth.value}&year=${logbookFilterYear.value}`)
       if (res.data) {
-        logbooks.value = res.data.map((item: any) => ({
-          id: item.id.toString(),
-          divisi: 'Divisi UI/UX',
-          tanggal: new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          deskripsi: item.activity,
-          kendala: 'Tidak Ada'
-        }))
+        logbooks.value = res.data.map((item: any) => {
+          const profile = item.user?.profile;
+          const roleText = profile?.position || profile?.department || '-';
+          
+          return {
+            id: item.id.toString(),
+            divisi: roleText,
+            tanggal: new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+            deskripsi: item.activity,
+            kendala: item.obstacle || 'Tidak Ada'
+          }
+        })
       }
     } catch (err) {
       console.error('Failed to fetch logbooks', err)
@@ -226,6 +235,11 @@ export const useDashboard = () => {
     // Fetch initial data
     fetchTodayAttendance()
     fetchAttendanceHistory()
+    fetchLogbooks()
+  })
+
+  // Watch filter changes
+  watch([logbookFilterMonth, logbookFilterYear], () => {
     fetchLogbooks()
   })
 
@@ -286,6 +300,8 @@ export const useDashboard = () => {
     currentMonthYear,
     events: selectedDateEvents,
     logbooks,
+    logbookFilterMonth,
+    logbookFilterYear,
     searchQuery,
     showAddLogbookDialog,
     newLogbook,

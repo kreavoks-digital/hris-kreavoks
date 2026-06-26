@@ -22,6 +22,8 @@
     <!-- Logbook Section -->
     <LogbookSection 
       :logbooks="filteredLogbooks" 
+      v-model:month="logbookFilterMonth"
+      v-model:year="logbookFilterYear"
       @add-logbook="handleAddLogbook"
     />
   </div>
@@ -50,6 +52,8 @@ const {
   attendanceLogs,
   events,
   logbooks,
+  logbookFilterMonth,
+  logbookFilterYear,
   searchQuery,
   attendanceStatus,
   selectedDate,

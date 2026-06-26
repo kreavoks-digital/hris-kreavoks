@@ -10,6 +10,13 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
+  ignore: [
+    'pages/**/components/**',
+    'pages/**/types/**',
+    'pages/**/hooks/**',
+    'pages/**/api/**'
+  ],
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxtjs/google-fonts',

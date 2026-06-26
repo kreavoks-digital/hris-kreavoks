@@ -85,60 +85,61 @@
             </DialogTrigger>
             <DialogContent class="sm:max-w-2xl p-0 overflow-hidden border-border bg-card">
               <form @submit.prevent="submitClockOut">
-                <DialogHeader class="px-6 py-4 border-b border-border bg-muted/20">
+                <DialogHeader class="px-6 py-5 border-b border-border bg-muted/20">
                   <DialogTitle class="text-xl font-bold text-foreground">Clock Out & Laporan Harian</DialogTitle>
                   <DialogDescription class="text-muted-foreground text-sm">
-                    Sebelum Clock Out (pukul {{ currentTime }} WIB), mohon lengkapi logbook kegiatan Anda hari ini.
+                    Lengkapi laporan harian Anda sebelum menyelesaikan jam kerja. Waktu saat ini: <span class="font-semibold text-foreground">{{ currentTime }} WIB</span>.
                   </DialogDescription>
                 </DialogHeader>
                 
-                <div class="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
-                  <div class="space-y-2">
-                    <Label class="text-foreground">Apa yang kamu telah kerjakan hari ini?</Label>
-                    <textarea 
-                      v-model="clockOutLogbook.activity"
-                      required
-                      placeholder="Tuliskan aktivitas dan pekerjaan yang sudah diselesaikan..." 
-                      class="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-                    ></textarea>
-                  </div>
-
-                  <div class="space-y-2">
-                    <Label class="text-foreground">Apa rencana yang akan kamu kerjakan besok?</Label>
-                    <textarea 
-                      v-model="clockOutLogbook.planTomorrow"
-                      required
-                      placeholder="Tuliskan rencana pekerjaan untuk esok hari..." 
-                      class="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-                    ></textarea>
-                  </div>
+                <div class="px-6 py-6 space-y-6 max-h-[70vh] overflow-y-auto">
                   
-                  <div class="space-y-2">
-                    <Label class="text-foreground">Apakah ada kendala sejauh ini? Kalau ada ceritain ya..</Label>
-                    <textarea 
-                      v-model="clockOutLogbook.obstacle"
-                      required
-                      placeholder="Ceritakan kendala yang dialami..." 
-                      class="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
-                    ></textarea>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="space-y-2">
+                      <Label class="text-sm font-semibold text-foreground">Aktivitas Hari Ini <span class="text-rose-500">*</span></Label>
+                      <Textarea 
+                        v-model="clockOutLogbook.activity"
+                        placeholder="Deskripsikan pekerjaan yang telah diselesaikan..." 
+                        :error="formErrors.activity && clockOutLogbook.activity.length > 0 ? formErrors.activity : undefined"
+                      />
+                    </div>
+
+                    <div class="space-y-2">
+                      <Label class="text-sm font-semibold text-foreground">Rencana Besok <span class="text-rose-500">*</span></Label>
+                      <Textarea 
+                        v-model="clockOutLogbook.planTomorrow"
+                        placeholder="Deskripsikan target pekerjaan selanjutnya..." 
+                        :error="formErrors.planTomorrow && clockOutLogbook.planTomorrow.length > 0 ? formErrors.planTomorrow : undefined"
+                      />
+                    </div>
                   </div>
 
-                  <div class="space-y-3 p-4 bg-muted/30 border border-border rounded-xl">
-                    <Label class="text-foreground flex items-center gap-2">
-                      <LinkIcon class="w-4 h-4 text-kv-primary" />
-                      Link Dokumentasi Pekerjaan
-                    </Label>
-                    <p class="text-[13px] text-muted-foreground leading-relaxed">
-                      Sertakan link dokumentasi pekerjaanmu hari ini. Upload ke drive dan sertakan link disini.<br/>
-                      <b class="text-kv-primary">*Jangan lupa atur akses nya hanya lihat (Viewer)</b>
-                    </p>
-                    <Input type="url" v-model="clockOutLogbook.documentLink" required placeholder="https://drive.google.com/..." class="bg-background border-border" />
+                  <div class="space-y-2">
+                    <Label class="text-sm font-semibold text-foreground">Kendala (Opsional)</Label>
+                    <Textarea 
+                      v-model="clockOutLogbook.obstacle"
+                      placeholder="Tuliskan jika ada kendala operasional..." 
+                    />
                   </div>
+
+                  <div class="space-y-2">
+                    <Label class="text-sm font-semibold text-foreground">
+                      Link Dokumentasi Drive <span class="text-rose-500">*</span>
+                    </Label>
+                    <p class="text-xs text-muted-foreground">Pastikan hak akses tautan disetel sebagai Viewer.</p>
+                    <Input 
+                      type="url" 
+                      v-model="clockOutLogbook.documentLink" 
+                      placeholder="https://drive.google.com/..." 
+                      :error="formErrors.documentLink && clockOutLogbook.documentLink.length > 0 ? formErrors.documentLink : undefined"
+                    />
+                  </div>
+
                 </div>
 
                 <DialogFooter class="px-6 py-4 border-t border-border bg-muted/20 sm:justify-end gap-2">
-                  <Button variant="outline" type="button" class="border-border bg-background" @click="showClockOutModal = false">Batal</Button>
-                  <Button type="submit" class="bg-kv-primary text-white hover:bg-kv-primary/90">
+                  <Button variant="outline" type="button" class="border-border rounded-xl font-semibold bg-background" @click="showClockOutModal = false">Batal</Button>
+                  <Button :disabled="!isClockOutFormValid" type="submit" class="bg-kv-primary rounded-xl font-semibold text-white hover:bg-kv-primary/90">
                     Kirim & Clock Out
                   </Button>
                 </DialogFooter>
@@ -305,6 +306,7 @@
 </template>
 
 <script setup lang="ts">
+import { z } from 'zod'
 import { ArrowDown, ArrowUp, Clock, Link as LinkIcon } from 'lucide-vue-next'
 import type { AttendanceLog, CalendarEvent } from '../types'
 import { Button } from '~/components/ui/button'
@@ -312,6 +314,7 @@ import { Card } from '~/components/ui/card'
 import { Calendar } from '~/components/ui/calendar'
 import { Label } from '~/components/ui/label'
 import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/textarea'
 import {
   Dialog,
   DialogContent,
@@ -371,6 +374,31 @@ const clockOutLogbook = ref({
   planTomorrow: '',
   obstacle: '',
   documentLink: ''
+})
+
+// Skema validasi Zod untuk mencegah input kosong dan memastikan format URL valid
+const logbookSchema = z.object({
+  activity: z.string().trim().min(5, "Aktivitas harus diisi minimal 5 karakter"),
+  planTomorrow: z.string().trim().min(5, "Rencana harus diisi minimal 5 karakter"),
+  obstacle: z.string().optional(),
+  documentLink: z.string().url("Link dokumentasi harus berupa URL yang valid (misal: https://drive...)")
+})
+
+const isClockOutFormValid = computed(() => {
+  return logbookSchema.safeParse(clockOutLogbook.value).success
+})
+
+const formErrors = computed(() => {
+  const result = logbookSchema.safeParse(clockOutLogbook.value)
+  if (result.success) return {}
+  
+  const errors: Record<string, string> = {}
+  result.error.issues.forEach(issue => {
+    if (issue.path[0]) {
+      errors[issue.path[0] as string] = issue.message
+    }
+  })
+  return errors
 })
 
 const submitClockOut = () => {
