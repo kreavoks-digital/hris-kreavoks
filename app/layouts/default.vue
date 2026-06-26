@@ -158,12 +158,13 @@
 
           <!-- Standard page title + breadcrumb -->
           <template v-else>
-            <div>
-              <h2 class="text-sm font-semibold text-foreground leading-none">{{ pageTitle }}</h2>
-              <div class="flex items-center gap-1 text-xs text-muted-foreground mt-0.5">
+            <div class="flex items-center gap-3 md:gap-4">
+              <h2 class="text-sm md:text-base font-semibold text-foreground leading-none">{{ pageTitle }}</h2>
+              <div class="h-4 w-px bg-border hidden sm:block"></div>
+              <div class="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
                 <span>Main</span>
-                <ChevronRight class="h-2.5 w-2.5" />
-                <span class="text-kv-primary">{{ pageTitle }}</span>
+                <ChevronRight class="h-3 w-3" />
+                <span class="text-foreground font-medium">{{ pageTitle }}</span>
               </div>
             </div>
           </template>

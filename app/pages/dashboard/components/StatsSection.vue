@@ -1,10 +1,10 @@
 <template>
   <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
     <!-- Total Hadir Card -->
-    <Card class="p-4 flex items-center justify-between bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/60 backdrop-blur-md shadow-none rounded-2xl md:rounded-3xl">
+    <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
-        <p class="text-xs font-semibold text-slate-400">Total Hadir</p>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-50">{{ stats.totalHadir }}</h3>
+        <p class="text-xs font-semibold text-muted-foreground">Total Hadir</p>
+        <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.totalHadir }}</h3>
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-blue-50 dark:bg-blue-950/40 text-kv-primary">
           <TrendingUp class="w-3 h-3" />
           {{ stats.kehadiranRate }}
@@ -26,10 +26,10 @@
     </Card>
 
     <!-- Total Tidak Hadir Card -->
-    <Card class="p-4 flex items-center justify-between bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/60 backdrop-blur-md shadow-none rounded-2xl md:rounded-3xl">
+    <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
-        <p class="text-xs font-semibold text-slate-400">Total Tidak Hadir</p>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-50">{{ stats.tidakHadir }}</h3>
+        <p class="text-xs font-semibold text-muted-foreground">Total Tidak Hadir</p>
+        <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.tidakHadir }}</h3>
         <!-- Fixed the error color: using emerald (green) or slate for neutral -->
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600">
           <TrendingUp class="w-3 h-3" />
@@ -52,10 +52,10 @@
     </Card>
 
     <!-- Logbook Terisi Card -->
-    <Card class="p-4 flex items-center justify-between bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/60 backdrop-blur-md shadow-none rounded-2xl md:rounded-3xl">
+    <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
-        <p class="text-xs font-semibold text-slate-400">Logbook Terisi</p>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-50">{{ stats.logbookTerisi }}</h3>
+        <p class="text-xs font-semibold text-muted-foreground">Logbook Terisi</p>
+        <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.logbookTerisi }}</h3>
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600">
           <TrendingUp class="w-3 h-3" />
           {{ stats.logbookTrend }}
@@ -77,10 +77,10 @@
     </Card>
 
     <!-- Evaluasi Bulan Ini Card -->
-    <Card class="p-4 flex items-center justify-between bg-white dark:bg-slate-900/50 border-slate-100 dark:border-slate-800/60 backdrop-blur-md shadow-none rounded-2xl md:rounded-3xl">
+    <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
-        <p class="text-xs font-semibold text-slate-400">Evaluasi Bulan Ini</p>
-        <h3 class="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-50">{{ stats.evaluasi }}</h3>
+        <p class="text-xs font-semibold text-muted-foreground">Evaluasi Bulan Ini</p>
+        <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.evaluasi }}</h3>
         <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-rose-50 dark:bg-rose-950/40 text-rose-500">
           <TrendingDown class="w-3 h-3" />
           {{ stats.evaluasiTrend }}

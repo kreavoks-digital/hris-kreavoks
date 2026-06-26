@@ -16,19 +16,19 @@
             <Button
               variant="outline"
               :class="cn(
-                'w-[240px] justify-start text-left font-normal bg-white border-slate-200 rounded-2xl hover:bg-slate-50',
-                !selectedDate && 'text-slate-400'
+                'w-[240px] justify-start text-left font-normal bg-background border-border rounded-2xl hover:bg-accent',
+                !selectedDate && 'text-muted-foreground'
               )"
             >
               <CalendarIcon class="mr-2 h-4 w-4 text-slate-500" />
               {{ selectedDate ? format(new Date(selectedDate), 'dd MMMM yyyy', { locale: idLocale }) : 'Pilih Tanggal' }}
             </Button>
           </PopoverTrigger>
-          <PopoverContent class="w-auto p-0 border-slate-100 rounded-2xl shadow-sm" align="end">
+          <PopoverContent class="w-auto p-0 border-border rounded-2xl shadow-sm" align="end">
             <Calendar v-model="dateValue" initial-focus />
           </PopoverContent>
         </Popover>
-        <Button v-if="canViewAll" variant="outline" class="gap-2 border-slate-200 text-slate-600 hover:bg-slate-50" @click="exportAttendance">
+        <Button v-if="canViewAll" variant="outline" class="gap-2 border-border text-foreground hover:bg-accent" @click="exportAttendance">
           <Download class="h-4 w-4" />
           Export CSV
         </Button>
@@ -37,14 +37,14 @@
 
     <!-- Summary Grid -->
     <div class="grid gap-6 md:grid-cols-4">
-      <Card v-for="(val, key) in summaryItems" :key="key" class="border border-slate-100 overflow-hidden group rounded-3xl transition-all duration-300 hover:bg-slate-50/50">
+      <Card v-for="(val, key) in summaryItems" :key="key" class="border border-border bg-card overflow-hidden group rounded-3xl transition-all duration-300 hover:bg-accent/50">
         <CardContent class="p-6 flex items-center gap-4">
           <div :class="[val.color, 'h-11 w-11 rounded-2xl flex items-center justify-center transition-all']">
              <component :is="val.icon" class="h-5 w-5" />
           </div>
           <div>
-            <p class="text-sm font-medium text-slate-400">{{ val.label }}</p>
-            <p class="text-2xl font-semibold text-kv-black">{{ val.count }}</p>
+            <p class="text-sm font-medium text-muted-foreground">{{ val.label }}</p>
+            <p class="text-2xl font-semibold text-foreground">{{ val.count }}</p>
           </div>
         </CardContent>
       </Card>
@@ -54,15 +54,15 @@
     <div class="flex flex-col sm:flex-row gap-4">
       <div class="relative flex-1" v-if="canViewAll">
         <Search class="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-        <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-white border-slate-100 shadow-sm shadow-slate-100/50" />
+        <Input v-model="searchQuery" placeholder="Cari nama karyawan..." class="pl-11 bg-background border-border shadow-sm shadow-slate-100/50 dark:shadow-none" />
       </div>
       <div v-else class="flex-1"></div>
       <div class="w-full sm:w-64">
         <Select v-model="filterStatus">
-          <SelectTrigger class="bg-white rounded-3xl h-12 border-slate-100 px-5 shadow-sm shadow-slate-100/50">
+          <SelectTrigger class="bg-background rounded-3xl h-12 border-border px-5 shadow-sm shadow-slate-100/50 dark:shadow-none">
             <SelectValue placeholder="Semua Status" />
           </SelectTrigger>
-          <SelectContent class="rounded-2xl border-slate-100">
+          <SelectContent class="rounded-2xl border-border bg-popover">
             <SelectItem value="none">Semua Status</SelectItem>
             <SelectItem value="present">Hadir</SelectItem>
             <SelectItem value="permission">Izin</SelectItem>
@@ -74,14 +74,14 @@
     </div>
 
     <!-- Table Card -->
-    <Card class="border border-slate-100 overflow-hidden rounded-3xl">
+    <Card class="border border-border bg-card overflow-hidden rounded-3xl">
 
       
       <div class="relative overflow-x-auto">
         <Table>
           <TableBody>
             <template v-for="(group, key) in groupedAttendance" :key="key">
-              <TableRow class="bg-slate-50/50 border-y border-slate-100" :class="{ 'cursor-pointer hover:bg-slate-100/50': canViewAll }" @click="canViewAll && toggleGroup(key as string)">
+              <TableRow class="bg-muted/30 border-y border-border" :class="{ 'cursor-pointer hover:bg-accent': canViewAll }" @click="canViewAll && toggleGroup(key as string)">
                 <TableCell :colspan="isAdmin ? 6 : 5" class="py-3">
                   <div class="flex items-center gap-3">
                     <ChevronRight v-if="canViewAll" :class="{'rotate-90': expandedGroups[key as string]}" class="h-4 w-4 text-slate-400 transition-transform" />
@@ -90,21 +90,21 @@
                       <AvatarFallback>{{ (key as string).split(' - ')[1]?.charAt(0) || 'U' }}</AvatarFallback>
                     </Avatar>
                     <div class="flex flex-col">
-                      <span class="font-semibold text-kv-black leading-tight">{{ (key as string).split(' - ')[1] || 'Unknown' }}</span>
-                      <span class="text-xs text-slate-400">NPK: {{ (key as string).split(' - ')[0] || '-' }}</span>
+                      <span class="font-semibold text-foreground leading-tight">{{ (key as string).split(' - ')[1] || 'Unknown' }}</span>
+                      <span class="text-xs text-muted-foreground">NPK: {{ (key as string).split(' - ')[0] || '-' }}</span>
                     </div>
-                    <Badge variant="outline" class="ml-auto bg-white shadow-sm border-slate-200 text-slate-500">{{ group.length }} Riwayat</Badge>
+                    <Badge variant="outline" class="ml-auto bg-background shadow-sm border-border text-muted-foreground">{{ group.length }} Riwayat</Badge>
                   </div>
                 </TableCell>
               </TableRow>
 
               <template v-if="!canViewAll || expandedGroups[key as string]">
-                <TableRow class="hover:bg-transparent border-b border-slate-100 bg-slate-50/30">
+                <TableRow class="hover:bg-transparent border-b border-border bg-transparent">
                   <TableCell :colspan="isAdmin ? 6 : 5" class="p-0">
                     <div class="px-8 py-6">
-                      <Table class="bg-white rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                      <Table class="bg-background rounded-2xl overflow-hidden border border-border shadow-sm">
                         <TableHeader>
-                          <TableRow class="bg-slate-50/80 hover:bg-slate-50/80">
+                          <TableRow class="bg-muted/50 hover:bg-muted/50">
                             <TableHead class="font-semibold">Tanggal</TableHead>
                             <TableHead class="font-semibold">Jam Masuk</TableHead>
                             <TableHead class="font-semibold">Jam Keluar</TableHead>
@@ -114,21 +114,21 @@
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          <TableRow v-for="record in group" :key="record.id" class="hover:bg-slate-50/50 transition-colors border-slate-50">
+                          <TableRow v-for="record in group" :key="record.id" class="hover:bg-accent/50 transition-colors border-border">
                             <TableCell>
-                              <div class="flex items-center gap-2 text-sm font-medium text-slate-600">
+                              <div class="flex items-center gap-2 text-sm font-medium text-foreground/80">
                                 <Calendar class="h-3.5 w-3.5 text-slate-400" />
                                 {{ (record as any).date }}
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div class="flex items-center gap-1.5 text-sm font-medium text-slate-600">
+                              <div class="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
                                 <Clock class="h-3.5 w-3.5 text-kv-primary" />
                                 {{ record.checkIn || "--:--" }}
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div class="flex items-center gap-1.5 text-sm font-medium text-slate-600">
+                              <div class="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
                                 <LogOutIcon class="h-3.5 w-3.5 text-slate-400" />
                                 {{ record.checkOut || "--:--" }}
                               </div>
@@ -153,7 +153,7 @@
                             <TableCell v-if="isAdmin" class="text-right">
                               <AlertDialog>
                                 <AlertDialogTrigger as-child>
-                                  <Button variant="ghost" size="icon" class="text-rose-500 hover:text-rose-600 hover:bg-rose-50">
+                                  <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive hover:bg-destructive/10">
                                     <Trash2 class="h-4 w-4" />
                                   </Button>
                                 </AlertDialogTrigger>
@@ -306,7 +306,7 @@ const summaryItems = computed(() => ({
     label: 'Alfa', 
     count: summary.value.absent, 
     icon: XCircle, 
-    color: 'bg-slate-100 text-slate-500'
+    color: 'bg-muted text-muted-foreground'
   }
 }))
 

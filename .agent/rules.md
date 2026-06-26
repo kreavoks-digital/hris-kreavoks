@@ -57,6 +57,10 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
     - Check `app/components/ui` (shadcn) or `app/components/shared` first.
     - If a feature needs a slightly different global component, **USE PROPS** to handle variations rather than duplicating the component.
     - Component files should not be "gemuk" (bloated). Split logic if necessary.
+- **Styling Restrictions**:
+    - **NO HARDCODED CLASSES**: Do not hardcode styling classes (e.g., `bg-white`, `border-slate-100`, `text-slate-600`) directly on instances of shared UI components inside pages.
+    - **Use Semantic/Variant Props**: If a component needs styling changes, define it via `variant`, `size`, or other props in the parent component definition (e.g. `app/components/ui/button/Button.vue`). This ensures consistency across all pages that use the component.
+    - **Semantic Colors Only**: Always use Tailwind semantic variables (e.g., `bg-background`, `bg-card`, `border-border`, `text-foreground`, `text-muted-foreground`) to ensure proper dark mode support out-of-the-box, rather than hardcoding light/dark colors individually.
 - **Color Restrictions**:
     - **DO NOT** use random colors. Stick to Primary `#4082E6`, Accent `#FEF747`, and the soft grayscale palette.
 - **Rounding**:
