@@ -1,44 +1,48 @@
 export const useApi = () => {
   const { accessToken, refreshAccessToken, logout } = useAuth()
   const config = useRuntimeConfig()
-  const apiUrl = config.public.apiUrl || API_BASE_URL
-  
-  const customFetch = $fetch.create({
-    baseURL: apiUrl,
-    async onRequest({ options }) {
-      if (accessToken.value) {
-        const headers = options.headers || {}
-        
-        if (headers instanceof Headers) {
-          headers.set('Authorization', `Bearer ${accessToken.value}`)
-        } else if (Array.isArray(headers)) {
-          (headers as string[][]).push(['Authorization', `Bearer ${accessToken.value}`])
-        } else {
-          (headers as Record<string, string>)['Authorization'] = `Bearer ${accessToken.value}`
-        }
+  const apiUrl = (config.public.apiUrl as string) || 'http://localhost:3001/api/v1'
 
-        options.headers = headers
-      }
-    },
-    async onResponseError({ response, options }) {
-      if (response.status === 401 && accessToken.value) {
-        // Avoid infinite loop if refresh itself fails
-        if (options.baseURL?.includes('/auth/refresh-token')) {
+  const customFetch = async (request: string, opts: any = {}) => {
+    const buildFetcher = (token: string | null) => $fetch.create({
+      baseURL: apiUrl,
+      credentials: 'include', // selalu kirim cookie ke BE
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
+
+    try {
+      return await buildFetcher(accessToken.value)(request, opts)
+    } catch (error: any) {
+      const status = error?.response?.status
+
+      // Jika 401 — coba refresh token via cookie lalu retry sekali
+      if (status === 401) {
+        // Jangan retry jika request itu sendiri adalah refresh/login
+        if (request.includes('/auth/refresh-token') || request.includes('/auth/login')) {
           logout()
-          return
+          throw error
         }
 
         try {
-          await refreshAccessToken()
-          // Note: Transparent retry is complex with $fetch.create. 
-          // Usually requires a higher-level wrapper or state change that triggers re-fetch.
-        } catch (error) {
+          const newToken = await refreshAccessToken()
+
+          // Retry dengan token baru
+          const retryOpts = { ...opts }
+          retryOpts.headers = {
+            ...(retryOpts.headers || {}),
+            Authorization: `Bearer ${newToken}`
+          }
+          return await buildFetcher(newToken)(request, retryOpts)
+        } catch {
           logout()
-          navigateTo('/auth/login')
+          await navigateTo('/auth/login')
+          throw error
         }
       }
+
+      throw error
     }
-  })
+  }
 
   return customFetch as any
 }

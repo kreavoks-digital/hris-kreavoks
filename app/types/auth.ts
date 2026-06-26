@@ -9,9 +9,10 @@ export interface User {
 
 export interface AuthResponse {
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string; // Tidak lagi dikirim di body — dikelola HttpOnly cookie
   user: User;
 }
+
 
 export interface ApiResponse<T = any> {
   success: boolean;

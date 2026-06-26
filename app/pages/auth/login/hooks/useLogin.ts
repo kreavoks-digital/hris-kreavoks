@@ -4,7 +4,6 @@ import { toast } from 'vue-sonner'
 
 export const useLogin = () => {
   const { setAuth } = useAuth()
-  const router = useRouter()
   
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -17,11 +16,13 @@ export const useLogin = () => {
       const response = await loginApi.login(credentials)
       
       if (response.success) {
-        setAuth(response.data.user, response.data.accessToken, response.data.refreshToken)
+        // setAuth hanya butuh user dan accessToken — refreshToken di HttpOnly cookie
+        setAuth(response.data.user, response.data.accessToken)
         toast.success('Login Berhasil', {
-          description: 'Selamat datang kembali!'
+          description: `Selamat datang, ${response.data.user.fullName || response.data.user.email}!`
         })
-        router.push('/dashboard')
+        // Gunakan navigateTo (Nuxt) bukan router.push agar middleware bisa berjalan ulang
+        await navigateTo('/dashboard')
       } else {
         error.value = response.message || 'Login gagal'
         toast.error('Login Gagal', {

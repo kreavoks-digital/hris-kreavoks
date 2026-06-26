@@ -72,8 +72,8 @@
       <!-- Action Buttons -->
       <div class="space-y-3 mt-6">
         <div class="grid grid-cols-2 gap-3">
-          <AlertDialog>
-            <AlertDialogTrigger as-child>
+          <Dialog v-model:open="showClockOutModal">
+            <DialogTrigger as-child>
               <Button 
                 :variant="attendanceState === 'clocked_in' ? 'default' : 'outline'"
                 :disabled="attendanceState !== 'clocked_in'"
@@ -82,24 +82,69 @@
               >
                 Clock Out
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Konfirmasi Absen Pulang</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Apakah Anda yakin ingin melakukan Clock Out sekarang (pukul {{ currentTime }} WIB)? Anda tidak bisa mengubahnya setelah ini.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel as-child>
-                  <Button variant="outline">Batal</Button>
-                </AlertDialogCancel>
-                <AlertDialogAction as-child>
-                  <Button @click="$emit('clock-out')" class="bg-kv-primary text-white hover:bg-kv-primary/90">Ya, Clock Out</Button>
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+            </DialogTrigger>
+            <DialogContent class="sm:max-w-2xl p-0 overflow-hidden border-border bg-card">
+              <form @submit.prevent="submitClockOut">
+                <DialogHeader class="px-6 py-4 border-b border-border bg-muted/20">
+                  <DialogTitle class="text-xl font-bold text-foreground">Clock Out & Laporan Harian</DialogTitle>
+                  <DialogDescription class="text-muted-foreground text-sm">
+                    Sebelum Clock Out (pukul {{ currentTime }} WIB), mohon lengkapi logbook kegiatan Anda hari ini.
+                  </DialogDescription>
+                </DialogHeader>
+                
+                <div class="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+                  <div class="space-y-2">
+                    <Label class="text-foreground">Apa yang kamu telah kerjakan hari ini?</Label>
+                    <textarea 
+                      v-model="clockOutLogbook.activity"
+                      required
+                      placeholder="Tuliskan aktivitas dan pekerjaan yang sudah diselesaikan..." 
+                      class="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div class="space-y-2">
+                    <Label class="text-foreground">Apa rencana yang akan kamu kerjakan besok?</Label>
+                    <textarea 
+                      v-model="clockOutLogbook.planTomorrow"
+                      required
+                      placeholder="Tuliskan rencana pekerjaan untuk esok hari..." 
+                      class="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                    ></textarea>
+                  </div>
+                  
+                  <div class="space-y-2">
+                    <Label class="text-foreground">Apakah ada kendala sejauh ini? Kalau ada ceritain ya..</Label>
+                    <textarea 
+                      v-model="clockOutLogbook.obstacle"
+                      required
+                      placeholder="Ceritakan kendala yang dialami..." 
+                      class="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div class="space-y-3 p-4 bg-muted/30 border border-border rounded-xl">
+                    <Label class="text-foreground flex items-center gap-2">
+                      <LinkIcon class="w-4 h-4 text-kv-primary" />
+                      Link Dokumentasi Pekerjaan
+                    </Label>
+                    <p class="text-[13px] text-muted-foreground leading-relaxed">
+                      Sertakan link dokumentasi pekerjaanmu hari ini. Upload ke drive dan sertakan link disini.<br/>
+                      <b class="text-kv-primary">*Jangan lupa atur akses nya hanya lihat (Viewer)</b>
+                    </p>
+                    <Input type="url" v-model="clockOutLogbook.documentLink" required placeholder="https://drive.google.com/..." class="bg-background border-border" />
+                  </div>
+                </div>
+
+                <DialogFooter class="px-6 py-4 border-t border-border bg-muted/20 sm:justify-end gap-2">
+                  <Button variant="outline" type="button" class="border-border bg-background" @click="showClockOutModal = false">Batal</Button>
+                  <Button type="submit" class="bg-kv-primary text-white hover:bg-kv-primary/90">
+                    Kirim & Clock Out
+                  </Button>
+                </DialogFooter>
+              </form>
+            </DialogContent>
+          </Dialog>
 
           <AlertDialog>
             <AlertDialogTrigger as-child>
@@ -130,13 +175,88 @@
             </AlertDialogContent>
           </AlertDialog>
         </div>
-        <Button 
-          variant="link" 
-          class="text-xs font-bold text-kv-primary block mx-auto py-1 h-auto hover:underline"
-          :disabled="attendanceState === 'clocked_out'"
-        >
-          Ajukan Izin
-        </Button>
+        <Dialog>
+          <DialogTrigger as-child>
+            <Button 
+              variant="link" 
+              class="text-xs font-bold text-kv-primary block mx-auto py-1 h-auto hover:underline"
+              :disabled="attendanceState === 'clocked_out'"
+            >
+              Ajukan Izin
+            </Button>
+          </DialogTrigger>
+          <DialogContent class="sm:max-w-4xl p-0 overflow-hidden border-border bg-card">
+            <DialogHeader class="px-6 py-4 border-b border-border bg-muted/20">
+              <DialogTitle class="text-xl font-bold text-foreground">Form Pengajuan Izin / Cuti</DialogTitle>
+              <DialogDescription class="text-muted-foreground text-sm">
+                Silakan lengkapi form di bawah ini. Semua field wajib diisi kecuali dinyatakan opsional.
+              </DialogDescription>
+            </DialogHeader>
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-0">
+              <!-- Kiri: Info Dasar -->
+              <div class="md:col-span-7 p-6 space-y-5">
+                <div class="space-y-2">
+                  <Label class="text-foreground">Tipe Pengajuan</Label>
+                  <Select>
+                    <SelectTrigger class="bg-background border-border">
+                      <SelectValue placeholder="Pilih tipe izin atau cuti" />
+                    </SelectTrigger>
+                    <SelectContent class="border-border">
+                      <SelectItem value="sakit">Sakit</SelectItem>
+                      <SelectItem value="izin">Izin Pribadi</SelectItem>
+                      <SelectItem value="cuti">Cuti Tahunan</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-2">
+                    <Label class="text-foreground">Tanggal Mulai</Label>
+                    <Input type="date" class="bg-background border-border" />
+                  </div>
+                  <div class="space-y-2">
+                    <Label class="text-foreground">Tanggal Selesai</Label>
+                    <Input type="date" class="bg-background border-border" />
+                  </div>
+                </div>
+                <div class="space-y-2">
+                  <Label class="text-foreground">Keterangan / Alasan</Label>
+                  <textarea 
+                    placeholder="Jelaskan alasan pengajuan secara detail..." 
+                    class="flex min-h-[120px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                  ></textarea>
+                </div>
+              </div>
+              
+              <!-- Kanan: Bukti -->
+              <div class="md:col-span-5 p-6 bg-muted/10 border-l border-border flex flex-col">
+                <div class="flex flex-col items-center text-center space-y-4 mb-6 mt-4">
+                  <div class="w-16 h-16 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mb-2">
+                    <LinkIcon class="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h3 class="font-semibold text-foreground text-lg">Bukti Izin (Opsional)</h3>
+                  <p class="text-sm text-muted-foreground leading-relaxed px-2">
+                    Harap upload foto bukti (surat dokter/acara) ke <b class="text-foreground">Google Drive</b> Anda, pastikan akses link di set ke <i>Viewer/Anyone with link</i>, lalu tempel link tersebut di bawah.
+                  </p>
+                </div>
+                <div class="space-y-2 mt-auto">
+                  <Label class="text-foreground">Link Google Drive</Label>
+                  <Input type="url" placeholder="https://drive.google.com/file/d/..." class="bg-background border-border" />
+                  <p class="text-[11px] text-muted-foreground mt-1.5 leading-tight">
+                    *Diprioritaskan untuk diisi karena akan diverifikasi dan disetujui oleh HRD.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <DialogFooter class="px-6 py-4 border-t border-border bg-muted/20 sm:justify-end gap-2">
+              <DialogClose as-child>
+                <Button variant="outline" type="button" class="border-border bg-background">Batal</Button>
+              </DialogClose>
+              <DialogClose as-child>
+                <Button type="button" class="bg-kv-primary text-white hover:bg-kv-primary/90" @click="submitIzin">Kirim Pengajuan</Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Card>
 
@@ -185,11 +305,31 @@
 </template>
 
 <script setup lang="ts">
-import { ArrowDown, ArrowUp, Clock } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, Clock, Link as LinkIcon } from 'lucide-vue-next'
 import type { AttendanceLog, CalendarEvent } from '../types'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Calendar } from '~/components/ui/calendar'
+import { Label } from '~/components/ui/label'
+import { Input } from '~/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from '~/components/ui/dialog'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select'
+import { toast } from 'vue-sonner'
 import {
   Table,
   TableBody,
@@ -223,5 +363,31 @@ defineProps<{
 
 const model = defineModel<any>()
 
-defineEmits(['clock-in', 'clock-out'])
+const emit = defineEmits(['clock-in', 'clock-out'])
+
+const showClockOutModal = ref(false)
+const clockOutLogbook = ref({
+  activity: '',
+  planTomorrow: '',
+  obstacle: '',
+  documentLink: ''
+})
+
+const submitClockOut = () => {
+  emit('clock-out', { ...clockOutLogbook.value })
+  showClockOutModal.value = false
+  // Reset
+  clockOutLogbook.value = {
+    activity: '',
+    planTomorrow: '',
+    obstacle: '',
+    documentLink: ''
+  }
+}
+
+const submitIzin = () => {
+  toast.success('Pengajuan Berhasil', {
+    description: 'Pengajuan izin/cuti Anda telah terkirim dan menunggu persetujuan HRD.'
+  })
+}
 </script>

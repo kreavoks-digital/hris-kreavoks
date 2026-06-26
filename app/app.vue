@@ -10,9 +10,5 @@
 <script setup>
 import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
-const { loadAuth } = useAuth()
-
-onMounted(() => {
-  loadAuth()
-})
+// loadAuth sekarang dipindah ke plugin auth.client.ts agar lebih stabil
 </script>

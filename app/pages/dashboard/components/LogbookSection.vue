@@ -3,66 +3,6 @@
     <!-- Section Header -->
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold text-slate-900 dark:text-slate-50">Logbook</h2>
-      
-      <Dialog v-model:open="showModal">
-        <DialogTrigger asChild>
-          <Button class="gap-2 font-semibold text-white bg-kv-primary hover:bg-kv-primary/95">
-            <Plus class="h-4 w-4" />
-            Tambah Logbook
-          </Button>
-        </DialogTrigger>
-        <DialogContent class="sm:max-w-[500px] rounded-3xl p-6 border-slate-100 dark:border-slate-800">
-          <DialogHeader>
-            <DialogTitle>Tambah Kegiatan Logbook</DialogTitle>
-          </DialogHeader>
-
-          <form @submit.prevent="handleSubmit" class="space-y-4 pt-2">
-            <div class="space-y-2">
-              <Label class="text-slate-700 dark:text-slate-300">Divisi</Label>
-              <Input 
-                v-model="form.divisi" 
-                type="text" 
-                required
-              />
-            </div>
-
-            <div class="space-y-2">
-              <Label class="text-slate-700 dark:text-slate-300">Deskripsi Kegiatan</Label>
-              <textarea 
-                v-model="form.deskripsi" 
-                rows="3"
-                required
-                placeholder="Tulis kegiatan hari ini..."
-                class="flex w-full rounded-2xl border bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground outline-none transition-all duration-200 focus-visible:border-primary focus-visible:ring-0 focus-visible:shadow-[0_0_0_4px_rgba(37,99,235,0.12)] border-border hover:border-primary/50 text-slate-700 dark:text-slate-200"
-              ></textarea>
-            </div>
-
-            <div class="space-y-2">
-              <Label class="text-slate-700 dark:text-slate-300">Kendala</Label>
-              <Input 
-                v-model="form.kendala" 
-                type="text"
-                placeholder="Tulis kendala (jika ada) atau 'Tidak Ada'"
-              />
-            </div>
-
-            <DialogFooter class="pt-4 border-t border-slate-50 dark:border-slate-800/40">
-              <Button 
-                type="button" 
-                variant="secondary"
-                @click="showModal = false"
-              >
-                Batal
-              </Button>
-              <Button 
-                type="submit"
-              >
-                Simpan
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
     </div>
 
     <!-- Table -->
@@ -123,18 +63,4 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits(['add-logbook'])
-
-const showModal = ref(false)
-const form = ref({
-  divisi: 'Divisi UI/UX',
-  deskripsi: '',
-  kendala: 'Tidak Ada'
-})
-
-const handleSubmit = () => {
-  emit('add-logbook', { ...form.value })
-  form.value.deskripsi = ''
-  form.value.kendala = 'Tidak Ada'
-  showModal.value = false
-}
 </script>

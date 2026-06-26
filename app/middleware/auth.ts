@@ -1,29 +1,24 @@
 export default defineNuxtRouteMiddleware(async (to) => {
+  // Middleware hanya berjalan di client (ssr: false)
   if (process.server) return
 
-  const { accessToken, user, loadAuth, fetchUser } = useAuth()
+  const { accessToken, loadAuth } = useAuth()
 
-  // LOAD dari localStorage hanya jika token belum ada di state
+  // Jika belum ada accessToken di memory, coba restore dari cookie via refresh
   if (!accessToken.value) {
-    loadAuth()
+    await loadAuth()
   }
 
-  // Jika ada token tapi user belum ada → fetch ulang
-  if (accessToken.value && !user.value) {
-    try {
-      await fetchUser()
-    } catch (e) {
-      return navigateTo('/auth/login')
-    }
-  }
+  const isAuthPage = to.path.startsWith('/auth/')
+  const isLoggedIn = !!accessToken.value
 
-  // Jika tidak ada token dan bukan halaman auth -> ke login
-  if (!accessToken.value && !to.path.startsWith('/auth/')) {
-    return navigateTo('/auth/login')
-  }
-
-  // Jika sudah login tapi mau ke login -> ke dashboard
-  if (accessToken.value && to.path === '/auth/login') {
+  // Jika sudah login dan coba akses auth pages → redirect dashboard
+  if (isLoggedIn && isAuthPage) {
     return navigateTo('/dashboard')
+  }
+
+  // Jika belum login dan bukan auth page → redirect login
+  if (!isLoggedIn && !isAuthPage) {
+    return navigateTo('/auth/login')
   }
 })

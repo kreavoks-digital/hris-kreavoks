@@ -1,33 +1,101 @@
+// ─── Session flag ────────────────────────────────────────────────────────────
+// Kita tidak bisa baca HttpOnly cookie dari JS.
+// Gunakan flag di sessionStorage sebagai sinyal "pernah login".
+// Flag ini hanya ada jika user benar-benar sudah login di tab ini atau sebelumnya.
+const SESSION_KEY = 'kvhris_session_active'
+
 export const useAuth = () => {
   const config = useRuntimeConfig()
-  const apiUrl = config.public.apiUrl || API_BASE_URL
-  
+  const apiUrl = (config.public.apiUrl as string) || 'http://localhost:3001/api/v1'
+
+  // accessToken disimpan di memory (hilang saat refresh page, di-restore via cookie)
   const accessToken = useState<string | null>('auth_access_token', () => null)
-  const refreshToken = useState<string | null>('auth_refresh_token', () => null)
   const user = useState<any | null>('auth_user', () => null)
 
-  const setTokens = (access: string, refresh: string) => {
+  const setTokens = (access: string) => {
     accessToken.value = access
-    refreshToken.value = refresh
-    localStorage.setItem('access_token', access)
-    localStorage.setItem('refresh_token', refresh)
   }
 
   const setUser = (u: any) => {
     user.value = u
-    localStorage.setItem('user', JSON.stringify(u))
+    if (process.client) {
+      sessionStorage.setItem('user', JSON.stringify(u))
+      // Tandai bahwa session aktif → izinkan refresh pada page load berikutnya
+      sessionStorage.setItem(SESSION_KEY, '1')
+    }
   }
 
-  const loadAuth = () => {
-    if (process.server) return
+  const setAuth = (u: any, access: string) => {
+    setUser(u)
+    setTokens(access)
+  }
 
-    const at = localStorage.getItem('access_token')
-    const rt = localStorage.getItem('refresh_token')
-    const u = localStorage.getItem('user')
+  // ─── Mutex: satu request refresh sekaligus ──────────────────────────────────
+  let refreshPromise: Promise<string> | null = null
 
-    if (at) accessToken.value = at
-    if (rt) refreshToken.value = rt
-    if (u) user.value = JSON.parse(u)
+  const refreshAccessToken = async (): Promise<string> => {
+    if (refreshPromise) return refreshPromise
+
+    refreshPromise = (async () => {
+      try {
+        const res = await $fetch<any>(`${apiUrl}/auth/refresh-token`, {
+          method: 'POST',
+          credentials: 'include',
+          body: {}
+        })
+
+        if (res.success && res.data?.accessToken) {
+          accessToken.value = res.data.accessToken
+          return res.data.accessToken
+        }
+        throw new Error('Refresh token gagal')
+      } catch (err) {
+        // Bersihkan state tapi jangan redirect di sini
+        accessToken.value = null
+        user.value = null
+        if (process.client) {
+          sessionStorage.removeItem('user')
+          sessionStorage.removeItem(SESSION_KEY)
+        }
+        throw err
+      } finally {
+        refreshPromise = null
+      }
+    })()
+
+    return refreshPromise
+  }
+
+  /**
+   * Inisialisasi auth saat pertama kali app di-load.
+   * Hanya mencoba refresh token jika ada flag session aktif.
+   * Ini mencegah error 401 di console bagi user yang belum pernah login.
+   */
+  const loadAuth = async () => {
+    if (!process.client) return
+
+    // Restore user dari sessionStorage
+    const savedUser = sessionStorage.getItem('user')
+    if (savedUser && !user.value) {
+      try { user.value = JSON.parse(savedUser) } catch {}
+    }
+
+    // Jika sudah ada token di memory, tidak perlu refresh
+    if (accessToken.value) return
+
+    // Hanya coba refresh jika user PERNAH login (flag aktif)
+    // Tanpa ini: akan selalu nembak /auth/refresh-token walau belum login → 401 di console
+    const hasSession = sessionStorage.getItem(SESSION_KEY)
+    if (!hasSession) return
+
+    try {
+      await refreshAccessToken()
+      if (!user.value && accessToken.value) {
+        await fetchUser()
+      }
+    } catch {
+      // Cookie expired — user perlu login ulang, tidak ada error di console
+    }
   }
 
   const fetchUser = async () => {
@@ -35,63 +103,48 @@ export const useAuth = () => {
 
     try {
       const res = await $fetch<{ data: any }>(`${apiUrl}/profile/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken.value}`,
-        },
+        credentials: 'include',
+        headers: { Authorization: `Bearer ${accessToken.value}` },
       })
-      user.value = res.data
-      localStorage.setItem('user', JSON.stringify(res.data))
+      setUser(res.data)
     } catch (e) {
       console.error('Fetch user failed', e)
     }
   }
 
-  const refreshAccessToken = async () => {
-    if (!refreshToken.value) throw new Error('No refresh token available')
-
-    try {
-      const res = await $fetch<any>(`${apiUrl}/auth/refresh-token`, {
-        method: 'POST',
-        body: { refreshToken: refreshToken.value }
-      })
-
-      if (res.success) {
-        setTokens(res.data.accessToken, res.data.refreshToken)
-        return res.data.accessToken
-      }
-    } catch (err) {
-      console.error('Token refresh failed', err)
-      logout()
-      throw err
-    }
-    
-    throw new Error('Refresh token failed')
-  }
-
-  const setAuth = (u: any, access: string, refresh: string) => {
-    setUser(u)
-    setTokens(access, refresh)
-  }
-
   const logout = () => {
     accessToken.value = null
-    refreshToken.value = null
     user.value = null
-    localStorage.removeItem('access_token')
-    localStorage.removeItem('refresh_token')
-    localStorage.removeItem('user')
+    if (process.client) {
+      sessionStorage.removeItem('user')
+      sessionStorage.removeItem(SESSION_KEY)
+    }
+  }
+
+  const logoutAndRedirect = async () => {
+    try {
+      if (accessToken.value) {
+        await $fetch(`${apiUrl}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include',
+          headers: { Authorization: `Bearer ${accessToken.value}` }
+        })
+      }
+    } catch {}
+    logout()
+    await navigateTo('/auth/login')
   }
 
   return {
     accessToken,
-    refreshToken,
     user,
-    setTokens,
-    setUser,
     setAuth,
+    setUser,
+    setTokens,
     loadAuth,
     fetchUser,
     refreshAccessToken,
     logout,
+    logoutAndRedirect,
   }
 }

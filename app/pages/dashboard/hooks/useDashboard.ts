@@ -244,14 +244,33 @@ export const useDashboard = () => {
     }
   }
 
-  const handleClockOut = async () => {
+  const clockOutLogbook = ref({
+    activity: '',
+    planTomorrow: '',
+    obstacle: '',
+    documentLink: ''
+  })
+
+  const handleClockOut = async (logbookData: any) => {
     try {
       const api = useApi()
+      
+      // 1. Submit Logbook Data
+      await api('/logbook', { 
+        method: 'POST',
+        body: logbookData
+      })
+
+      // 2. Perform Clock Out
       await api('/attendance/clock-out', { method: 'POST' })
+      
       await fetchTodayAttendance()
       await fetchAttendanceHistory()
+      await fetchLogbooks()
+
     } catch (err) {
       console.error('Clock out failed', err)
+      throw err // Let UI handle error toast if needed
     }
   }
 

@@ -282,7 +282,7 @@ import {
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
-const { user, logout: doLogout } = useAuth()
+const { user, logoutAndRedirect } = useAuth()
 const searchQuery = useState('dashboard_search_query', () => '')
 
 // --- Sidebar State ---
@@ -355,11 +355,7 @@ const initials = computed(() => {
 })
 
 const logout = () => {
-  doLogout()
-  toast.success('Logged Out', {
-    description: 'Anda telah keluar dari sistem'
-  })
-  navigateTo('/auth/login')
+  logoutAndRedirect()
 }
 </script>
 
