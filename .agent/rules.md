@@ -75,3 +75,26 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
 - Ensure UI components are not cluttered.
 - If unsure about a design decision or if a component already exists, **ASK** or **SEARCH** first.
 - Always check `app/components/ui/` for existing primitives before building from scratch.
+
+## 7. Class Management (`cn` utility)
+- **Group and Comment Styles**: When using the `cn()` utility for complex classes, separate and group related states/styles together and add inline comments explaining what each group does. This significantly improves readability and maintainability.
+- **Example Usage**:
+```vue
+  <CalendarCellTrigger
+    :class="cn(
+      buttonVariants({ variant: 'ghost' }),
+      'h-8 w-8 p-0 font-normal',
+      '[&[data-today]:not([data-selected])]:bg-accent [&[data-today]:not([data-selected])]:text-accent-foreground',
+      // Selected
+      'data-[selected]:bg-kv-primary data-[selected]:text-white data-[selected]:opacity-100 data-[selected]:hover:bg-kv-primary data-[selected]:hover:text-white data-[selected]:focus:bg-kv-primary data-[selected]:focus:text-white',
+      // Disabled
+      'data-[disabled]:text-muted-foreground data-[disabled]:opacity-50',
+      // Unavailable
+      'data-[unavailable]:text-destructive-foreground data-[unavailable]:line-through',
+      // Outside months
+      'data-[outside-view]:text-muted-foreground data-[outside-view]:opacity-50 [&[data-outside-view][data-selected]]:bg-accent/50 [&[data-outside-view][data-selected]]:text-muted-foreground [&[data-outside-view][data-selected]]:opacity-30',
+      props.class,
+    )"
+    v-bind="forwardedProps"
+  >
+```

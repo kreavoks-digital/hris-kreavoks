@@ -17,7 +17,14 @@ const forwardedProps = useForwardProps(delegatedProps)
   <SelectTrigger
     v-bind="forwardedProps"
     :class="cn(
-      'flex h-11 w-full items-center justify-between whitespace-nowrap rounded-2xl border border-input bg-transparent px-3 py-2 text-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:truncate text-start',
+      // Base layout & typography
+      'flex h-11 w-full items-center justify-between whitespace-nowrap rounded-2xl border border-input bg-transparent px-3 py-2 text-sm text-start',
+      // Focus & states
+      'ring-offset-background focus:outline-none focus:ring-1 focus:ring-ring',
+      // Disabled state
+      'disabled:cursor-not-allowed disabled:opacity-50',
+      // Placeholder & slot styling
+      'data-[placeholder]:text-muted-foreground [&>span]:truncate',
       props.class,
     )"
   >

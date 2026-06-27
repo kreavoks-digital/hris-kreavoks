@@ -21,7 +21,13 @@ const forwardedProps = useForwardProps(delegatedProps)
   >
     <Button 
       variant="outline" 
-      :class="cn('h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100', props.class)"
+      :class="cn(
+        // Base sizing & styles
+        'h-7 w-7 bg-transparent p-0 opacity-50',
+        // Interactions
+        'hover:opacity-100',
+        props.class
+      )"
     >
       <slot>
         <ChevronLeft class="h-4 w-4" />
