@@ -82,8 +82,11 @@
       <div class="relative z-10 flex items-center justify-between gap-3">
         <div class="space-y-0.5">
           <p class="text-xs font-semibold text-kv-primary/80">Sisa Masa Kerja</p>
-          <div class="flex items-baseline gap-2 flex-wrap">
+          <div class="flex items-baseline flex-wrap">
             <h3 class="text-xl md:text-2xl font-bold text-kv-primary leading-none">{{ stats.sisaMasaKerja }}</h3>
+            <span v-if="stats.sisaMasaKerjaLabel" class="text-xs md:text-sm font-semibold text-kv-primary/50 ml-1">
+              {{ stats.sisaMasaKerjaLabel }}
+            </span>
           </div>
         </div>
         
