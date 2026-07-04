@@ -59,8 +59,8 @@
       </Table>
       
       <!-- Empty State -->
-      <div v-else class="flex-1 flex flex-col items-center justify-center py-12 text-center bg-muted/10 rounded-2xl border border-dashed border-border mt-2 animate-in fade-in zoom-in duration-500">
-        <div class="w-20 h-20 mb-3 text-muted-foreground/20">
+      <div v-else class="flex-1 flex flex-col items-center justify-center py-12 text-center bg-muted/30 dark:bg-muted/10 rounded-2xl border border-dashed border-border mt-2 animate-in fade-in zoom-in duration-500">
+        <div class="w-20 h-20 mb-3 text-muted-foreground/30 dark:text-muted-foreground/20">
           <FileText class="w-full h-full stroke-[1.5]" />
         </div>
         <p class="text-foreground font-medium text-lg">Belum ada logbook</p>
