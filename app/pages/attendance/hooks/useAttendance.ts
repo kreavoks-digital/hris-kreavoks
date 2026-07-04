@@ -100,7 +100,7 @@ export const useAttendance = () => {
   }
 
   const deleteRecord = async (id: string) => {
-    if (!isAdmin.value) return
+    if (!canViewAll.value) return
     try {
       await attendanceApi.deleteAttendance(id)
       await fetchAttendance()
