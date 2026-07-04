@@ -13,7 +13,7 @@
       </Button>
     </div>
 
-    <div class="overflow-x-auto flex-1 flex flex-col justify-center min-h-[200px]">
+    <div class="overflow-x-auto flex-1 flex flex-col min-h-[200px]">
       <Table v-if="logs && logs.length > 0">
         <TableHeader>
           <TableRow class="border-b border-border hover:bg-transparent">
