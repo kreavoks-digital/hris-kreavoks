@@ -57,6 +57,12 @@ export const useAttendance = () => {
     expandedGroups.value[key] = !expandedGroups.value[key]
   }
 
+  const expandedLogbooks = ref<Record<string, boolean>>({})
+
+  const toggleLogbook = (id: string) => {
+    expandedLogbooks.value[id] = !expandedLogbooks.value[id]
+  }
+
   const fetchAttendance = async () => {
     loading.value = true
     error.value = null
@@ -110,6 +116,35 @@ export const useAttendance = () => {
     fetchAttendance()
   })
 
+  const updateLogbook = async (id: string, data: any) => {
+    try {
+      const api = useApi()
+      await api(`/logbook/${id}`, {
+        method: 'PUT',
+        body: data
+      })
+      await fetchAttendance()
+      toast.success("Logbook berhasil diperbarui")
+    } catch (err: any) {
+      toast.error("Gagal memperbarui logbook", {
+        description: err?.message || "Terjadi kesalahan.",
+      })
+    }
+  }
+
+  const deleteLogbook = async (id: string) => {
+    try {
+      const api = useApi()
+      await api(`/logbook/${id}`, { method: 'DELETE' })
+      await fetchAttendance()
+      toast.success("Logbook berhasil dihapus")
+    } catch (err: any) {
+      toast.error("Gagal menghapus logbook", {
+        description: err?.message || "Terjadi kesalahan.",
+      })
+    }
+  }
+
   return {
     selectedDate,
     searchQuery,
@@ -120,12 +155,16 @@ export const useAttendance = () => {
     groupedAttendance,
     expandedGroups,
     toggleGroup,
+    expandedLogbooks,
+    toggleLogbook,
     loading,
     error,
     fetchAttendance,
     getStatusLabel,
     exportAttendance,
     deleteRecord,
+    updateLogbook,
+    deleteLogbook,
     isAdmin,
     canViewAll,
   }

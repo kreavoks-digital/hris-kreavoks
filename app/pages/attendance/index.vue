@@ -82,7 +82,7 @@
           <TableBody>
             <template v-for="(group, key) in groupedAttendance" :key="key">
               <TableRow class="bg-muted/30 border-y border-border" :class="{ 'cursor-pointer hover:bg-accent': canViewAll }" @click="canViewAll && toggleGroup(key as string)">
-                <TableCell :colspan="isAdmin ? 6 : 5" class="py-3">
+                <TableCell colspan="6" class="py-3">
                   <div class="flex items-center gap-3">
                     <ChevronRight v-if="canViewAll" :class="{'rotate-90': expandedGroups[key as string]}" class="h-4 w-4 text-slate-400 transition-transform" />
                     <Avatar class="h-9 w-9 border-2 border-white">
@@ -100,7 +100,7 @@
 
               <template v-if="!canViewAll || expandedGroups[key as string]">
                 <TableRow class="hover:bg-transparent border-b border-border bg-transparent">
-                  <TableCell :colspan="isAdmin ? 6 : 5" class="p-0">
+                  <TableCell colspan="6" class="p-0">
                     <div class="px-8 py-6">
                       <Table class="bg-background rounded-2xl overflow-hidden border border-border shadow-sm">
                         <TableHeader>
@@ -110,72 +110,120 @@
                             <TableHead class="font-semibold">Jam Keluar</TableHead>
                             <TableHead class="font-semibold">Status</TableHead>
                             <TableHead class="font-semibold">Keterangan</TableHead>
-                            <TableHead v-if="isAdmin" class="text-right font-semibold">Aksi</TableHead>
+                            <TableHead class="text-right font-semibold">{{ isAdmin ? 'Aksi' : '' }}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          <TableRow v-for="record in group" :key="record.id" class="hover:bg-accent/50 transition-colors border-border">
-                            <TableCell>
-                              <div class="flex items-center gap-2 text-sm font-medium text-foreground/80">
-                                <CalendarIcon class="h-3.5 w-3.5 text-slate-400" />
-                                {{ record.date }}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div class="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-                                <Clock class="h-3.5 w-3.5 text-kv-primary" />
-                                {{ record.checkIn || "--:--" }}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div class="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
-                                <LogOutIcon class="h-3.5 w-3.5 text-slate-400" />
-                                {{ record.checkOut || "--:--" }}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge 
-                                variant="secondary"
-                                class="text-sm font-semibold px-2.5 py-0.5 rounded-3xl border-none"
-                                :class="{
-                                  'bg-emerald-500/10 text-emerald-600': record.status === 'present',
-                                  'bg-amber-500/10 text-amber-600': record.status === 'permission',
-                                  'bg-blue-500/10 text-blue-600': record.status === 'sick',
-                                  'bg-rose-500/10 text-rose-600': record.status === 'absent'
-                                }"
-                              >
-                                {{ getStatusLabel(record.status) }}
-                              </Badge>
-                            </TableCell>
-                            <TableCell class="text-sm text-slate-400 max-w-[150px] truncate">
-                              {{ record.notes || "-" }}
-                            </TableCell>
-                            <TableCell v-if="isAdmin" class="text-right">
-                              <AlertDialog>
-                                <AlertDialogTrigger as-child>
-                                  <Button variant="ghost" size="icon" class="text-destructive hover:text-destructive hover:bg-destructive/10">
-                                    <Trash2 class="h-4 w-4" />
+                          <template v-for="record in group" :key="record.id">
+                            <TableRow class="hover:bg-accent/50 transition-colors border-border">
+                              <TableCell>
+                                <div class="flex items-center gap-2 text-sm font-medium text-foreground/80">
+                                  <CalendarIcon class="h-3.5 w-3.5 text-slate-400" />
+                                  {{ record.date }}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div class="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
+                                  <Clock class="h-3.5 w-3.5 text-kv-primary" />
+                                  {{ record.checkIn || "--:--" }}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <div class="flex items-center gap-1.5 text-sm font-medium text-foreground/80">
+                                  <LogOutIcon class="h-3.5 w-3.5 text-slate-400" />
+                                  {{ record.checkOut || "--:--" }}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge 
+                                  variant="secondary"
+                                  class="text-sm font-semibold px-2.5 py-0.5 rounded-3xl border-none"
+                                  :class="{
+                                    'bg-emerald-500/10 text-emerald-600': record.status === 'present',
+                                    'bg-amber-500/10 text-amber-600': record.status === 'permission',
+                                    'bg-blue-500/10 text-blue-600': record.status === 'sick',
+                                    'bg-rose-500/10 text-rose-600': record.status === 'absent'
+                                  }"
+                                >
+                                  {{ getStatusLabel(record.status) }}
+                                </Badge>
+                              </TableCell>
+                              <TableCell class="text-sm text-slate-400 max-w-[150px] truncate">
+                                {{ record.notes || record.logbook?.activity || "-" }}
+                              </TableCell>
+                              <TableCell class="text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                  <Button v-if="record.logbook" variant="ghost" size="sm" class="h-8 gap-1 text-blue-500 hover:text-blue-600 hover:bg-blue-500/10" @click="toggleLogbook(record.id)">
+                                    <FileText class="h-4 w-4" />
+                                    <span class="hidden sm:inline">{{ expandedLogbooks[record.id] ? 'Tutup' : 'Lihat' }} Logbook</span>
+                                    <ChevronRight class="h-4 w-4 transition-transform duration-200" :class="{'rotate-90': expandedLogbooks[record.id]}" />
                                   </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent class="pointer-events-auto">
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Hapus Data Absensi?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Data absensi milik {{ record.employeeName }} akan dihapus permanen. Aksi ini tidak dapat dibatalkan.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel as-child>
-                                      <Button variant="outline">Batal</Button>
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction as-child>
-                                      <Button @click="deleteRecord(record.id)" class="bg-rose-500 text-white hover:bg-rose-600">Hapus</Button>
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </TableCell>
-                          </TableRow>
+                                  <AlertDialog v-if="isAdmin">
+                                    <AlertDialogTrigger as-child>
+                                      <Button variant="ghost" size="icon" class="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
+                                        <Trash2 class="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent class="pointer-events-auto">
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Hapus Data Absensi?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Data absensi milik {{ record.employeeName }} akan dihapus permanen. Aksi ini tidak dapat dibatalkan.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel as-child>
+                                          <Button variant="outline">Batal</Button>
+                                        </AlertDialogCancel>
+                                        <AlertDialogAction as-child>
+                                          <Button @click="deleteRecord(record.id)" class="bg-rose-500 text-white hover:bg-rose-600">Hapus</Button>
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+
+                            <!-- Logbook Row -->
+                            <TableRow v-if="record.logbook && expandedLogbooks[record.id]" class="bg-muted/10 border-b border-border">
+                              <TableCell colspan="6" class="p-0">
+                                <div class="px-6 py-4 flex flex-col gap-3">
+                                  <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-semibold flex items-center gap-2">
+                                      <FileText class="w-4 h-4 text-blue-500" />
+                                      Logbook Harian
+                                    </h4>
+                                    <div v-if="isAdmin" class="flex gap-2">
+                                      <Button variant="ghost" size="sm" class="h-8 text-xs gap-1.5" @click="openEditDialog(record.logbook)">
+                                        <Pencil class="w-3.5 h-3.5" /> Edit Logbook
+                                      </Button>
+                                      <Button variant="ghost" size="sm" class="h-8 text-xs gap-1.5 text-destructive hover:text-destructive hover:bg-destructive/10" @click="confirmDeleteLogbook(record.logbook.id)">
+                                        <Trash2 class="w-3.5 h-3.5" /> Hapus
+                                      </Button>
+                                    </div>
+                                  </div>
+                                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1 bg-background p-3 rounded-xl border border-border">
+                                      <span class="text-xs font-medium text-muted-foreground">Aktivitas</span>
+                                      <p class="text-sm">{{ record.logbook.activity }}</p>
+                                    </div>
+                                    <div class="space-y-1 bg-background p-3 rounded-xl border border-border">
+                                      <span class="text-xs font-medium text-muted-foreground">Kendala</span>
+                                      <p class="text-sm">{{ record.logbook.obstacle || 'Tidak Ada' }}</p>
+                                    </div>
+                                  </div>
+                                  <div class="bg-background p-3 rounded-xl border border-border flex items-center justify-between">
+                                    <span class="text-xs font-medium text-muted-foreground">Link Bukti Google Drive</span>
+                                    <a v-if="record.logbook.documentLink" :href="record.logbook.documentLink" target="_blank" class="text-blue-500 hover:text-blue-600 hover:underline flex items-center gap-1.5 text-sm font-medium transition-colors">
+                                      <LinkIcon class="w-3.5 h-3.5" /> Buka Link
+                                    </a>
+                                    <span v-else class="text-sm text-muted-foreground italic">Tidak ada</span>
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          </template>
                         </TableBody>
                       </Table>
                     </div>
@@ -185,7 +233,7 @@
             </template>
 
             <TableRow v-if="Object.keys(groupedAttendance).length === 0 && !loading">
-              <TableCell :colspan="isAdmin ? 6 : 5" class="h-64 text-center">
+              <TableCell colspan="6" class="h-64 text-center">
                 <div class="flex flex-col items-center justify-center text-slate-300">
                   <ClipboardList class="h-12 w-12 mb-3 opacity-20" />
                   <p class="text-sm font-medium">Data absensi tidak ditemukan</p>
@@ -196,6 +244,33 @@
         </Table>
       </div>
     </Card>
+
+    <!-- Edit Logbook Dialog -->
+    <Dialog v-model:open="showEditDialog">
+      <DialogContent class="sm:max-w-[500px] border-border rounded-3xl overflow-hidden p-0">
+        <DialogHeader class="p-6 pb-0">
+          <DialogTitle class="text-xl">Edit Logbook Harian</DialogTitle>
+        </DialogHeader>
+        <div class="px-6 py-4 grid gap-4">
+          <div class="space-y-2">
+            <Label for="deskripsi">Aktivitas</Label>
+            <Textarea id="deskripsi" v-model="editingData.deskripsi" placeholder="Masukkan aktivitas harian" class="min-h-[100px] resize-none" />
+          </div>
+          <div class="space-y-2">
+            <Label for="kendala">Kendala</Label>
+            <Textarea id="kendala" v-model="editingData.kendala" placeholder="Tidak Ada" class="min-h-[100px] resize-none" />
+          </div>
+          <div class="space-y-2">
+            <Label for="documentLink">Link Bukti Google Drive</Label>
+            <Input id="documentLink" type="url" v-model="editingData.documentLink" placeholder="https://drive.google.com/..." class="bg-background border-border" />
+          </div>
+        </div>
+        <DialogFooter class="p-6 pt-2 bg-muted/30">
+          <Button variant="outline" @click="showEditDialog = false">Batal</Button>
+          <Button @click="handleSave">Simpan Perubahan</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
@@ -212,7 +287,10 @@ import {
   ClipboardList,
   Trash2,
   ChevronRight,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  FileText,
+  Link as LinkIcon,
+  Pencil
 } from 'lucide-vue-next'
 import { format } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
@@ -223,6 +301,8 @@ import { Calendar } from '~/components/ui/calendar'
 import { useAttendance } from './hooks/useAttendance'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/textarea'
+import { Label } from '~/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
@@ -237,6 +317,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '~/components/ui/dialog'
 import { 
   Table, 
   TableBody, 
@@ -267,14 +354,54 @@ const {
   groupedAttendance,
   expandedGroups,
   toggleGroup,
+  expandedLogbooks,
+  toggleLogbook,
   fetchAttendance,
   getStatusLabel,
   exportAttendance,
   loading,
   deleteRecord,
+  updateLogbook,
+  deleteLogbook,
   isAdmin,
   canViewAll
 } = useAttendance()
+
+const showEditDialog = ref(false)
+const editingData = ref({
+  id: '',
+  deskripsi: '',
+  kendala: '',
+  documentLink: ''
+})
+
+const openEditDialog = (logbook: any) => {
+  editingData.value = {
+    id: logbook.id,
+    deskripsi: logbook.activity,
+    kendala: logbook.obstacle,
+    documentLink: logbook.documentLink || ''
+  }
+  showEditDialog.value = true
+}
+
+const handleSave = () => {
+  if (!editingData.value.id || !editingData.value.deskripsi.trim()) return
+  
+  updateLogbook(editingData.value.id, {
+    activity: editingData.value.deskripsi,
+    obstacle: editingData.value.kendala,
+    documentLink: editingData.value.documentLink
+  })
+  
+  showEditDialog.value = false
+}
+
+const confirmDeleteLogbook = async (id: string) => {
+  if (confirm('Apakah Anda yakin ingin menghapus logbook ini?')) {
+    await deleteLogbook(id)
+  }
+}
 
 const dateValue = computed({
   get: () => selectedDate.value ? parseDate(selectedDate.value) : undefined,

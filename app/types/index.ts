@@ -26,6 +26,12 @@ export interface AttendanceRecord {
   checkOut: string | null;
   status: string;
   notes: string;
+  logbook?: {
+    id: string;
+    activity: string;
+    obstacle: string;
+    documentLink?: string;
+  } | null;
 }
 
 export interface AttendanceSummary {

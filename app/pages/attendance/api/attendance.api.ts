@@ -19,7 +19,13 @@ export const attendanceApi = {
       checkIn: item.clockIn ? new Date(item.clockIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : null,
       checkOut: item.clockOut ? new Date(item.clockOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : null,
       status: item.status.toLowerCase(),
-      notes: item.notes || ''
+      notes: item.notes || '',
+      logbook: item.user?.logbooks?.[0] ? {
+        id: item.user.logbooks[0].id.toString(),
+        activity: item.user.logbooks[0].activity,
+        obstacle: item.user.logbooks[0].obstacle || 'Tidak Ada',
+        documentLink: item.user.logbooks[0].documentLink
+      } : null
     }))
 
     // BE-12 FIX: Gunakan summary dari BE jika tersedia (isAdmin route), fallback hitung di FE
