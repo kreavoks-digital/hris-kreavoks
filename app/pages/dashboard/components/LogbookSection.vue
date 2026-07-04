@@ -15,6 +15,7 @@
             <SelectValue placeholder="Pilih Bulan" />
           </SelectTrigger>
           <SelectContent class="bg-popover border-border">
+            <SelectItem value="0">Semua Bulan</SelectItem>
             <SelectItem v-for="m in months" :key="m.value" :value="m.value.toString()">
               {{ m.label }}
             </SelectItem>

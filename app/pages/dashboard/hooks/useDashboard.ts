@@ -205,7 +205,7 @@ export const useDashboard = () => {
   }
 
   // Filters for Logbook
-  const logbookFilterMonth = ref(new Date().getMonth() + 1)
+  const logbookFilterMonth = ref(0) // Default ke Semua Bulan (0)
   const logbookFilterYear = ref(new Date().getFullYear())
 
   const fetchLogbooks = async () => {
