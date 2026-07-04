@@ -326,6 +326,7 @@ const navigation = [
   { name: 'Dashboard', to: '/dashboard', icon: BarChart3 },
   { name: 'Employee', to: '/employee', icon: Users, permission: 'manage_users' },
   { name: 'Attendance', to: '/attendance', icon: CheckCircle2 },
+  { name: 'Leave', to: '/leave', icon: CalendarDays, permission: 'manage_users' },
   { name: 'Payroll', to: '/payroll', icon: CircleDollarSign },
   { name: 'RBAC', to: '/rbac', icon: Shield, permission: 'manage_roles' },
 ]
