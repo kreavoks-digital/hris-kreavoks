@@ -97,7 +97,7 @@
         <!-- Doughnut Chart (Hadir vs Izin) -->
         <div class="relative w-12 h-12 md:w-16 md:h-16 shrink-0 flex items-center justify-center group cursor-pointer">
           <!-- Tooltip on hover -->
-          <div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-popover/90 backdrop-blur text-popover-foreground text-[10px] md:text-xs font-medium px-2.5 py-1 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 group-hover:-translate-y-1 transition-all duration-300 whitespace-nowrap pointer-events-none z-20 border border-border/50">
+          <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-popover/90 backdrop-blur text-popover-foreground text-[10px] md:text-xs font-medium px-2.5 py-1 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 group-hover:translate-y-1 transition-all duration-300 whitespace-nowrap pointer-events-none z-20 border border-border/50">
             <span class="text-kv-primary">Hadir: {{ stats.totalHadirCount || 0 }}</span> &nbsp;|&nbsp; <span class="text-rose-500">Izin: {{ stats.totalIzinCount || 0 }}</span>
           </div>
           
