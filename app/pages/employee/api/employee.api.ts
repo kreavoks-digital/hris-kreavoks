@@ -15,7 +15,10 @@ export const employeeApi = {
         department: user.department,
         position: user.position,
         status: user.isActive ? 'Aktif' : 'Nonaktif',
-        role: user.role
+        role: user.role,
+        startDate: user.startDate ? new Date(user.startDate).toISOString().split('T')[0] : "",
+        endDate: user.endDate ? new Date(user.endDate).toISOString().split('T')[0] : "",
+        certificateStatus: user.certificateStatus || "PROSES"
       }))
     }
   }

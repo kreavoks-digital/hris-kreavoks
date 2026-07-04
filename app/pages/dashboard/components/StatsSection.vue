@@ -79,11 +79,11 @@
     <!-- Evaluasi Bulan Ini Card -->
     <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
-        <p class="text-xs font-semibold text-muted-foreground">Evaluasi Bulan Ini</p>
-        <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.evaluasi }}</h3>
-        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-rose-50 dark:bg-rose-950/40 text-rose-500">
-          <TrendingDown class="w-3 h-3" />
-          {{ stats.evaluasiTrend }}
+        <p class="text-xs font-semibold text-muted-foreground">Sisa Masa Kerja</p>
+        <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.sisaMasaKerja }}</h3>
+        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-emerald-50 dark:bg-emerald-950/40 text-emerald-500">
+          <Clock class="w-3 h-3" />
+          {{ stats.sisaMasaKerjaLabel }}
         </span>
       </div>
       <div class="h-8 w-16 md:h-10 md:w-20 opacity-80 shrink-0">
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { TrendingUp, TrendingDown } from 'lucide-vue-next'
+import { TrendingUp, Clock } from 'lucide-vue-next'
 import type { DashboardStats } from '../types'
 import { Card } from '~/components/ui/card'
 

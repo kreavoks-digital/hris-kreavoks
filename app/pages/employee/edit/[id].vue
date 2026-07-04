@@ -90,6 +90,41 @@
         </CardContent>
       </Card>
 
+      <!-- Masa Kerja & Kontrak -->
+      <Card class="border border-slate-100 overflow-hidden bg-white/50 backdrop-blur-sm rounded-3xl">
+        <CardHeader class="bg-slate-50/50 border-b border-slate-100">
+          <div class="flex items-center gap-2">
+            <Calendar class="h-5 w-5 text-kv-primary" />
+            <CardTitle class="text-lg font-semibold text-kv-black">Masa Kerja & Kontrak</CardTitle>
+          </div>
+          <CardDescription class="text-slate-400">Atur periode masa kerja (biarkan kosong untuk masa kerja lifetime) dan status sertifikat.</CardDescription>
+        </CardHeader>
+        <CardContent class="p-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="space-y-2">
+              <Label for="startDate" class="text-slate-600 font-medium ml-1">Tanggal Mulai (Start Date)</Label>
+              <Input id="startDate" type="date" v-model="formData.startDate" class="border-slate-200 focus:ring-kv-primary" />
+            </div>
+            <div class="space-y-2">
+              <Label for="endDate" class="text-slate-600 font-medium ml-1">Tanggal Selesai (End Date)</Label>
+              <Input id="endDate" type="date" v-model="formData.endDate" class="border-slate-200 focus:ring-kv-primary" />
+            </div>
+            <div class="space-y-2">
+              <Label for="certificateStatus" class="text-slate-600 font-medium ml-1">Status Sertifikat</Label>
+              <Select v-model="formData.certificateStatus">
+                <SelectTrigger class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary">
+                  <SelectValue placeholder="Pilih Status" />
+                </SelectTrigger>
+                <SelectContent class="rounded-3xl">
+                  <SelectItem value="PROSES">Sedang Proses</SelectItem>
+                  <SelectItem value="SELESAI">Selesai / Terbit</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <!-- Form Actions -->
       <div class="flex items-center justify-end gap-4 p-4">
         <Button type="button" variant="ghost" class="px-6 text-slate-500 hover:text-kv-black" @click="navigateTo('/employee')">Batal</Button>
@@ -109,7 +144,8 @@ import {
   Save, 
   RefreshCw, 
   UserCircle, 
-  Briefcase 
+  Briefcase,
+  Calendar 
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -141,6 +177,9 @@ const formData = ref({
   department: "",
   position: "",
   role: "MENTOR",
+  startDate: "",
+  endDate: "",
+  certificateStatus: "PROSES",
 });
 
 const departments = [
@@ -170,6 +209,9 @@ onMounted(async () => {
             department: emp.department || "-",
             position: emp.position || "",
             role: emp.role || "MENTOR",
+            startDate: emp.startDate || "",
+            endDate: emp.endDate || "",
+            certificateStatus: emp.certificateStatus || "PROSES",
           };
         } else {
           toast.error("Karyawan tidak ditemukan");

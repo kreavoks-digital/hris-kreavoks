@@ -5,8 +5,8 @@ export interface DashboardStats {
   tidakHadirTrend: string
   logbookTerisi: string
   logbookTrend: string
-  evaluasi: string
-  evaluasiTrend: string
+  sisaMasaKerja: string
+  sisaMasaKerjaLabel: string
 }
 
 export interface AttendanceLog {

@@ -10,8 +10,8 @@ export const useDashboard = () => {
     tidakHadirTrend: '+1',
     logbookTerisi: '76%',
     logbookTrend: '+10%',
-    evaluasi: '85',
-    evaluasiTrend: '+7'
+    sisaMasaKerja: 'Lifetime',
+    sisaMasaKerjaLabel: 'Tetap'
   })
 
   // Attendance Logs
@@ -216,6 +216,18 @@ export const useDashboard = () => {
     }
   }
 
+  const fetchStats = async () => {
+    try {
+      const api = useApi()
+      const res: any = await api('/dashboard/stats')
+      if (res.data) {
+        stats.value = res.data
+      }
+    } catch (err) {
+      console.error('Failed to fetch stats', err)
+    }
+  }
+
   onMounted(() => {
     updateRealTimeClock()
     timerInterval = setInterval(updateRealTimeClock, 1000)
@@ -224,6 +236,7 @@ export const useDashboard = () => {
     fetchTodayAttendance()
     fetchAttendanceHistory()
     fetchLogbooks()
+    fetchStats()
   })
 
   // Watch filter changes

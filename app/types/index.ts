@@ -10,6 +10,9 @@ export interface Employee {
   position: string;
   status: string;
   role: string;
+  startDate?: string;
+  endDate?: string;
+  certificateStatus?: string;
 }
 
 export interface AttendanceRecord {
