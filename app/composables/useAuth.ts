@@ -4,6 +4,9 @@
 // Flag ini hanya ada jika user benar-benar sudah login di tab ini atau sebelumnya.
 const SESSION_KEY = 'kvhris_session_active'
 
+// ─── Mutex: satu request refresh sekaligus ──────────────────────────────────
+let refreshPromise: Promise<string> | null = null
+
 export const useAuth = () => {
   const config = useRuntimeConfig()
   const apiUrl = (config.public.apiUrl as string) || 'http://localhost:3001/api/v1'
@@ -29,9 +32,6 @@ export const useAuth = () => {
     setUser(u)
     setTokens(access)
   }
-
-  // ─── Mutex: satu request refresh sekaligus ──────────────────────────────────
-  let refreshPromise: Promise<string> | null = null
 
   const refreshAccessToken = async (): Promise<string> => {
     if (refreshPromise) return refreshPromise
@@ -74,7 +74,8 @@ export const useAuth = () => {
   const loadAuth = async () => {
     if (!process.client) return
 
-    // Restore user dari sessionStorage
+    // FE-05 FIX: Restore user dari sessionStorage sebagai data optimistic (tampilan awal cepat)
+    // tapi selalu verifikasi ke server setelah token di-refresh
     const savedUser = sessionStorage.getItem('user')
     if (savedUser && !user.value) {
       try { user.value = JSON.parse(savedUser) } catch {}
@@ -84,17 +85,16 @@ export const useAuth = () => {
     if (accessToken.value) return
 
     // Hanya coba refresh jika user PERNAH login (flag aktif)
-    // Tanpa ini: akan selalu nembak /auth/refresh-token walau belum login → 401 di console
     const hasSession = sessionStorage.getItem(SESSION_KEY)
     if (!hasSession) return
 
     try {
       await refreshAccessToken()
-      if (!user.value && accessToken.value) {
-        await fetchUser()
-      }
+      // FE-05 FIX: Selalu fetch ulang data user dari server setelah refresh berhasil
+      // untuk memastikan data di state adalah data yang valid dan terkini
+      await fetchUser()
     } catch {
-      // Cookie expired — user perlu login ulang, tidak ada error di console
+      // Cookie expired — user perlu login ulang
     }
   }
 

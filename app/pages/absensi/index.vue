@@ -117,8 +117,8 @@
                           <TableRow v-for="record in group" :key="record.id" class="hover:bg-accent/50 transition-colors border-border">
                             <TableCell>
                               <div class="flex items-center gap-2 text-sm font-medium text-foreground/80">
-                                <Calendar class="h-3.5 w-3.5 text-slate-400" />
-                                {{ (record as any).date }}
+                                <CalendarIcon class="h-3.5 w-3.5 text-slate-400" />
+                                {{ record.date }}
                               </div>
                             </TableCell>
                             <TableCell>

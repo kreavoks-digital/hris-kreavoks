@@ -1,6 +1,7 @@
 import { absensiApi } from '../api/absensi.api'
 import { useAuth } from '~/composables/useAuth'
 import type { AttendanceRecord, AttendanceSummary } from '~/types'
+import { toast } from 'vue-sonner'
 
 export const useAbsensi = () => {
   const selectedDate = ref("")
@@ -9,7 +10,7 @@ export const useAbsensi = () => {
   const attendance = ref<AttendanceRecord[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
-  
+
   const expandedGroups = ref<Record<string, boolean>>({})
 
   const auth = useAuth()
@@ -27,7 +28,7 @@ export const useAbsensi = () => {
     let result = attendance.value
 
     if (searchQuery.value) {
-      result = result.filter((record) => 
+      result = result.filter((record) =>
         (record.employeeName || "").toLowerCase().includes(searchQuery.value.toLowerCase()) ||
         (record.npk || "").toLowerCase().includes(searchQuery.value.toLowerCase())
       )
@@ -61,14 +62,15 @@ export const useAbsensi = () => {
     error.value = null
     try {
       const response = await absensiApi.getAttendance(selectedDate.value as string, canViewAll.value)
-      console.log("Attendance API Response:", response)
       if (response.success) {
         attendance.value = response.data.records
         summary.value = response.data.summary
       }
     } catch (err: any) {
-      console.error("Error fetching attendance:", err)
       error.value = "Gagal mengambil data absensi"
+      toast.error("Gagal memuat absensi", {
+        description: err?.message || "Terjadi kesalahan saat mengambil data.",
+      })
     } finally {
       loading.value = false
     }
@@ -84,24 +86,23 @@ export const useAbsensi = () => {
     return labels[status] || status
   }
 
+  // FE-02 FIX: Gunakan toast, bukan alert()
   const exportAttendance = () => {
-    alert("Fitur export akan segera tersedia")
+    toast.info("Fitur export sedang dalam pengembangan", {
+      description: "Fitur ini akan segera tersedia.",
+    })
   }
 
   const deleteRecord = async (id: string) => {
-    console.log("Tombol hapus diklik untuk ID:", id)
-    if (!isAdmin.value) {
-      console.warn("Ditolak: Bukan Admin")
-      return
-    }
+    if (!isAdmin.value) return
     try {
-      console.log("Memanggil API delete untuk ID:", id)
       await absensiApi.deleteAttendance(id)
-      console.log("Sukses dihapus, memuat ulang data...")
       await fetchAttendance()
-    } catch (err) {
-      console.error("Gagal menghapus absensi", err)
-      alert("Gagal menghapus absensi")
+      toast.success("Data absensi berhasil dihapus")
+    } catch (err: any) {
+      toast.error("Gagal menghapus absensi", {
+        description: err?.message || "Terjadi kesalahan.",
+      })
     }
   }
 

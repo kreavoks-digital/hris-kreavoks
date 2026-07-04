@@ -14,11 +14,13 @@ export interface Employee {
 
 export interface AttendanceRecord {
   id: string;
+  userId?: number;
   npk: string;
   employeeName: string;
   department: string;
-  checkIn: string;
-  checkOut: string;
+  date: string;          // FE-04 FIX: field ini memang ada, tambahkan ke type
+  checkIn: string | null;
+  checkOut: string | null;
   status: string;
   notes: string;
 }
