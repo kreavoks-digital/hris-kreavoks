@@ -32,8 +32,8 @@
     </div>
 
     <!-- Table -->
-    <div class="overflow-x-auto">
-      <Table>
+    <div class="overflow-x-auto min-h-[250px] flex flex-col">
+      <Table v-if="logbooks && logbooks.length > 0">
         <TableHeader class="bg-muted/50">
           <TableRow class="border-b border-border hover:bg-transparent">
             <TableHead class="font-semibold text-muted-foreground rounded-l-2xl">Posisi</TableHead>
@@ -57,6 +57,15 @@
           </TableRow>
         </TableBody>
       </Table>
+      
+      <!-- Empty State -->
+      <div v-else class="flex-1 flex flex-col items-center justify-center py-12 text-center bg-muted/10 rounded-2xl border border-dashed border-border mt-2 animate-in fade-in zoom-in duration-500">
+        <div class="w-20 h-20 mb-3 text-muted-foreground/20">
+          <FileText class="w-full h-full stroke-[1.5]" />
+        </div>
+        <p class="text-foreground font-medium text-lg">Belum ada logbook</p>
+        <p class="text-sm text-muted-foreground mt-1 max-w-sm">Logbook harian Anda akan otomatis dibuat saat Anda melakukan <span class="font-semibold text-kv-primary">Clock Out</span>.</p>
+      </div>
     </div>
 
     <!-- Edit Logbook Dialog -->
@@ -85,7 +94,7 @@
 </template>
 
 <script setup lang="ts">
-import { Plus, MoreVertical, Pencil } from 'lucide-vue-next'
+import { Plus, MoreVertical, Pencil, FileText } from 'lucide-vue-next'
 import type { LogbookEntry } from '../types'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'

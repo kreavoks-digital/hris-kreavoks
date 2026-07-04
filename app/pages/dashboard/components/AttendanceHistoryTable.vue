@@ -13,8 +13,8 @@
       </Button>
     </div>
 
-    <div class="overflow-x-auto flex-1">
-      <Table>
+    <div class="overflow-x-auto flex-1 flex flex-col justify-center min-h-[200px]">
+      <Table v-if="logs && logs.length > 0">
         <TableHeader>
           <TableRow class="border-b border-border hover:bg-transparent">
             <TableHead class="text-sm font-semibold text-foreground">Tanggal</TableHead>
@@ -48,12 +48,21 @@
           </TableRow>
         </TableBody>
       </Table>
+      
+      <!-- Empty State -->
+      <div v-else class="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-500 h-full">
+        <div class="w-20 h-20 mb-3 text-muted-foreground/20">
+          <CalendarX class="w-full h-full stroke-[1.5]" />
+        </div>
+        <p class="text-foreground font-medium">Belum ada riwayat kehadiran</p>
+        <p class="text-xs text-muted-foreground mt-1 max-w-[200px] leading-relaxed">Data absensi Anda di minggu ini akan muncul di sini.</p>
+      </div>
     </div>
   </Card>
 </template>
 
 <script setup lang="ts">
-import { Clock, ArrowDown, ArrowUp } from 'lucide-vue-next'
+import { Clock, ArrowDown, ArrowUp, CalendarX } from 'lucide-vue-next'
 import type { AttendanceLog } from '../types'
 import { Card } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
