@@ -3,8 +3,8 @@
     <!-- Header Section -->
     <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-semibold text-kv-black">Payroll Karyawan</h1>
-        <p class="text-slate-500 mt-1 text-sm">Kelola penggajian, tunjangan, dan potongan bulanan.</p>
+        <h1 class="text-3xl font-semibold text-kv-black">Employee Payroll</h1>
+        <p class="text-slate-500 mt-1 text-sm">Manage monthly payroll, allowances, and deductions.</p>
       </div>
       <div class="flex flex-wrap items-center gap-3">
         <div class="flex items-center gap-2 bg-white p-1 rounded-3xl border border-slate-100">

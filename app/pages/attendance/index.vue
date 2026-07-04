@@ -4,10 +4,10 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <h1 class="text-3xl font-semibold text-kv-black dark:text-slate-50">
-          {{ canViewAll ? 'Absensi Karyawan' : 'Absensi Saya' }}
+          {{ canViewAll ? 'Employee Attendance' : 'My Attendance' }}
         </h1>
         <p class="text-slate-400 mt-1 text-sm">
-          {{ canViewAll ? 'Monitor kehadiran dan logs harian seluruh karyawan.' : 'Monitor kehadiran harian Anda.' }}
+          {{ canViewAll ? 'Monitor daily attendance and logs of all employees.' : 'Monitor your daily attendance.' }}
         </p>
       </div>
       <div class="flex flex-wrap items-center gap-3">

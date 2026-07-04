@@ -7,7 +7,7 @@
           RBAC Management
         </h2>
         <p class="text-slate-500 dark:text-slate-400 mt-1">
-          Kelola peran dan hak akses (permissions) untuk seluruh pengguna sistem.
+          Manage roles and permissions for all system users.
         </p>
       </div>
       <Button @click="fetchData" variant="outline" :disabled="loading" class="gap-2">

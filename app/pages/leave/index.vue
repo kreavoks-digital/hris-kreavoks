@@ -4,9 +4,9 @@
       <CalendarDays class="h-10 w-10" />
     </div>
     <div class="text-center space-y-2">
-      <h1 class="text-3xl font-semibold text-foreground">Manajemen Cuti</h1>
+      <h1 class="text-3xl font-semibold text-foreground">Leave Management</h1>
       <p class="text-muted-foreground text-sm max-w-sm">
-        Fitur ini sedang dalam tahap pengembangan dan akan segera hadir di pembaruan berikutnya.
+        This feature is currently under development and will be available in the next update.
       </p>
     </div>
     <Badge variant="secondary" class="rounded-full px-4 py-1.5 font-medium mt-2">
