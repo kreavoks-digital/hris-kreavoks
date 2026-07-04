@@ -77,8 +77,12 @@
     </Card>
 
     <!-- Sisa Masa Kerja Card -->
-    <Card class="p-4 flex flex-col justify-center bg-kv-primary/5 dark:bg-kv-primary/10 border-kv-primary/20 shadow-sm rounded-2xl md:rounded-3xl relative overflow-hidden">
-      <div class="absolute -right-4 -top-4 w-24 h-24 bg-kv-primary/20 rounded-full blur-2xl"></div>
+    <Card class="p-4 flex flex-col justify-center bg-kv-primary/5 dark:bg-kv-primary/10 border-kv-primary/20 shadow-sm rounded-2xl md:rounded-3xl relative">
+      <!-- Background elements bounded to card -->
+      <div class="absolute inset-0 overflow-hidden rounded-2xl md:rounded-3xl pointer-events-none">
+        <div class="absolute -right-4 -top-4 w-24 h-24 bg-kv-primary/20 rounded-full blur-2xl"></div>
+      </div>
+      
       <div class="relative z-10 flex items-center justify-between gap-3">
         <div class="space-y-0.5">
           <p class="text-xs font-semibold text-kv-primary/80">Sisa Masa Kerja</p>
