@@ -24,7 +24,6 @@
       v-model:month="logbookFilterMonth"
       v-model:year="logbookFilterYear"
       @update-logbook="updateLogbook"
-      @add-logbook="addLogbook"
     />
   </div>
 </template>
@@ -65,8 +64,7 @@ const {
   handleClockIn,
   handleClockOut,
   getCustomIndicators,
-  updateLogbook,
-  addLogbook
+  updateLogbook
 } = useDashboard()
 
 // Filtered data based on search bar

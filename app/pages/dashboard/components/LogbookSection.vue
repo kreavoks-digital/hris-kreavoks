@@ -6,10 +6,6 @@
       
       <!-- Filters & Actions -->
       <div class="flex items-center gap-3">
-        <Button variant="default" class="bg-kv-primary hover:bg-kv-primary/90 text-white rounded-xl shadow-sm hidden sm:flex" @click="showAddDialog = true">
-          <Plus class="h-4 w-4 mr-2" />
-          Tambah Logbook
-        </Button>
         <Select v-model="filterMonth">
           <SelectTrigger class="w-[140px] bg-background border-border">
             <SelectValue placeholder="Pilih Bulan" />
@@ -85,29 +81,6 @@
         </DialogFooter>
       </DialogContent>
     </Dialog>
-
-    <!-- Add Logbook Dialog -->
-    <Dialog v-model:open="showAddDialog">
-      <DialogContent class="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Tambah Logbook</DialogTitle>
-        </DialogHeader>
-        <div class="grid gap-4 py-4">
-          <div class="space-y-2">
-            <Label for="add-deskripsi">Deskripsi Kegiatan</Label>
-            <Input id="add-deskripsi" v-model="addData.deskripsi" placeholder="Masukkan deskripsi kegiatan" />
-          </div>
-          <div class="space-y-2">
-            <Label for="add-kendala">Kendala</Label>
-            <Input id="add-kendala" v-model="addData.kendala" placeholder="Tidak Ada" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" @click="showAddDialog = false">Batal</Button>
-          <Button @click="handleAdd">Simpan</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
   </div>
 </template>
 
@@ -146,20 +119,14 @@ const props = defineProps<{
   logbooks: LogbookEntry[]
 }>()
 
-const emit = defineEmits(['update-logbook', 'add-logbook'])
+const emit = defineEmits(['update-logbook'])
 
 const showEditDialog = ref(false)
-const showAddDialog = ref(false)
 
 const editingData = ref({
   id: '',
   deskripsi: '',
   kendala: ''
-})
-
-const addData = ref({
-  deskripsi: '',
-  kendala: 'Tidak Ada'
 })
 
 const openEditDialog = (logbook: LogbookEntry) => {
@@ -180,19 +147,6 @@ const handleSave = () => {
   })
   
   showEditDialog.value = false
-}
-
-const handleAdd = () => {
-  if (!addData.value.deskripsi.trim()) return
-  
-  emit('add-logbook', {
-    activity: addData.value.deskripsi,
-    obstacle: addData.value.kendala
-  })
-  
-  addData.value.deskripsi = ''
-  addData.value.kendala = 'Tidak Ada'
-  showAddDialog.value = false
 }
 
 const monthModel = defineModel<number>('month')

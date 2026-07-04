@@ -125,20 +125,6 @@ export const useDashboard = () => {
     }
   }
 
-  const addLogbook = async (data: { activity: string; planTomorrow?: string; obstacle?: string; documentLink?: string }) => {
-    try {
-      const api = useApi()
-      await api('/logbook', {
-        method: 'POST',
-        body: data
-      })
-      await fetchLogbooks()
-    } catch (err) {
-      console.error('Failed to add logbook', err)
-      throw err
-    }
-  }
-
 
   // Attendance Clock-in/out State Machine
   // 'not_clocked_in' | 'clocked_in' | 'clocked_out'
@@ -307,7 +293,6 @@ export const useDashboard = () => {
     logbookFilterYear,
     searchQuery,
     updateLogbook,
-    addLogbook,
     attendanceState,
     attendanceStatus,
     clockInTime,
