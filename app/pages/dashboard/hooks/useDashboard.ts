@@ -254,6 +254,7 @@ export const useDashboard = () => {
       await api('/attendance/clock-in', { method: 'POST' })
       await fetchTodayAttendance()
       await fetchAttendanceHistory()
+      await fetchStats()
     } catch (err) {
       console.error('Clock in failed', err)
     }
@@ -282,6 +283,7 @@ export const useDashboard = () => {
       await fetchTodayAttendance()
       await fetchAttendanceHistory()
       await fetchLogbooks()
+      await fetchStats()
 
     } catch (err) {
       console.error('Clock out failed', err)
