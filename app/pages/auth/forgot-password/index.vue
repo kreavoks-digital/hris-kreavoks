@@ -79,7 +79,7 @@
         <div class="mb-8 inline-flex p-4 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-800">
           <KeyRound class="h-12 w-12 text-primary" />
         </div>
-        <h2 class="text-3xl font-semibold text-slate-900 dark:text-slate-50">Keamanan Utama Kami</h2>
+        <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-50">Keamanan Utama Kami</h2>
         <p class="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
           Jangan khawatir, kami membantu Anda mengembalikan akses ke akun HRIS Anda dengan cepat dan aman.
         </p>

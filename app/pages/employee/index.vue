@@ -3,7 +3,7 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-3xl font-semibold text-foreground">Employees</h1>
+        <h1 class="text-2xl font-semibold text-foreground">Employees</h1>
         <p class="text-muted-foreground mt-1 text-sm">Manage all employee information in one place.</p>
       </div>
       <Button @click="navigateTo('/employee/create')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">

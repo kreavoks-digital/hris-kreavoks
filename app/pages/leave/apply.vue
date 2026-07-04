@@ -6,7 +6,7 @@
         <ChevronLeft class="h-5 w-5" />
       </Button>
       <div>
-        <h1 class="text-3xl font-semibold text-kv-black">Ajukan Cuti</h1>
+        <h1 class="text-2xl font-semibold text-kv-black">Ajukan Cuti</h1>
         <p class="text-sm text-slate-500 mt-1">Lengkapi formulir di bawah untuk mengajukan cuti.</p>
       </div>
     </div>

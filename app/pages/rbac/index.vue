@@ -3,7 +3,7 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h2 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-50">
+        <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-50">
           RBAC Management
         </h2>
         <p class="text-slate-500 dark:text-slate-400 mt-1">

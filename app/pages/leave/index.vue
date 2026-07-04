@@ -4,7 +4,7 @@
       <CalendarDays class="h-10 w-10" />
     </div>
     <div class="text-center space-y-2">
-      <h1 class="text-3xl font-semibold text-foreground">Leave Management</h1>
+      <h1 class="text-2xl font-semibold text-foreground">Leave Management</h1>
       <p class="text-muted-foreground text-sm max-w-sm">
         This feature is currently under development and will be available in the next update.
       </p>

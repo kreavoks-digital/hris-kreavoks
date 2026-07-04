@@ -7,7 +7,7 @@
           <ChevronLeft class="h-5 w-5" />
         </Button>
         <div>
-          <h1 class="text-3xl font-semibold text-kv-black leading-tight">Detail Pengajuan</h1>
+          <h1 class="text-2xl font-semibold text-kv-black leading-tight">Detail Pengajuan</h1>
           <p class="text-slate-500 text-sm">Informasi lengkap status pengajuan cuti Anda.</p>
         </div>
       </div>

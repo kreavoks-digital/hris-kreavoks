@@ -89,7 +89,7 @@
         <div class="mb-8 inline-flex p-4 rounded-full bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
           <RefreshCcw class="h-12 w-12 text-primary animate-spin-slow" />
         </div>
-        <h2 class="text-3xl font-semibold text-slate-900 dark:text-slate-50">Satu Langkah Lagi</h2>
+        <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-50">Satu Langkah Lagi</h2>
         <p class="mt-4 text-slate-600 dark:text-slate-400 leading-relaxed">
           Amankan kembali akun Anda dengan password yang kuat dan unik untuk melindungi data penting perusahaan.
         </p>
