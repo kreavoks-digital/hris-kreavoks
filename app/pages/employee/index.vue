@@ -49,6 +49,7 @@
             <TableHead>Karyawan</TableHead>
             <TableHead>Departemen</TableHead>
             <TableHead>Posisi</TableHead>
+            <TableHead>Masa Kerja</TableHead>
             <TableHead>Status</TableHead>
             <TableHead class="text-right">Aksi</TableHead>
           </TableRow>
@@ -75,6 +76,13 @@
             </TableCell>
             <TableCell class="text-foreground text-sm">{{ emp.position }}</TableCell>
             <TableCell>
+              <div v-if="emp.startDate && emp.endDate" class="flex flex-col text-xs space-y-1">
+                <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.startDate), 'dd MMM yyyy', { locale: idLocale }) }} -</span>
+                <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.endDate), 'dd MMM yyyy', { locale: idLocale }) }}</span>
+              </div>
+              <span v-else class="text-sm text-muted-foreground italic">Lifetime</span>
+            </TableCell>
+            <TableCell>
               <Badge 
                 :variant="emp.status === 'Aktif' ? 'default' : 'secondary'"
                 class="px-3 py-1 rounded-3xl text-sm font-medium"
@@ -96,7 +104,7 @@
           </TableRow>
 
           <TableRow v-if="filteredEmployees.length === 0 && !loading">
-            <TableCell colspan="6" class="h-64 text-center">
+            <TableCell colspan="7" class="h-64 text-center">
               <div class="flex flex-col items-center justify-center text-muted-foreground">
                 <Users class="h-12 w-12 mb-2 opacity-20" />
                 <p>Tidak ada data karyawan ditemukan</p>
@@ -143,6 +151,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import { format } from 'date-fns'
+import { id as idLocale } from 'date-fns/locale'
 
 definePageMeta({
   layout: "default",
