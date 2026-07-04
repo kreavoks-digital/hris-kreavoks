@@ -50,7 +50,7 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
 ## 5. Don'ts & Restrictions
 - **Typography Restrictions**:
     - **NO** arbitrary values for text sizes (e.g., avoid `text-[13px]`).
-    - **Minimum Text Size**: `text-sm` (do not use `text-xs` unless strictly approved for metadata).
+    - **Minimum Text Size**: `text-sm` (do not use `text-xs` unless strictly approved for metadata)
     - **NO** text modifiers (`uppercase`, `tracking-wider`, `capitalize`, etc.).
 - **Component Reuse**:
     - **DO NOT** create a new component if an existing one can be used.
@@ -98,3 +98,79 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
     v-bind="forwardedProps"
   >
 ```
+
+## 8. Nuxt 4 Auto-Imports (CRITICAL)
+- **DO NOT manually import** Vue primitives in `.vue` or `.ts` files inside `app/`. These are auto-imported by Nuxt:
+    - `ref`, `computed`, `watch`, `watchEffect`, `reactive`, `readonly`
+    - `onMounted`, `onUnmounted`, `onBeforeMount`, `onBeforeUnmount`
+    - `defineProps`, `defineEmits`, `defineModel`, `defineExpose`
+    - `useRoute`, `useRouter`, `navigateTo`, `useState`, `useFetch`, `useAsyncData`
+    - `useSeoMeta`, `useHead`
+- **Files that CURRENTLY violate this** (must be fixed when touching these files):
+    - `app/pages/rbac/index.vue` — has `import { ref, onMounted } from 'vue'`
+    - `app/pages/dashboard/hooks/useDashboard.ts` — has `import { ref, computed, onMounted, onUnmounted } from 'vue'`
+    - `app/pages/dashboard/components/LogbookSection.vue` — has `import { ref, computed } from 'vue'`
+    - `app/pages/dashboard/components/ClockWidget.vue` — has `import { ref, computed } from 'vue'`
+    - `app/pages/cuti/[id].vue` — has `import { ref, onMounted } from 'vue'`
+    - `app/pages/cuti/ajukan.vue` — has `import { ref } from 'vue'`
+
+## 9. SEO — `useSeoMeta` Coverage
+- `useSeoMeta` is **mandatory** in every page file (`index.vue`, etc.).
+- **Currently MISSING** `useSeoMeta` (must be added when modifying these pages):
+    - `app/pages/absensi/index.vue`
+    - `app/pages/karyawan/index.vue`
+    - `app/pages/karyawan/tambah.vue`
+    - `app/pages/karyawan/edit/[id].vue`
+    - `app/pages/payroll/index.vue`
+    - `app/pages/rbac/index.vue`
+    - `app/pages/cuti/index.vue`
+    - `app/pages/cuti/ajukan.vue`
+    - `app/pages/cuti/[id].vue`
+    - `app/pages/auth/login/index.vue`
+    - `app/pages/auth/register/index.vue`
+    - `app/pages/auth/forgot-password/index.vue`
+    - `app/pages/auth/change-password/index.vue`
+    - `app/pages/auth/reset-password/index.vue`
+
+## 10. State Management Rules
+- **NEVER** use bare `ref()` outside of a composable/setup function for shared cross-component state — it leaks on the server.
+- **USE** `useState('unique_key', () => initialValue)` for SSR-safe shared state.
+- State stored in `useState` **must be JSON-serializable** (no classes, functions, or Symbols).
+- Use `Pinia` for complex global state that requires actions, getters, or persistence.
+- **Pattern**:
+  ```ts
+  // ✅ Correct
+  export const useMyFeatureState = () => useState('my_feature_key', () => [])
+  
+  // ❌ Wrong — causes SSR state leaks
+  const sharedData = ref([])
+  ```
+
+## 11. Data Fetching Patterns
+- **DO NOT** use raw `$fetch` directly in component `<script setup>` blocks — it bypasses SSR deduplication.
+- **USE** our `useApi()` composable (wraps `$fetch` with auth headers) inside hooks only.
+- For data that should be server-rendered (initial page load), prefer `useFetch` or `useAsyncData` instead of calling API in `onMounted`.
+- Use the `pick` or `transform` option to avoid sending unnecessary data to the client:
+  ```ts
+  const { data } = useFetch('/api/users', { pick: ['id', 'name', 'email'] })
+  ```
+- **Currently**: All API calls go through `useApi()` inside hooks/composables — this is correct. Continue this pattern.
+
+## 12. Middleware Rules
+- Route-level auth protection must use **named middleware** (e.g., `middleware: "auth"` in `definePageMeta`).
+- **DO NOT** use global middleware (`middleware/` directory without `.global` suffix) unless the logic truly applies to every route.
+- All protected pages **must** declare `middleware: "auth"` in `definePageMeta`.
+- Example:
+  ```ts
+  definePageMeta({
+    layout: "default",
+    middleware: "auth",
+  })
+  ```
+
+## 13. Performance Guidelines (from Nuxt docs)
+- **Lazy-load heavy components** with `defineAsyncComponent()` or Nuxt's `Lazy` prefix (e.g., `<LazyMyHeavyDialog>`).
+- **Avoid deep reactivity** on large datasets — prefer `shallowRef` or `shallowReactive`.
+- **Use `v-memo`** on list items that rarely change to avoid unnecessary re-renders.
+- **Minimize bundle size**: Avoid importing entire icon libraries — import only what's needed (e.g., from `lucide-vue-next` — already done correctly ✅).
+- **Use `useRequestFetch()`** for server-side authenticated requests to avoid duplicate network calls.
