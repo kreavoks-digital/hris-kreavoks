@@ -1,9 +1,9 @@
-import { absensiApi } from '../api/absensi.api'
+import { attendanceApi } from '../api/attendance.api'
 import { useAuth } from '~/composables/useAuth'
 import type { AttendanceRecord, AttendanceSummary } from '~/types'
 import { toast } from 'vue-sonner'
 
-export const useAbsensi = () => {
+export const useAttendance = () => {
   const selectedDate = ref("")
   const searchQuery = ref("")
   const filterStatus = ref("")
@@ -61,7 +61,7 @@ export const useAbsensi = () => {
     loading.value = true
     error.value = null
     try {
-      const response = await absensiApi.getAttendance(selectedDate.value as string, canViewAll.value)
+      const response = await attendanceApi.getAttendance(selectedDate.value as string, canViewAll.value)
       if (response.success) {
         attendance.value = response.data.records
         summary.value = response.data.summary
@@ -96,7 +96,7 @@ export const useAbsensi = () => {
   const deleteRecord = async (id: string) => {
     if (!isAdmin.value) return
     try {
-      await absensiApi.deleteAttendance(id)
+      await attendanceApi.deleteAttendance(id)
       await fetchAttendance()
       toast.success("Data absensi berhasil dihapus")
     } catch (err: any) {

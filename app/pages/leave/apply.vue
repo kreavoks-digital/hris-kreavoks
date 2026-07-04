@@ -2,7 +2,7 @@
   <div class="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
     <!-- Header -->
     <div class="flex items-center gap-4">
-      <Button variant="ghost" size="icon" @click="navigateTo('/cuti')" class="">
+      <Button variant="ghost" size="icon" @click="navigateTo('/leave')" class="">
         <ChevronLeft class="h-5 w-5" />
       </Button>
       <div>
@@ -86,7 +86,7 @@
           </div>
 
           <div class="pt-4 flex flex-col-reverse sm:flex-row gap-3">
-            <Button type="button" variant="outline" class="flex-1 border-slate-200 text-slate-600" @click="navigateTo('/cuti')">
+            <Button type="button" variant="outline" class="flex-1 border-slate-200 text-slate-600" @click="navigateTo('/leave')">
               Batal
             </Button>
             <Button type="submit" class="flex-1 bg-kv-primary hover:bg-kv-primary/90" :disabled="loading">
@@ -120,7 +120,7 @@ import {
   Loader2, 
   Info 
 } from 'lucide-vue-next'
-import { cutiApi } from './api/cuti.api'
+import { leaveApi } from './api/leave.api'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
@@ -148,7 +148,7 @@ const form = ref({
 
 const fetchBalance = async () => {
   try {
-    const response = await cutiApi.getLeaves()
+    const response = await leaveApi.getLeaves()
     if (response.success) {
       leaveBalance.value = response.data.balance
     }
@@ -160,10 +160,10 @@ const fetchBalance = async () => {
 const handleSubmit = async () => {
   loading.value = true
   try {
-    const response = await cutiApi.createLeave(form.value)
+    const response = await leaveApi.createLeave(form.value)
     if (response.success) {
       toast.success('Pengajuan cuti berhasil dikirim')
-      navigateTo('/cuti')
+      navigateTo('/leave')
     } else {
       toast.error(response.message || 'Gagal mengirim pengajuan')
     }

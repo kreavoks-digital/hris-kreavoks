@@ -1,6 +1,6 @@
 import type { LeaveRecord, ApiResponse } from '~/types'
 
-export const cutiApi = {
+export const leaveApi = {
   getLeaves: async (): Promise<ApiResponse<{ leaves: LeaveRecord[], balance: { annual: number, used: number } }>> => {
     const api = useApi()
     return await api('/leaves' as any)

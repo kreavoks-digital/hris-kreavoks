@@ -1,6 +1,6 @@
 import type { Employee, ApiResponse } from '~/types'
 
-export const karyawanApi = {
+export const employeeApi = {
   getEmployees: async (): Promise<ApiResponse<Employee[]>> => {
     const api = useApi()
     const res = await api('/users' as any)

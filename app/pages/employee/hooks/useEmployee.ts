@@ -1,7 +1,7 @@
-import { karyawanApi } from '../api/karyawan.api'
+import { employeeApi } from '../api/employee.api'
 import type { Employee } from '~/types'
 
-export const useKaryawan = () => {
+export const useEmployee = () => {
   const searchQuery = ref("")
   const filterDepartment = ref("")
   const employees = ref<Employee[]>([])
@@ -30,7 +30,7 @@ export const useKaryawan = () => {
     loading.value = true
     error.value = null
     try {
-      const response = await karyawanApi.getEmployees()
+      const response = await employeeApi.getEmployees()
       if (response.success) {
         employees.value = response.data
       }

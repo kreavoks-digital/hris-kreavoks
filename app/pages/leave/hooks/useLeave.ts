@@ -1,7 +1,7 @@
-import { cutiApi } from '../api/cuti.api'
+import { leaveApi } from '../api/leave.api'
 import type { LeaveRecord } from '~/types'
 
-export const useCuti = () => {
+export const useLeave = () => {
   const filterStatus = ref("")
   const filterType = ref("")
   const leaves = ref<LeaveRecord[]>([])
@@ -31,7 +31,7 @@ export const useCuti = () => {
     loading.value = true
     error.value = null
     try {
-      const response = await cutiApi.getLeaves()
+      const response = await leaveApi.getLeaves()
       if (response.success) {
         leaves.value = response.data.leaves
         leaveBalance.value = response.data.balance
@@ -47,7 +47,7 @@ export const useCuti = () => {
   const cancelLeave = async (leaveId: string) => {
     if (confirm("Yakin ingin membatalkan pengajuan cuti?")) {
       try {
-        const response = await cutiApi.cancelLeave(leaveId)
+        const response = await leaveApi.cancelLeave(leaveId)
         if (response.success) {
           await fetchLeaves()
         } else {

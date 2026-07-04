@@ -220,7 +220,7 @@ import { parseDate } from '@internationalized/date'
 import { cn } from '@/lib/utils'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { Calendar } from '~/components/ui/calendar'
-import { useAbsensi } from './hooks/useAbsensi'
+import { useAttendance } from './hooks/useAttendance'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '~/components/ui/card'
@@ -274,7 +274,7 @@ const {
   deleteRecord,
   isAdmin,
   canViewAll
-} = useAbsensi()
+} = useAttendance()
 
 const dateValue = computed({
   get: () => selectedDate.value ? parseDate(selectedDate.value) : undefined,

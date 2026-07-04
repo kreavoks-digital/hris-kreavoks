@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" @click="navigateTo('/cuti')" class="text-slate-500">
+        <Button variant="ghost" size="icon" @click="navigateTo('/leave')" class="text-slate-500">
           <ChevronLeft class="h-5 w-5" />
         </Button>
         <div>
@@ -109,7 +109,7 @@
       </div>
       <h2 class="text-xl font-bold text-slate-900">Data Tidak Ditemukan</h2>
       <p class="text-slate-500 mt-2">Maaf, kami tidak dapat menemukan detail pengajuan yang Anda cari.</p>
-      <Button variant="outline" class="mt-6" @click="navigateTo('/cuti')">
+      <Button variant="outline" class="mt-6" @click="navigateTo('/leave')">
         Kembali ke Riwayat
       </Button>
     </div>
@@ -126,7 +126,7 @@ import {
   AlertTriangle 
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
-import { cutiApi } from './api/cuti.api'
+import { leaveApi } from './api/leave.api'
 import type { LeaveRecord } from '~/types'
 import { Button } from '~/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card'
@@ -147,7 +147,7 @@ const loading = ref(true)
 const fetchDetail = async () => {
   loading.value = true
   try {
-    const response = await cutiApi.getLeaveById(leaveId)
+    const response = await leaveApi.getLeaveById(leaveId)
     if (response.success) {
       leave.value = response.data.leave
     } else {
@@ -166,10 +166,10 @@ const handleCancel = async () => {
   
   if (confirm('Yakin ingin membatalkan pengajuan cuti ini?')) {
     try {
-      const response = await cutiApi.cancelLeave(leaveId)
+      const response = await leaveApi.cancelLeave(leaveId)
       if (response.success) {
         toast.success('Pengajuan berhasil dibatalkan')
-        navigateTo('/cuti')
+        navigateTo('/leave')
       } else {
         toast.error(response.message || 'Gagal membatalkan pengajuan')
       }

@@ -1,6 +1,6 @@
 import type { AttendanceRecord, AttendanceSummary } from '~/types'
 
-export const absensiApi = {
+export const attendanceApi = {
   getAttendance: async (date: string, isAdmin: boolean): Promise<any> => {
     const api = useApi()
     const endpoint = isAdmin ? '/attendance/history/all' : '/attendance/history'

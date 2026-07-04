@@ -6,7 +6,7 @@
         <h1 class="text-3xl font-semibold text-foreground">Data Karyawan</h1>
         <p class="text-muted-foreground mt-1 text-sm">Kelola informasi seluruh karyawan dalam satu tempat.</p>
       </div>
-      <Button @click="navigateTo('/karyawan/tambah')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
+      <Button @click="navigateTo('/employee/tambah')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
         <UserPlus class="h-4 w-4" />
         Tambah Karyawan
       </Button>
@@ -122,7 +122,7 @@ import {
   Mail,
   Phone
 } from 'lucide-vue-next'
-import { useKaryawan } from './hooks/useKaryawan'
+import { useEmployee } from './hooks/useEmployee'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Card, CardContent } from '~/components/ui/card'
@@ -155,10 +155,10 @@ const {
   filteredEmployees,
   fetchEmployees,
   loading
-} = useKaryawan()
+} = useEmployee()
 
 const editEmployee = (employee: any) => {
-  navigateTo(`/karyawan/edit/${employee.id}`);
+  navigateTo(`/employee/edit/${employee.id}`);
 };
 
 const confirmDelete = async (employee: any) => {

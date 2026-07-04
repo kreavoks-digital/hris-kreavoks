@@ -3,12 +3,12 @@
     <!-- Header Section -->
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" @click="navigateTo('/karyawan')" class="rounded-full w-10 text-slate-400 hover:text-kv-black hover:bg-slate-100">
+        <Button variant="ghost" size="icon" @click="navigateTo('/employee')" class="rounded-full w-10 text-slate-400 hover:text-kv-black hover:bg-slate-100">
           <ArrowLeft class="h-5 w-5" />
         </Button>
         <div>
-          <h1 class="text-3xl font-semibold text-kv-black">Edit Karyawan</h1>
-          <p class="text-slate-400 text-sm">Perbarui informasi dan data pekerjaan karyawan.</p>
+          <h1 class="text-3xl font-semibold text-kv-black">Tambah Karyawan</h1>
+          <p class="text-slate-400 text-sm">Lengkapi formulir di bawah untuk mendaftarkan karyawan baru.</p>
         </div>
       </div>
     </div>
@@ -31,7 +31,7 @@
             </div>
             <div class="space-y-2">
               <Label for="name" class="text-slate-600 font-medium ml-1">Nama Lengkap</Label>
-              <Input id="name" v-model="formData.fullName" required placeholder="Nama lengkap sesuai KTP" class="border-slate-200 focus:ring-kv-primary" />
+              <Input id="name" v-model="formData.name" required placeholder="Nama lengkap sesuai KTP" class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
               <Label for="email" class="text-slate-600 font-medium ml-1">Alamat Email</Label>
@@ -40,6 +40,14 @@
             <div class="space-y-2">
               <Label for="phone" class="text-slate-600 font-medium ml-1">No. Telepon / WhatsApp</Label>
               <Input id="phone" v-model="formData.phone" required placeholder="08xxxxxxxxxx" class="border-slate-200 focus:ring-kv-primary" />
+            </div>
+            <div class="space-y-2">
+              <Label for="birthDate" class="text-slate-600 font-medium ml-1">Tanggal Lahir</Label>
+              <Input id="birthDate" v-model="formData.birthDate" type="date" required class="border-slate-200 focus:ring-kv-primary" />
+            </div>
+            <div class="space-y-2 md:col-span-2">
+              <Label for="address" class="text-slate-600 font-medium ml-1">Alamat Domisili</Label>
+              <Input id="address" v-model="formData.address" required placeholder="Alamat lengkap saat ini" class="border-slate-200 focus:ring-kv-primary" />
             </div>
           </div>
         </CardContent>
@@ -74,17 +82,28 @@
               <Input id="position" v-model="formData.position" required placeholder="Jabatan spesifik" class="border-slate-200 focus:ring-kv-primary" />
             </div>
             <div class="space-y-2">
-              <Label for="role" class="text-slate-600 font-medium ml-1">Role Sistem</Label>
-              <Select v-model="formData.role">
+              <Label for="joinDate" class="text-slate-600 font-medium ml-1">Tanggal Bergabung</Label>
+              <Input id="joinDate" v-model="formData.joinDate" type="date" required class="border-slate-200 focus:ring-kv-primary" />
+            </div>
+            <div class="space-y-2">
+              <Label for="employmentType" class="text-slate-600 font-medium ml-1">Jenis Kontrak</Label>
+              <Select v-model="formData.employmentType">
                 <SelectTrigger class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary">
-                  <SelectValue placeholder="Pilih Role" />
+                  <SelectValue placeholder="Pilih Jenis Kontrak" />
                 </SelectTrigger>
                 <SelectContent class="rounded-3xl">
-                  <SelectItem value="ADMIN">Admin</SelectItem>
-                  <SelectItem value="MENTOR">Mentor / Karyawan</SelectItem>
-                  <SelectItem value="INTERN">Intern / Magang</SelectItem>
+                  <SelectItem v-for="type in employmentTypes" :key="type.value" :value="type.value">
+                    {{ type.label }}
+                  </SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div class="space-y-2">
+              <Label for="salary" class="text-slate-600 font-medium ml-1">Gaji Pokok (IDR)</Label>
+              <div class="relative">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">Rp</span>
+                <Input id="salary" v-model="formData.salary" type="number" required class="pl-12 border-slate-200 focus:ring-kv-primary" />
+              </div>
             </div>
           </div>
         </CardContent>
@@ -92,11 +111,11 @@
 
       <!-- Form Actions -->
       <div class="flex items-center justify-end gap-4 p-4">
-        <Button type="button" variant="ghost" class="px-6 text-slate-500 hover:text-kv-black" @click="navigateTo('/karyawan')">Batal</Button>
+        <Button type="button" variant="ghost" class="px-6 text-slate-500 hover:text-kv-black" @click="navigateTo('/employee')">Batal</Button>
         <Button type="submit" class="w-full sm:w-48 gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none" :disabled="loading">
           <Save v-if="!loading" class="h-4 w-4" />
           <RefreshCw v-else class="h-4 w-4 animate-spin" />
-          {{ loading ? "Menyimpan..." : "Simpan Perubahan" }}
+          {{ loading ? "Menyimpan..." : "Simpan Data" }}
         </Button>
       </div>
     </form>
@@ -123,24 +142,26 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 import { toast } from 'vue-sonner'
-import { karyawanApi } from '../api/karyawan.api'
 
 definePageMeta({
   layout: "default",
   middleware: ["auth", "admin"],
 });
 
-const route = useRoute();
 const loading = ref(false);
 
 const formData = ref({
   npk: "",
-  fullName: "",
+  name: "",
   email: "",
   phone: "",
+  birthDate: "",
+  address: "",
   department: "",
   position: "",
-  role: "MENTOR",
+  joinDate: "",
+  employmentType: "",
+  salary: 0,
 });
 
 const departments = [
@@ -149,57 +170,37 @@ const departments = [
   { value: "Finance", label: "Finance & Accounting" },
   { value: "Marketing", label: "Marketing & Sales" },
   { value: "Operations", label: "Operations" },
-  { value: "Management", label: "Management" },
-  { value: "-", label: "Lainnya" },
 ];
 
-onMounted(async () => {
-  const id = route.params.id as string;
-  if (id) {
-    loading.value = true;
-    try {
-      const response = await karyawanApi.getEmployees();
-      if (response.success) {
-        const emp = response.data.find(e => e.id === id);
-        if (emp) {
-          formData.value = {
-            npk: emp.npk || "",
-            fullName: emp.name || "",
-            email: emp.email || "",
-            phone: emp.phone !== "-" ? emp.phone : "",
-            department: emp.department || "-",
-            position: emp.position || "",
-            role: emp.role || "MENTOR",
-          };
-        } else {
-          toast.error("Karyawan tidak ditemukan");
-          navigateTo("/karyawan");
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching employee:", error);
-    } finally {
-      loading.value = false;
-    }
-  }
-});
+const employmentTypes = [
+  { value: "permanent", label: "Karyawan Tetap" },
+  { value: "contract", label: "Karyawan Kontrak" },
+  { value: "intern", label: "Magang / Internship" },
+];
 
 const submitForm = async () => {
+  if (!formData.value.department || !formData.value.employmentType) {
+    toast.warning("Peringatan", {
+      description: "Mohon pilih departemen dan jenis kontrak"
+    })
+    return
+  }
+
   loading.value = true;
   try {
     const api = useApi();
-    await api(`/users/${route.params.id}`, {
-      method: "PUT",
+    await api("/users", {
+      method: "POST",
       body: formData.value,
     });
     toast.success("Berhasil", {
-      description: `Data Karyawan berhasil diperbarui!`
+      description: `Karyawan ${formData.value.name} berhasil ditambahkan!`
     });
-    navigateTo("/karyawan");
+    navigateTo("/employee");
   } catch (error) {
-    console.error("Error updating employee:", error);
+    console.error("Error adding employee:", error);
     toast.error("Gagal", {
-      description: "Terjadi kesalahan saat memperbarui data karyawan"
+      description: "Terjadi kesalahan saat menambahkan karyawan"
     });
   } finally {
     loading.value = false;
