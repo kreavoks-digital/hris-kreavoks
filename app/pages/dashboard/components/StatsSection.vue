@@ -84,9 +84,6 @@
           <p class="text-xs font-semibold text-kv-primary/80">Sisa Masa Kerja</p>
           <div class="flex items-baseline gap-2 flex-wrap">
             <h3 class="text-xl md:text-2xl font-bold text-kv-primary leading-none">{{ stats.sisaMasaKerja }}</h3>
-            <span v-if="stats.sisaMasaKerja !== 'Lifetime'" class="text-[10px] md:text-xs font-medium text-kv-primary/70 bg-white/50 dark:bg-black/20 px-2 py-0.5 rounded-full whitespace-nowrap">
-              {{ stats.sisaMasaKerjaLabel }}
-            </span>
           </div>
         </div>
         
