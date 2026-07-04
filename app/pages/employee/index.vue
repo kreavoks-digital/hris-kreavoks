@@ -76,7 +76,7 @@
             </TableCell>
             <TableCell class="text-foreground text-sm">{{ emp.position }}</TableCell>
             <TableCell>
-              <div v-if="emp.startDate && emp.endDate" class="flex flex-col text-xs space-y-1">
+              <div v-if="emp.startDate && emp.endDate && !emp.startDate.startsWith('9999')" class="flex flex-col text-xs space-y-1">
                 <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.startDate), 'dd MMM yyyy', { locale: idLocale }) }} -</span>
                 <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.endDate), 'dd MMM yyyy', { locale: idLocale }) }}</span>
               </div>

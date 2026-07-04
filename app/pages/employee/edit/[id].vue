@@ -92,14 +92,20 @@
 
       <!-- Masa Kerja & Kontrak -->
       <Card class="border border-slate-100 overflow-hidden bg-white/50 backdrop-blur-sm rounded-3xl">
-        <CardHeader class="bg-slate-50/50 border-b border-slate-100">
-          <div class="flex items-center gap-2">
-            <CalendarIconBase class="h-5 w-5 text-kv-primary" />
-            <CardTitle class="text-lg font-semibold text-kv-black">Masa Kerja & Kontrak</CardTitle>
+        <CardHeader class="bg-slate-50/50 border-b border-slate-100 flex flex-row items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <CalendarIconBase class="h-5 w-5 text-kv-primary" />
+              <CardTitle class="text-lg font-semibold text-kv-black">Masa Kerja & Kontrak</CardTitle>
+            </div>
+            <CardDescription class="text-slate-400 mt-1">Aktifkan lifetime jika karyawan tetap, atau atur periode untuk magang/kontrak.</CardDescription>
           </div>
-          <CardDescription class="text-slate-400">Atur periode masa kerja (biarkan kosong untuk masa kerja lifetime) dan status sertifikat.</CardDescription>
+          <div class="flex items-center gap-3">
+            <Label for="lifetime" class="text-sm font-medium text-slate-600">Lifetime</Label>
+            <Switch id="lifetime" v-model="isLifetime" />
+          </div>
         </CardHeader>
-        <CardContent class="p-6">
+        <CardContent class="p-6" v-if="!isLifetime">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="space-y-2">
               <Label for="startDate" class="text-slate-600 font-medium ml-1">Tanggal Mulai (Start Date)</Label>
@@ -188,6 +194,7 @@ import {
 } from '~/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { Calendar } from '~/components/ui/calendar'
+import { Switch } from '~/components/ui/switch'
 import { format } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { parseDate } from '@internationalized/date'
@@ -214,6 +221,21 @@ const formData = ref({
   startDate: "",
   endDate: "",
   certificateStatus: "NONE",
+});
+
+const isLifetime = ref(true);
+
+watch(isLifetime, (val) => {
+  if (val) {
+    formData.value.startDate = "9999-12-31";
+    formData.value.endDate = "9999-12-31";
+    formData.value.certificateStatus = "NONE";
+  } else {
+    if (formData.value.startDate === "9999-12-31") {
+      formData.value.startDate = "";
+      formData.value.endDate = "";
+    }
+  }
 });
 
 const startDateObj = computed({
@@ -261,6 +283,13 @@ onMounted(async () => {
             endDate: emp.endDate || "",
             certificateStatus: emp.certificateStatus || "NONE",
           };
+          
+          isLifetime.value = !emp.startDate || emp.startDate.startsWith("9999");
+          if (isLifetime.value) {
+            formData.value.startDate = "9999-12-31";
+            formData.value.endDate = "9999-12-31";
+            formData.value.certificateStatus = "NONE";
+          }
         } else {
           toast.error("Karyawan tidak ditemukan");
           navigateTo("/employee");
