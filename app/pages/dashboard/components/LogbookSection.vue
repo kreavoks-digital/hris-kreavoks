@@ -68,11 +68,11 @@
         <div class="grid gap-4 py-4">
           <div class="space-y-2">
             <Label for="deskripsi">Deskripsi Kegiatan</Label>
-            <Input id="deskripsi" v-model="editingData.deskripsi" placeholder="Masukkan deskripsi kegiatan" />
+            <Textarea id="deskripsi" v-model="editingData.deskripsi" placeholder="Masukkan deskripsi kegiatan" class="min-h-[100px] resize-none" />
           </div>
           <div class="space-y-2">
             <Label for="kendala">Kendala</Label>
-            <Input id="kendala" v-model="editingData.kendala" placeholder="Tidak Ada" />
+            <Textarea id="kendala" v-model="editingData.kendala" placeholder="Tidak Ada" class="min-h-[100px] resize-none" />
           </div>
         </div>
         <DialogFooter>
@@ -90,6 +90,7 @@ import { Plus, MoreVertical, Pencil } from 'lucide-vue-next'
 import type { LogbookEntry } from '../types'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
+import { Textarea } from '~/components/ui/textarea'
 import { Label } from '~/components/ui/label'
 import {
   Table,
