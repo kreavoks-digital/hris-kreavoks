@@ -142,6 +142,7 @@
                   <SelectValue placeholder="Pilih Status" />
                 </SelectTrigger>
                 <SelectContent class="rounded-3xl">
+                  <SelectItem value="NONE">Belum / Tidak Ada</SelectItem>
                   <SelectItem value="PROSES">Sedang Proses</SelectItem>
                   <SelectItem value="SELESAI">Selesai / Terbit</SelectItem>
                 </SelectContent>
@@ -212,7 +213,7 @@ const formData = ref({
   role: "MENTOR",
   startDate: "",
   endDate: "",
-  certificateStatus: "PROSES",
+  certificateStatus: "NONE",
 });
 
 const startDateObj = computed({
@@ -258,7 +259,7 @@ onMounted(async () => {
             role: emp.role || "MENTOR",
             startDate: emp.startDate || "",
             endDate: emp.endDate || "",
-            certificateStatus: emp.certificateStatus || "PROSES",
+            certificateStatus: emp.certificateStatus || "NONE",
           };
         } else {
           toast.error("Karyawan tidak ditemukan");

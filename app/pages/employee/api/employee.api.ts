@@ -18,7 +18,7 @@ export const employeeApi = {
         role: user.role,
         startDate: user.startDate ? new Date(user.startDate).toISOString().split('T')[0] : "",
         endDate: user.endDate ? new Date(user.endDate).toISOString().split('T')[0] : "",
-        certificateStatus: user.certificateStatus || "PROSES"
+        certificateStatus: user.certificateStatus || "NONE"
       }))
     }
   }
