@@ -24,7 +24,7 @@
           <CardDescription class="text-slate-400">Informasi identitas dan kontak personil karyawan.</CardDescription>
         </CardHeader>
         <CardContent class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="npk" class="text-slate-600 font-medium ml-1">NPK (Nomor Pegawai Kreavoks)</Label>
               <Input id="npk" v-model="formData.npk" required placeholder="Contoh: KV-0016" class="border-slate-200 focus:ring-kv-primary" />
@@ -55,7 +55,7 @@
           <CardDescription class="text-slate-400">Detail penempatan departemen dan status kepegawaian.</CardDescription>
         </CardHeader>
         <CardContent class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="department" class="text-slate-600 font-medium ml-1">Departemen</Label>
               <Select v-model="formData.department">
@@ -94,20 +94,46 @@
       <Card class="border border-slate-100 overflow-hidden bg-white/50 backdrop-blur-sm rounded-3xl">
         <CardHeader class="bg-slate-50/50 border-b border-slate-100">
           <div class="flex items-center gap-2">
-            <Calendar class="h-5 w-5 text-kv-primary" />
+            <CalendarIconBase class="h-5 w-5 text-kv-primary" />
             <CardTitle class="text-lg font-semibold text-kv-black">Masa Kerja & Kontrak</CardTitle>
           </div>
           <CardDescription class="text-slate-400">Atur periode masa kerja (biarkan kosong untuk masa kerja lifetime) dan status sertifikat.</CardDescription>
         </CardHeader>
         <CardContent class="p-6">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="space-y-2">
               <Label for="startDate" class="text-slate-600 font-medium ml-1">Tanggal Mulai (Start Date)</Label>
-              <Input id="startDate" type="date" v-model="formData.startDate" class="border-slate-200 focus:ring-kv-primary" />
+              <Popover>
+                <PopoverTrigger as-child>
+                  <Button
+                    variant="outline"
+                    :class="cn('w-full justify-start text-left font-normal border-slate-200 rounded-3xl h-11 focus:ring-kv-primary', !formData.startDate && 'text-muted-foreground')"
+                  >
+                    <CalendarIcon class="mr-2 h-4 w-4 text-slate-500" />
+                    {{ formData.startDate ? format(new Date(formData.startDate), 'dd MMMM yyyy', { locale: idLocale }) : 'Pilih Tanggal' }}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-auto p-0 rounded-2xl shadow-sm border-border" align="start">
+                  <Calendar v-model="startDateObj" initial-focus />
+                </PopoverContent>
+              </Popover>
             </div>
             <div class="space-y-2">
               <Label for="endDate" class="text-slate-600 font-medium ml-1">Tanggal Selesai (End Date)</Label>
-              <Input id="endDate" type="date" v-model="formData.endDate" class="border-slate-200 focus:ring-kv-primary" />
+              <Popover>
+                <PopoverTrigger as-child>
+                  <Button
+                    variant="outline"
+                    :class="cn('w-full justify-start text-left font-normal border-slate-200 rounded-3xl h-11 focus:ring-kv-primary', !formData.endDate && 'text-muted-foreground')"
+                  >
+                    <CalendarIcon class="mr-2 h-4 w-4 text-slate-500" />
+                    {{ formData.endDate ? format(new Date(formData.endDate), 'dd MMMM yyyy', { locale: idLocale }) : 'Pilih Tanggal' }}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-auto p-0 rounded-2xl shadow-sm border-border" align="start">
+                  <Calendar v-model="endDateObj" initial-focus />
+                </PopoverContent>
+              </Popover>
             </div>
             <div class="space-y-2">
               <Label for="certificateStatus" class="text-slate-600 font-medium ml-1">Status Sertifikat</Label>
@@ -145,7 +171,8 @@ import {
   RefreshCw, 
   UserCircle, 
   Briefcase,
-  Calendar 
+  Calendar as CalendarIconBase,
+  CalendarIcon
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -158,6 +185,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select'
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
+import { Calendar } from '~/components/ui/calendar'
+import { format } from 'date-fns'
+import { id as idLocale } from 'date-fns/locale'
+import { parseDate } from '@internationalized/date'
+import { cn } from '@/lib/utils'
 import { toast } from 'vue-sonner'
 import { employeeApi } from '../api/employee.api'
 
@@ -181,6 +214,20 @@ const formData = ref({
   endDate: "",
   certificateStatus: "PROSES",
 });
+
+const startDateObj = computed({
+  get: () => formData.value.startDate ? parseDate(formData.value.startDate) : undefined,
+  set: (val: any) => {
+    formData.value.startDate = val ? val.toString() : ""
+  }
+})
+
+const endDateObj = computed({
+  get: () => formData.value.endDate ? parseDate(formData.value.endDate) : undefined,
+  set: (val: any) => {
+    formData.value.endDate = val ? val.toString() : ""
+  }
+})
 
 const departments = [
   { value: "IT", label: "Information Technology" },
