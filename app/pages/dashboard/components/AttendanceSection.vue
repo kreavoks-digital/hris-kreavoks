@@ -62,10 +62,17 @@
       <div class="space-y-4 my-auto">
         <!-- Big clock duration -->
         <div>
-          <h2 class="text-2xl font-bold text-foreground tabular-nums">
-            {{ attendanceState === 'clocked_out' ? clockRangeText : currentTime }}
-          </h2>
-          <p class="text-xs text-muted-foreground mt-2" v-html="statusText"></p>
+          <div class="relative mx-auto w-fit font-mono text-3xl font-bold tracking-[0.15em] flex items-center justify-center">
+            <!-- Background Placeholder (Grey Low Opacity) -->
+            <span class="absolute inset-0 text-muted-foreground/20 select-none pointer-events-none">
+              {{ attendanceState === 'clocked_out' ? '00:00 - 00:00' : '00:00:00' }}
+            </span>
+            <!-- Actual Time -->
+            <span class="text-foreground relative z-10 tabular-nums">
+              {{ attendanceState === 'clocked_out' ? clockRangeText : currentTime }}
+            </span>
+          </div>
+          <p class="text-xs text-muted-foreground mt-4" v-html="statusText"></p>
         </div>
       </div>
 
