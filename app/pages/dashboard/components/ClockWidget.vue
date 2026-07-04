@@ -1,10 +1,19 @@
 <template>
-  <Card class="bg-card p-6 rounded-3xl border border-border flex flex-col justify-between text-center shadow-none">
-    <div>
-      <div class="text-sm font-semibold text-foreground">Absensi</div>
+  <Card 
+    class="p-6 rounded-3xl border flex flex-col justify-between text-center shadow-none relative overflow-hidden transition-colors duration-1000"
+    :class="[
+      attendanceState === 'clocked_out' ? 'bg-emerald-500/10 border-emerald-500/30' :
+      isNightTime ? 'bg-red-500/10 border-red-500/30 animate-pulse' : 'bg-card border-border'
+    ]"
+  >
+    <!-- Mascot Image Top Right -->
+    <img :src="mascotSrc" alt="Mascot" class="absolute top-4 right-4 w-12 h-12 md:w-16 md:h-16 object-contain pointer-events-none drop-shadow-sm opacity-90 z-0" />
+
+    <div class="relative z-10 pr-16">
+      <div class="text-sm font-semibold text-foreground text-left">Absensi</div>
       <hr class="border-t border-border mt-3" />
     </div>
-    <div class="space-y-4 my-auto">
+    <div class="space-y-4 my-auto relative z-10">
       <!-- Big clock duration -->
       <div>
         <h2 class="text-2xl font-bold text-foreground tabular-nums">
@@ -221,12 +230,30 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog'
 
-defineProps<{
+import mascotSettle from '~/assets/maskot/settle.svg'
+import mascotAfternoon from '~/assets/maskot/afternoon.svg'
+import mascotNight from '~/assets/maskot/night.svg'
+import mascotAlready from '~/assets/maskot/already.svg'
+
+const props = defineProps<{
   attendanceState: 'not_clocked_in' | 'clocked_in' | 'clocked_out'
   currentTime: string
   clockRangeText: string
   statusText: string
 }>()
+
+const hourNow = computed(() => parseInt(props.currentTime.split(':')[0] || '0', 10))
+
+const isNightTime = computed(() => {
+  return hourNow.value >= 22 && props.attendanceState !== 'clocked_out'
+})
+
+const mascotSrc = computed(() => {
+  if (props.attendanceState === 'clocked_out') return mascotAlready
+  if (hourNow.value >= 22) return mascotNight
+  if (hourNow.value >= 17) return mascotAfternoon
+  return mascotSettle
+})
 
 const emit = defineEmits(['clock-in', 'clock-out'])
 

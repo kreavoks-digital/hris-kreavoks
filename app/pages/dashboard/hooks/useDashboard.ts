@@ -207,7 +207,8 @@ export const useDashboard = () => {
             divisi: roleText,
             tanggal: new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
             deskripsi: item.activity,
-            kendala: item.obstacle || 'Tidak Ada'
+            kendala: item.obstacle || 'Tidak Ada',
+            documentLink: item.documentLink
           }
         })
       }

@@ -36,11 +36,12 @@
       <Table v-if="logbooks && logbooks.length > 0">
         <TableHeader class="bg-muted/50">
           <TableRow class="border-b border-border hover:bg-transparent">
-            <TableHead class="font-semibold text-muted-foreground rounded-l-2xl">Posisi</TableHead>
-            <TableHead class="font-semibold text-muted-foreground">Tanggal</TableHead>
-            <TableHead class="font-semibold text-muted-foreground">Deskripsi Kegiatan</TableHead>
-            <TableHead class="font-semibold text-muted-foreground">Kendala</TableHead>
-            <TableHead class="font-semibold text-muted-foreground rounded-r-2xl text-right">Aksi</TableHead>
+            <TableHead class="font-semibold text-muted-foreground rounded-l-2xl w-[15%]">Posisi</TableHead>
+            <TableHead class="font-semibold text-muted-foreground w-[15%]">Tanggal</TableHead>
+            <TableHead class="font-semibold text-muted-foreground w-[30%]">Deskripsi Kegiatan</TableHead>
+            <TableHead class="font-semibold text-muted-foreground w-[15%]">Kendala</TableHead>
+            <TableHead class="font-semibold text-muted-foreground w-[15%]">Bukti</TableHead>
+            <TableHead class="font-semibold text-muted-foreground rounded-r-2xl text-right w-[10%]">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody class="divide-y divide-border">
@@ -49,6 +50,12 @@
             <TableCell class="text-foreground/80 py-2 whitespace-nowrap">{{ logbook.tanggal }}</TableCell>
             <TableCell class="text-foreground/80 py-2">{{ logbook.deskripsi }}</TableCell>
             <TableCell class="text-foreground/80 py-2">{{ logbook.kendala }}</TableCell>
+            <TableCell class="text-foreground/80 py-2">
+              <a v-if="logbook.documentLink" :href="logbook.documentLink" target="_blank" class="text-blue-500 hover:text-blue-600 hover:underline flex items-center gap-1.5 transition-colors">
+                <LinkIcon class="w-3.5 h-3.5" /> Buka Link
+              </a>
+              <span v-else class="text-muted-foreground/60 italic text-xs">Tidak ada</span>
+            </TableCell>
             <TableCell class="text-right py-2">
               <Button variant="ghost" size="icon" class="rounded-full h-8 w-8" @click="openEditDialog(logbook)">
                 <Pencil class="h-4 w-4" />
@@ -83,6 +90,10 @@
             <Label for="kendala">Kendala</Label>
             <Textarea id="kendala" v-model="editingData.kendala" placeholder="Tidak Ada" class="min-h-[100px] resize-none" />
           </div>
+          <div class="space-y-2">
+            <Label for="documentLink">Link Bukti Google Drive</Label>
+            <Input id="documentLink" type="url" v-model="editingData.documentLink" placeholder="https://drive.google.com/..." class="bg-background border-border" />
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" @click="showEditDialog = false">Batal</Button>
@@ -94,7 +105,7 @@
 </template>
 
 <script setup lang="ts">
-import { Plus, MoreVertical, Pencil, FileText } from 'lucide-vue-next'
+import { Plus, MoreVertical, Pencil, FileText, Link as LinkIcon } from 'lucide-vue-next'
 import type { LogbookEntry } from '../types'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -135,14 +146,16 @@ const showEditDialog = ref(false)
 const editingData = ref({
   id: '',
   deskripsi: '',
-  kendala: ''
+  kendala: '',
+  documentLink: ''
 })
 
 const openEditDialog = (logbook: LogbookEntry) => {
   editingData.value = {
     id: logbook.id,
     deskripsi: logbook.deskripsi,
-    kendala: logbook.kendala
+    kendala: logbook.kendala,
+    documentLink: logbook.documentLink || ''
   }
   showEditDialog.value = true
 }
@@ -152,7 +165,8 @@ const handleSave = () => {
   
   emit('update-logbook', editingData.value.id, {
     activity: editingData.value.deskripsi,
-    obstacle: editingData.value.kendala
+    obstacle: editingData.value.kendala,
+    documentLink: editingData.value.documentLink
   })
   
   showEditDialog.value = false

@@ -31,4 +31,5 @@ export interface LogbookEntry {
   tanggal: string
   deskripsi: string
   kendala: string
+  documentLink?: string
 }
