@@ -98,13 +98,13 @@
         <div class="relative w-12 h-12 md:w-16 md:h-16 shrink-0 flex items-center justify-center group cursor-pointer">
           <!-- Tooltip on hover -->
           <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-popover/90 backdrop-blur text-popover-foreground text-[10px] md:text-xs font-medium px-2.5 py-1 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 group-hover:translate-y-1 transition-all duration-300 whitespace-nowrap pointer-events-none z-20 border border-border/50">
-            <span class="text-kv-primary">Hadir: {{ stats.totalHadirCount || 0 }}</span> &nbsp;|&nbsp; <span class="text-rose-500">Izin: {{ stats.totalIzinCount || 0 }}</span>
+            <span class="text-kv-primary">Hadir: {{ stats.totalHadirCount || 0 }}</span> &nbsp;|&nbsp; <span class="text-kv-accent">Izin: {{ stats.totalIzinCount || 0 }}</span>
           </div>
           
           <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
             <!-- Izin (Background) -->
             <path
-              class="text-rose-400/20 group-hover:text-rose-400/40 transition-colors duration-300"
+              class="text-kv-accent/30 group-hover:text-kv-accent/50 transition-colors duration-300"
               stroke-dasharray="100, 100"
               d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               fill="none"
