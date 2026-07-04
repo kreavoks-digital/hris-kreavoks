@@ -19,7 +19,7 @@ export const useLogin = () => {
         // setAuth hanya butuh user dan accessToken — refreshToken di HttpOnly cookie
         setAuth(response.data.user, response.data.accessToken)
         toast.success('Login Berhasil', {
-          description: `Selamat datang, ${response.data.user.fullName || response.data.user.email}!`
+          description: `Selamat datang, ${response.data.user.name || response.data.user.email}!`
         })
         // Gunakan navigateTo (Nuxt) bukan router.push agar middleware bisa berjalan ulang
         await navigateTo('/dashboard')

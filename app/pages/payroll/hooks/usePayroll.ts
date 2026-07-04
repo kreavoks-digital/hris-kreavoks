@@ -17,7 +17,7 @@ export const usePayroll = () => {
       const query = searchQuery.value.toLowerCase()
       result = result.filter((item) => 
         item.employeeName.toLowerCase().includes(query) ||
-        item.nik.toLowerCase().includes(query)
+        item.npk.toLowerCase().includes(query)
       )
     }
 

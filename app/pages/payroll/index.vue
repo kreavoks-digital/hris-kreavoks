@@ -137,7 +137,7 @@
               <TableCell>
                 <div class="flex flex-col">
                   <span class="font-semibold text-kv-black">{{ payroll.employeeName }}</span>
-                  <span class="text-sm text-slate-400">{{ payroll.nik }} • {{ payroll.department }}</span>
+                  <span class="text-sm text-slate-400">{{ payroll.npk }} • {{ payroll.department }}</span>
                 </div>
               </TableCell>
               <TableCell class="text-sm font-medium">Rp {{ formatCurrency(payroll.basicSalary) }}</TableCell>
@@ -281,7 +281,7 @@ const viewSlip = (payrollId: string) => {
   navigateTo(`/payroll/slip/${payrollId}`);
 };
 
-const getStatusVariant = (status: string) => {
+const getStatusVariant = (status: string): "default" | "destructive" | "outline" | "secondary" | null | undefined => {
   return 'secondary'
 }
 
