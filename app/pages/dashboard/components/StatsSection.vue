@@ -123,8 +123,8 @@
             />
           </svg>
           <!-- Center Text -->
-          <div class="absolute flex flex-col items-center justify-center text-center transition-transform duration-300 group-hover:scale-110">
-            <span class="text-[10px] md:text-[11px] font-bold text-kv-primary/90 leading-none transition-colors group-hover:text-kv-primary">
+          <div class="absolute flex flex-col items-center justify-center text-center">
+            <span class="text-xs md:text-sm font-bold text-kv-primary leading-none">
               {{ Math.round(((stats.totalHadirCount || 0) / Math.max(1, (stats.totalHadirCount || 0) + (stats.totalIzinCount || 0))) * 100) }}%
             </span>
           </div>
