@@ -110,7 +110,7 @@
                             <TableHead class="font-semibold">Jam Keluar</TableHead>
                             <TableHead class="font-semibold">Status</TableHead>
                             <TableHead class="font-semibold">Keterangan</TableHead>
-                            <TableHead class="text-right font-semibold">{{ canViewAll ? 'Aksi' : '' }}</TableHead>
+                            <TableHead class="text-right font-semibold">{{ canManageAttendance ? 'Aksi' : '' }}</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -158,7 +158,7 @@
                                     <span class="hidden sm:inline">{{ expandedLogbooks[record.id] ? 'Tutup' : 'Lihat' }} Logbook</span>
                                     <ChevronRight class="h-4 w-4 transition-transform duration-200" :class="{'rotate-90': expandedLogbooks[record.id]}" />
                                   </Button>
-                                  <AlertDialog v-if="canViewAll">
+                                  <AlertDialog v-if="canManageAttendance">
                                     <AlertDialogTrigger as-child>
                                       <Button variant="ghost" size="icon" class="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10">
                                         <Trash2 class="h-4 w-4" />
@@ -194,7 +194,7 @@
                                       <FileText class="w-4 h-4 text-blue-500" />
                                       Logbook Harian
                                     </h4>
-                                    <div v-if="canViewAll" class="flex gap-2">
+                                    <div v-if="canManageAttendance" class="flex gap-2">
                                       <Button variant="ghost" size="sm" class="h-8 text-xs gap-1.5" @click="openEditDialog(record.logbook)">
                                         <Pencil class="w-3.5 h-3.5" /> Edit Logbook
                                       </Button>
@@ -364,7 +364,8 @@ const {
   updateLogbook,
   deleteLogbook,
   isAdmin,
-  canViewAll
+  canViewAll,
+  canManageAttendance
 } = useAttendance()
 
 const showEditDialog = ref(false)

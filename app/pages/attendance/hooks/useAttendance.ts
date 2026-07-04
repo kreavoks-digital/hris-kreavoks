@@ -16,6 +16,7 @@ export const useAttendance = () => {
   const auth = useAuth()
   const isAdmin = computed(() => auth.user.value?.role === 'ADMIN')
   const canViewAll = computed(() => auth.user.value?.permissions?.includes('view_all_users_attendance') || isAdmin.value)
+  const canManageAttendance = computed(() => auth.user.value?.permissions?.includes('manage_attendance') || isAdmin.value)
 
   const summary = ref<AttendanceSummary>({
     present: 0,
@@ -100,7 +101,7 @@ export const useAttendance = () => {
   }
 
   const deleteRecord = async (id: string) => {
-    if (!canViewAll.value) return
+    if (!canManageAttendance.value) return
     try {
       await attendanceApi.deleteAttendance(id)
       await fetchAttendance()
@@ -167,5 +168,6 @@ export const useAttendance = () => {
     deleteLogbook,
     isAdmin,
     canViewAll,
+    canManageAttendance
   }
 }
