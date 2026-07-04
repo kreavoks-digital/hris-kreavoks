@@ -16,8 +16,8 @@ export const absensiApi = {
       employeeName: item.user?.profile?.fullName || 'Unknown User',
       department: item.user?.profile?.department || (item.user?.role === 'ADMIN' ? 'Management' : 'Staff'),
       date: item.date ? new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : '-',
-      checkIn: item.clockIn ? new Date(item.clockIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : null,
-      checkOut: item.clockOut ? new Date(item.clockOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) : null,
+      checkIn: item.clockIn ? new Date(item.clockIn).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : null,
+      checkOut: item.clockOut ? new Date(item.clockOut).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':') : null,
       status: item.status.toLowerCase(),
       notes: item.notes || ''
     }))

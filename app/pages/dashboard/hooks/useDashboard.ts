@@ -142,7 +142,7 @@ export const useDashboard = () => {
     const hh = String(now.getHours()).padStart(2, '0')
     const mm = String(now.getMinutes()).padStart(2, '0')
     const ss = String(now.getSeconds()).padStart(2, '0')
-    currentTime.value = `${hh}.${mm}.${ss}`
+    currentTime.value = `${hh}:${mm}:${ss}`
   }
 
   const fetchTodayAttendance = async () => {
@@ -153,10 +153,10 @@ export const useDashboard = () => {
       if (data) {
         if (data.clockIn) {
           const inDate = new Date(data.clockIn)
-          clockInTime.value = `${String(inDate.getHours()).padStart(2, '0')}.${String(inDate.getMinutes()).padStart(2, '0')}`
+          clockInTime.value = `${String(inDate.getHours()).padStart(2, '0')}:${String(inDate.getMinutes()).padStart(2, '0')}`
           if (data.clockOut) {
             const outDate = new Date(data.clockOut)
-            clockOutTime.value = `${String(outDate.getHours()).padStart(2, '0')}.${String(outDate.getMinutes()).padStart(2, '0')}`
+            clockOutTime.value = `${String(outDate.getHours()).padStart(2, '0')}:${String(outDate.getMinutes()).padStart(2, '0')}`
             attendanceState.value = 'clocked_out'
             attendanceStatus.value = `Anda sudah pulang <span class="font-semibold text-kv-primary">pukul ${clockOutTime.value} WIB</span>`
             if (timerInterval) {
@@ -181,8 +181,8 @@ export const useDashboard = () => {
       if (res.data) {
         attendanceLogs.value = res.data.map((item: any) => ({
           tanggal: new Date(item.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-          datang: item.clockIn ? `${String(new Date(item.clockIn).getHours()).padStart(2, '0')}.${String(new Date(item.clockIn).getMinutes()).padStart(2, '0')} WIB` : '-',
-          pulang: item.clockOut ? `${String(new Date(item.clockOut).getHours()).padStart(2, '0')}.${String(new Date(item.clockOut).getMinutes()).padStart(2, '0')} WIB` : '-',
+          datang: item.clockIn ? `${String(new Date(item.clockIn).getHours()).padStart(2, '0')}:${String(new Date(item.clockIn).getMinutes()).padStart(2, '0')} WIB` : '-',
+          pulang: item.clockOut ? `${String(new Date(item.clockOut).getHours()).padStart(2, '0')}:${String(new Date(item.clockOut).getMinutes()).padStart(2, '0')} WIB` : '-',
         }))
       }
     } catch (err) {
