@@ -5,7 +5,7 @@ export const useEmployee = () => {
   const searchQuery = ref("")
   const filterDepartment = ref("")
   const page = ref(1)
-  const limit = ref(10)
+  const limit = ref(15)
   const totalItems = ref(0)
   const totalPages = ref(1)
 
