@@ -50,7 +50,7 @@
       </Table>
       
       <!-- Empty State -->
-      <div v-else class="flex flex-col items-center justify-center py-8 text-center animate-in fade-in zoom-in duration-500 h-full">
+      <div v-else class="flex flex-col items-center justify-center py-8 text-center animate-in fade-in duration-500 h-full">
         <div class="w-20 h-20 mb-3 text-muted-foreground/30 dark:text-muted-foreground/20">
           <CalendarX class="w-full h-full stroke-[1.5]" />
         </div>
