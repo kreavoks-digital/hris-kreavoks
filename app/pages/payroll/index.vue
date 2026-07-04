@@ -223,10 +223,11 @@ const {
   searchQuery,
   filterStatus,
   filteredPayrolls: filteredPayroll,
+  loading,
   fetchPayroll,
+  processPayrollData,
   formatCurrency,
   getStatusLabel,
-  loading
 } = usePayroll()
 
 const filterDepartment = ref("none");
@@ -257,22 +258,13 @@ const summary = ref({
 
 const processPayroll = async () => {
   // Use a proper confirm or dialog ideally, but for now we'll stick to a simple flow
-  // In a real premium app, we'd use a Dialog component from Shadcn
   const confirmed = confirm("Proses payroll untuk periode ini?");
   if (!confirmed) return;
 
-  try {
-    await $fetch("/api/payroll/process", {
-      method: "POST",
-      body: {
-        month: selectedMonth.value,
-        year: selectedYear.value,
-      },
-    });
+  const success = await processPayrollData();
+  if (success) {
     toast.success("Payroll berhasil diproses!");
-    fetchPayroll();
-  } catch (error) {
-    console.error("Error processing payroll:", error);
+  } else {
     toast.error("Gagal memproses payroll");
   }
 };

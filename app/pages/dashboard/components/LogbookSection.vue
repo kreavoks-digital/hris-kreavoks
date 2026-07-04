@@ -85,7 +85,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { Plus, MoreVertical, Pencil } from 'lucide-vue-next'
 import type { LogbookEntry } from '../types'
 import { Button } from '~/components/ui/button'

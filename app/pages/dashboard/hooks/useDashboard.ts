@@ -1,4 +1,3 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { CalendarDate } from '@internationalized/date'
 import type { DashboardStats, AttendanceLog, CalendarEvent, LogbookEntry } from '../types'
 

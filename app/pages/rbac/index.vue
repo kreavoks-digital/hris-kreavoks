@@ -137,7 +137,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
 import { 
   ShieldCheck, 
   Loader2,

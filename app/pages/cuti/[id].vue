@@ -125,7 +125,6 @@ import {
   Loader2, 
   AlertTriangle 
 } from 'lucide-vue-next'
-import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { cutiApi } from './api/cuti.api'
 import type { LeaveRecord } from '~/types'

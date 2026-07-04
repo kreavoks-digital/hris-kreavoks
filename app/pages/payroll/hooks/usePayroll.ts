@@ -47,6 +47,28 @@ export const usePayroll = () => {
     }
   }
 
+  const processPayrollData = async () => {
+    loading.value = true
+    error.value = null
+    try {
+      const response = await payrollApi.processPayroll(
+        selectedMonth.value.toString(),
+        selectedYear.value.toString()
+      )
+      if (response.success) {
+        await fetchPayroll()
+        return true
+      }
+      return false
+    } catch (err: any) {
+      console.error("Error processing payroll:", err)
+      error.value = "Gagal memproses payroll"
+      return false
+    } finally {
+      loading.value = false
+    }
+  }
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
@@ -73,6 +95,7 @@ export const usePayroll = () => {
     loading,
     error,
     fetchPayroll,
+    processPayrollData,
     formatCurrency,
     getStatusLabel,
   }

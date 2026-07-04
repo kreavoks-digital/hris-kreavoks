@@ -207,7 +207,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
 import { z } from 'zod'
 import { Link as LinkIcon } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'

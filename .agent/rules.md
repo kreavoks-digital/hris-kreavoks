@@ -114,23 +114,9 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
     - `app/pages/cuti/[id].vue` — has `import { ref, onMounted } from 'vue'`
     - `app/pages/cuti/ajukan.vue` — has `import { ref } from 'vue'`
 
-## 9. SEO — `useSeoMeta` Coverage
-- `useSeoMeta` is **mandatory** in every page file (`index.vue`, etc.).
-- **Currently MISSING** `useSeoMeta` (must be added when modifying these pages):
-    - `app/pages/absensi/index.vue`
-    - `app/pages/karyawan/index.vue`
-    - `app/pages/karyawan/tambah.vue`
-    - `app/pages/karyawan/edit/[id].vue`
-    - `app/pages/payroll/index.vue`
-    - `app/pages/rbac/index.vue`
-    - `app/pages/cuti/index.vue`
-    - `app/pages/cuti/ajukan.vue`
-    - `app/pages/cuti/[id].vue`
-    - `app/pages/auth/login/index.vue`
-    - `app/pages/auth/register/index.vue`
-    - `app/pages/auth/forgot-password/index.vue`
-    - `app/pages/auth/change-password/index.vue`
-    - `app/pages/auth/reset-password/index.vue`
+## 9. SEO (Not Required)
+- As this is an internal dashboard project, SEO (`useSeoMeta`) is **NOT REQUIRED** and can be skipped to save development time.
+- If it already exists, you can leave it, but do not force adding it to new or existing pages unless specifically asked.
 
 ## 10. State Management Rules
 - **NEVER** use bare `ref()` outside of a composable/setup function for shared cross-component state — it leaks on the server.

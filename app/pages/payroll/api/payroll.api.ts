@@ -6,5 +6,12 @@ export const payrollApi = {
     return await api('/payroll' as any, {
       query: { month, year }
     })
+  },
+  processPayroll: async (month: string, year: string): Promise<ApiResponse<any>> => {
+    const api = useApi()
+    return await api('/payroll/process' as any, {
+      method: 'POST',
+      body: { month, year }
+    })
   }
 }
