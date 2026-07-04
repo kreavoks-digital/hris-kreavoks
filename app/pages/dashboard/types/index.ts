@@ -7,6 +7,8 @@ export interface DashboardStats {
   logbookTrend: string
   sisaMasaKerja: string
   sisaMasaKerjaLabel: string
+  totalHadirCount?: number
+  totalIzinCount?: number
 }
 
 export interface AttendanceLog {

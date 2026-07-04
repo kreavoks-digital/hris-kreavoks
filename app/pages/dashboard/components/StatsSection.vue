@@ -79,10 +79,7 @@
     <!-- Sisa Masa Kerja Card -->
     <Card class="p-4 flex flex-col justify-center bg-kv-primary/5 dark:bg-kv-primary/10 border-kv-primary/20 shadow-sm rounded-2xl md:rounded-3xl relative overflow-hidden">
       <div class="absolute -right-4 -top-4 w-24 h-24 bg-kv-primary/20 rounded-full blur-2xl"></div>
-      <div class="relative z-10 flex items-center gap-3">
-        <div class="p-2.5 bg-kv-primary/10 dark:bg-kv-primary/20 rounded-xl shrink-0">
-          <Clock class="w-5 h-5 text-kv-primary" />
-        </div>
+      <div class="relative z-10 flex items-center justify-between gap-3">
         <div class="space-y-0.5">
           <p class="text-xs font-semibold text-kv-primary/80">Sisa Masa Kerja</p>
           <div class="flex items-baseline gap-2 flex-wrap">
@@ -90,6 +87,35 @@
             <span v-if="stats.sisaMasaKerja !== 'Lifetime'" class="text-[10px] md:text-xs font-medium text-kv-primary/70 bg-white/50 dark:bg-black/20 px-2 py-0.5 rounded-full whitespace-nowrap">
               {{ stats.sisaMasaKerjaLabel }}
             </span>
+          </div>
+        </div>
+        
+        <!-- Doughnut Chart (Hadir vs Izin) -->
+        <div class="relative w-12 h-12 md:w-14 md:h-14 shrink-0 flex items-center justify-center">
+          <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
+            <!-- Izin (Background) -->
+            <path
+              class="text-rose-400/40 dark:text-rose-400/30"
+              stroke-dasharray="100, 100"
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <!-- Hadir (Foreground) -->
+            <path
+              class="text-kv-primary drop-shadow-sm transition-all duration-1000"
+              :stroke-dasharray="`${Math.max(0, Math.min(100, ((stats.totalHadirCount || 0) / Math.max(1, (stats.totalHadirCount || 0) + (stats.totalIzinCount || 0))) * 100))}, 100`"
+              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="4"
+              stroke-linecap="round"
+            />
+          </svg>
+          <!-- Center Text -->
+          <div class="absolute flex flex-col items-center justify-center text-center">
+            <span class="text-[8px] md:text-[9px] font-bold text-kv-primary/90 leading-none">H/I</span>
           </div>
         </div>
       </div>
