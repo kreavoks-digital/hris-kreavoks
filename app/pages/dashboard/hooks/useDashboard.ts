@@ -111,31 +111,34 @@ export const useDashboard = () => {
   // Search query for dashboard
   const searchQuery = useState('dashboard_search_query', () => '')
 
-  // Add Logbook Form
-  const showAddLogbookDialog = ref(false)
-  const newLogbook = ref({
-    divisi: 'Divisi UI/UX',
-    tanggal: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-    deskripsi: '',
-    kendala: 'Tidak Ada'
-  })
+  const updateLogbook = async (id: string, data: { activity?: string; planTomorrow?: string; obstacle?: string; documentLink?: string }) => {
+    try {
+      const api = useApi()
+      await api(`/logbook/${id}`, {
+        method: 'PUT',
+        body: data
+      })
+      await fetchLogbooks()
+    } catch (err) {
+      console.error('Failed to update logbook', err)
+      throw err
+    }
+  }
 
-  const addLogbook = async () => {
-    if (newLogbook.value.deskripsi.trim() === '') return
+  const addLogbook = async (data: { activity: string; planTomorrow?: string; obstacle?: string; documentLink?: string }) => {
     try {
       const api = useApi()
       await api('/logbook', {
         method: 'POST',
-        body: { activity: newLogbook.value.deskripsi }
+        body: data
       })
-      newLogbook.value.deskripsi = ''
-      newLogbook.value.kendala = 'Tidak Ada'
-      showAddLogbookDialog.value = false
       await fetchLogbooks()
     } catch (err) {
       console.error('Failed to add logbook', err)
+      throw err
     }
   }
+
 
   // Attendance Clock-in/out State Machine
   // 'not_clocked_in' | 'clocked_in' | 'clocked_out'
@@ -303,8 +306,7 @@ export const useDashboard = () => {
     logbookFilterMonth,
     logbookFilterYear,
     searchQuery,
-    showAddLogbookDialog,
-    newLogbook,
+    updateLogbook,
     addLogbook,
     attendanceState,
     attendanceStatus,

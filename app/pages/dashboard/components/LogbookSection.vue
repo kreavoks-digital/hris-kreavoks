@@ -4,8 +4,12 @@
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold text-foreground">Logbook</h2>
       
-      <!-- Filters -->
+      <!-- Filters & Actions -->
       <div class="flex items-center gap-3">
+        <Button variant="default" class="bg-kv-primary hover:bg-kv-primary/90 text-white rounded-xl shadow-sm hidden sm:flex" @click="showAddDialog = true">
+          <Plus class="h-4 w-4 mr-2" />
+          Tambah Logbook
+        </Button>
         <Select v-model="filterMonth">
           <SelectTrigger class="w-[140px] bg-background border-border">
             <SelectValue placeholder="Pilih Bulan" />
@@ -49,19 +53,66 @@
             <TableCell class="text-foreground/80 py-2">{{ logbook.deskripsi }}</TableCell>
             <TableCell class="text-foreground/80 py-2">{{ logbook.kendala }}</TableCell>
             <TableCell class="text-right py-2">
-              <Button variant="ghost" size="icon" class="rounded-full h-8 w-8">
-                <MoreVertical class="h-4 w-4" />
+              <Button variant="ghost" size="icon" class="rounded-full h-8 w-8" @click="openEditDialog(logbook)">
+                <Pencil class="h-4 w-4" />
               </Button>
             </TableCell>
           </TableRow>
         </TableBody>
       </Table>
     </div>
+
+    <!-- Edit Logbook Dialog -->
+    <Dialog v-model:open="showEditDialog">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit Logbook</DialogTitle>
+        </DialogHeader>
+        <div class="grid gap-4 py-4">
+          <div class="space-y-2">
+            <Label for="deskripsi">Deskripsi Kegiatan</Label>
+            <Input id="deskripsi" v-model="editingData.deskripsi" placeholder="Masukkan deskripsi kegiatan" />
+          </div>
+          <div class="space-y-2">
+            <Label for="kendala">Kendala</Label>
+            <Input id="kendala" v-model="editingData.kendala" placeholder="Tidak Ada" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" @click="showEditDialog = false">Batal</Button>
+          <Button @click="handleSave">Simpan Perubahan</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+
+    <!-- Add Logbook Dialog -->
+    <Dialog v-model:open="showAddDialog">
+      <DialogContent class="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Tambah Logbook</DialogTitle>
+        </DialogHeader>
+        <div class="grid gap-4 py-4">
+          <div class="space-y-2">
+            <Label for="add-deskripsi">Deskripsi Kegiatan</Label>
+            <Input id="add-deskripsi" v-model="addData.deskripsi" placeholder="Masukkan deskripsi kegiatan" />
+          </div>
+          <div class="space-y-2">
+            <Label for="add-kendala">Kendala</Label>
+            <Input id="add-kendala" v-model="addData.kendala" placeholder="Tidak Ada" />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" @click="showAddDialog = false">Batal</Button>
+          <Button @click="handleAdd">Simpan</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Plus, MoreVertical } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { Plus, MoreVertical, Pencil } from 'lucide-vue-next'
 import type { LogbookEntry } from '../types'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -94,7 +145,54 @@ const props = defineProps<{
   logbooks: LogbookEntry[]
 }>()
 
-const emit = defineEmits(['add-logbook'])
+const emit = defineEmits(['update-logbook', 'add-logbook'])
+
+const showEditDialog = ref(false)
+const showAddDialog = ref(false)
+
+const editingData = ref({
+  id: '',
+  deskripsi: '',
+  kendala: ''
+})
+
+const addData = ref({
+  deskripsi: '',
+  kendala: 'Tidak Ada'
+})
+
+const openEditDialog = (logbook: LogbookEntry) => {
+  editingData.value = {
+    id: logbook.id,
+    deskripsi: logbook.deskripsi,
+    kendala: logbook.kendala
+  }
+  showEditDialog.value = true
+}
+
+const handleSave = () => {
+  if (!editingData.value.id || !editingData.value.deskripsi.trim()) return
+  
+  emit('update-logbook', editingData.value.id, {
+    activity: editingData.value.deskripsi,
+    obstacle: editingData.value.kendala
+  })
+  
+  showEditDialog.value = false
+}
+
+const handleAdd = () => {
+  if (!addData.value.deskripsi.trim()) return
+  
+  emit('add-logbook', {
+    activity: addData.value.deskripsi,
+    obstacle: addData.value.kendala
+  })
+  
+  addData.value.deskripsi = ''
+  addData.value.kendala = 'Tidak Ada'
+  showAddDialog.value = false
+}
 
 const monthModel = defineModel<number>('month')
 const yearModel = defineModel<number>('year')

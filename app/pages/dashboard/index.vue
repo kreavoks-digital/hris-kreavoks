@@ -19,12 +19,12 @@
       @clock-out="handleClockOut"
     />
 
-    <!-- Logbook Section -->
     <LogbookSection 
       :logbooks="filteredLogbooks" 
       v-model:month="logbookFilterMonth"
       v-model:year="logbookFilterYear"
-      @add-logbook="handleAddLogbook"
+      @update-logbook="updateLogbook"
+      @add-logbook="addLogbook"
     />
   </div>
 </template>
@@ -64,7 +64,9 @@ const {
   clockRangeText,
   handleClockIn,
   handleClockOut,
-  getCustomIndicators
+  getCustomIndicators,
+  updateLogbook,
+  addLogbook
 } = useDashboard()
 
 // Filtered data based on search bar
@@ -89,14 +91,5 @@ const filteredLogbooks = computed(() => {
   )
 })
 
-const handleAddLogbook = (newLb: { divisi: string; deskripsi: string; kendala: string }) => {
-  const today = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
-  logbooks.value.push({
-    id: Date.now().toString(),
-    divisi: newLb.divisi,
-    tanggal: today,
-    deskripsi: newLb.deskripsi,
-    kendala: newLb.kendala
-  })
-}
+// (Add/Update handlers are provided by useDashboard)
 </script>
