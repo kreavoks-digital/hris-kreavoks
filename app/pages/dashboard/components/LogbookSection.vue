@@ -105,8 +105,10 @@
 </template>
 
 <script setup lang="ts">
+import { inject, ref, computed } from 'vue'
 import { Plus, MoreVertical, Pencil, FileText, Link as LinkIcon } from 'lucide-vue-next'
 import type { LogbookEntry } from '../types'
+import { DashboardContextKey } from '../context/dashboardContext'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/textarea'
@@ -135,11 +137,15 @@ import {
   SelectValue,
 } from '~/components/ui/select'
 
-const props = defineProps<{
-  logbooks: LogbookEntry[]
-}>()
+const context = inject(DashboardContextKey)
+if (!context) throw new Error('Dashboard context not provided')
 
-const emit = defineEmits(['update-logbook'])
+const {
+  filteredLogbooks: logbooks,
+  logbookFilterMonth: monthModel,
+  logbookFilterYear: yearModel,
+  updateLogbook
+} = context
 
 const showEditDialog = ref(false)
 
@@ -163,7 +169,7 @@ const openEditDialog = (logbook: LogbookEntry) => {
 const handleSave = () => {
   if (!editingData.value.id || !editingData.value.deskripsi.trim()) return
   
-  emit('update-logbook', editingData.value.id, {
+  updateLogbook(editingData.value.id, {
     activity: editingData.value.deskripsi,
     obstacle: editingData.value.kendala,
     documentLink: editingData.value.documentLink
@@ -171,9 +177,6 @@ const handleSave = () => {
   
   showEditDialog.value = false
 }
-
-const monthModel = defineModel<number>('month')
-const yearModel = defineModel<number>('year')
 
 const filterMonth = computed({
   get: () => monthModel.value?.toString() ?? '',
@@ -185,21 +188,6 @@ const filterYear = computed({
   set: (val: string) => yearModel.value = parseInt(val, 10)
 })
 
-const months = [
-  { value: 1, label: 'Januari' },
-  { value: 2, label: 'Februari' },
-  { value: 3, label: 'Maret' },
-  { value: 4, label: 'April' },
-  { value: 5, label: 'Mei' },
-  { value: 6, label: 'Juni' },
-  { value: 7, label: 'Juli' },
-  { value: 8, label: 'Agustus' },
-  { value: 9, label: 'September' },
-  { value: 10, label: 'Oktober' },
-  { value: 11, label: 'November' },
-  { value: 12, label: 'Desember' }
-]
-
-const currentYear = new Date().getFullYear()
-const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i)
+const months = MONTHS
+const years = getCurrentYears()
 </script>

@@ -5,31 +5,16 @@
 
 
     <!-- Attendance logs, Clock Widget, Calendar -->
-    <AttendanceSection 
-      :logs="filteredLogs"
-      :events="events"
-      :status-text="attendanceStatus"
-      :selected-date="selectedDate"
-      v-model="selectedDateVal"
-      :get-custom-indicators="getCustomIndicators"
-      :attendance-state="attendanceState"
-      :current-time="currentTime"
-      :clock-range-text="clockRangeText"
-      @clock-in="handleClockIn"
-      @clock-out="handleClockOut"
-    />
+    <AttendanceSection />
 
-    <LogbookSection 
-      :logbooks="filteredLogbooks" 
-      v-model:month="logbookFilterMonth"
-      v-model:year="logbookFilterYear"
-      @update-logbook="updateLogbook"
-    />
+    <LogbookSection />
   </div>
 </template>
 
 <script setup lang="ts">
+import { provide, computed } from 'vue'
 import { useDashboard } from './hooks/useDashboard'
+import { DashboardContextKey } from './context/dashboardContext'
 import StatsSection from './components/StatsSection.vue'
 import AttendanceSection from './components/AttendanceSection.vue'
 import LogbookSection from './components/LogbookSection.vue'
@@ -46,32 +31,13 @@ useSeoMeta({
   ogDescription: 'Ringkasan operasional dan monitoring absensi HRIS Kreavoks.'
 })
 
-const {
-  stats,
-  attendanceLogs,
-  events,
-  logbooks,
-  logbookFilterMonth,
-  logbookFilterYear,
-  searchQuery,
-  attendanceStatus,
-  selectedDate,
-  selectedDateVal,
-  currentMonthYear,
-  attendanceState,
-  currentTime,
-  clockRangeText,
-  handleClockIn,
-  handleClockOut,
-  getCustomIndicators,
-  updateLogbook
-} = useDashboard()
+const dashboard = useDashboard()
 
 // Filtered data based on search bar
 const filteredLogs = computed(() => {
-  if (!searchQuery.value) return attendanceLogs.value
-  const query = searchQuery.value.toLowerCase()
-  return attendanceLogs.value.filter(log => 
+  if (!dashboard.searchQuery.value) return dashboard.attendanceLogs.value
+  const query = dashboard.searchQuery.value.toLowerCase()
+  return dashboard.attendanceLogs.value.filter(log => 
     log.tanggal.toLowerCase().includes(query) ||
     log.datang.toLowerCase().includes(query) ||
     log.pulang.toLowerCase().includes(query)
@@ -79,9 +45,9 @@ const filteredLogs = computed(() => {
 })
 
 const filteredLogbooks = computed(() => {
-  if (!searchQuery.value) return logbooks.value
-  const query = searchQuery.value.toLowerCase()
-  return logbooks.value.filter(lb => 
+  if (!dashboard.searchQuery.value) return dashboard.logbooks.value
+  const query = dashboard.searchQuery.value.toLowerCase()
+  return dashboard.logbooks.value.filter(lb => 
     lb.divisi.toLowerCase().includes(query) ||
     lb.tanggal.toLowerCase().includes(query) ||
     lb.deskripsi.toLowerCase().includes(query) ||
@@ -89,5 +55,11 @@ const filteredLogbooks = computed(() => {
   )
 })
 
-// (Add/Update handlers are provided by useDashboard)
+provide(DashboardContextKey, {
+  ...dashboard,
+  filteredLogs,
+  filteredLogbooks
+})
+
+const stats = dashboard.stats
 </script>
