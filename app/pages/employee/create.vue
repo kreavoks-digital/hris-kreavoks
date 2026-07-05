@@ -79,7 +79,17 @@
             </div>
             <div class="space-y-2">
               <Label for="position" class="text-slate-600 font-medium ml-1">Jabatan / Posisi</Label>
-              <Input id="position" v-model="formData.position" required placeholder="Jabatan spesifik" class="border-slate-200 focus:ring-kv-primary" />
+              <Select v-if="availablePositions.length > 0" v-model="formData.position">
+                <SelectTrigger class="rounded-3xl h-11 border-slate-200 focus:ring-kv-primary">
+                  <SelectValue placeholder="Pilih Posisi" />
+                </SelectTrigger>
+                <SelectContent class="rounded-3xl">
+                  <SelectItem v-for="pos in availablePositions" :key="pos.value" :value="pos.value">
+                    {{ pos.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Input v-else id="position" v-model="formData.position" required placeholder="Jabatan spesifik" class="border-slate-200 focus:ring-kv-primary rounded-3xl h-11" />
             </div>
             <div class="space-y-2">
               <Label for="joinDate" class="text-slate-600 font-medium ml-1">Tanggal Bergabung</Label>
@@ -164,13 +174,24 @@ const formData = ref({
   salary: 0,
 });
 
-const departments = [
-  { value: "IT", label: "Information Technology" },
-  { value: "HR", label: "Human Resources" },
-  { value: "Finance", label: "Finance & Accounting" },
-  { value: "Marketing", label: "Marketing & Sales" },
-  { value: "Operations", label: "Operations" },
-];
+const departmentGroups: Record<string, string[]> = {
+  "Kreavoks Development Team (KDT)": ["UI/UX Designer", "Web Developer", "Wordpress Developer", "Project Manager"],
+  "Kreavoks Creative Team (KCT)": ["Design Graphis", "Content Creator", "Sosmed Specialist", "Video Editor"],
+  "Kreavoks Management Team (KMT)": ["HR/HC"],
+  "Kreavoks Collaboration Mentor (KCM)": ["Mentor"],
+  "Lainnya": []
+};
+
+const departments = Object.keys(departmentGroups).map(k => ({ value: k, label: k }));
+
+const availablePositions = computed(() => {
+  if (!formData.value.department) return [];
+  return departmentGroups[formData.value.department]?.map(p => ({ value: p, label: p })) ?? [];
+});
+
+watch(() => formData.value.department, () => {
+  formData.value.position = ""; // Reset position when department changes
+});
 
 const employmentTypes = [
   { value: "permanent", label: "Karyawan Tetap" },
