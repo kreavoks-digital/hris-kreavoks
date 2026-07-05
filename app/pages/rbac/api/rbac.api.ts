@@ -3,9 +3,14 @@ export const rbacApi = {
     const api = useApi();
     return await api('/permissions');
   },
-  getUsers: async (): Promise<any> => {
+  getUsers: async (page = 1, limit = 15, search = ""): Promise<any> => {
     const api = useApi();
-    return await api('/users'); // Uses existing users route
+    const query = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+      ...(search && { search })
+    });
+    return await api(`/users?${query.toString()}`);
   },
   assignPermissions: async (userId: string, permissionIds: number[]): Promise<any> => {
     const api = useApi();

@@ -1,1 +1,0 @@
-import{i}from"./C0BzMO3R.js";import{r as n,d as r}from"./DxM42NzW.js";import{b as o}from"./BhqBaUWT.js";function a(e){const t=i({dir:n("ltr")});return r(()=>e?.value||t.dir?.value||"ltr")}function c(){const e=n(),t=r(()=>["#text","#comment"].includes(e.value?.$el.nodeName)?e.value?.$el.nextElementSibling:o(e));return{primitiveElement:e,currentElement:t}}export{a,c as u};

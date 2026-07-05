@@ -32,6 +32,7 @@ export const usePayroll = () => {
     loading.value = true
     error.value = null
     try {
+      await new Promise(resolve => setTimeout(resolve, 800))
       const response = await payrollApi.getPayroll(
         selectedMonth.value.toString(),
         selectedYear.value.toString()

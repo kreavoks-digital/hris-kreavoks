@@ -25,18 +25,11 @@
           </SelectTrigger>
           <SelectContent class="rounded-2xl border-border">
             <SelectItem value="none">Semua Departemen</SelectItem>
-            <SelectItem value="Web Developer">Web Developer</SelectItem>
-            <SelectItem value="Wordpress Developer">Wordpress Developer</SelectItem>
-            <SelectItem value="UI/UX Designer">UI/UX Designer</SelectItem>
-            <SelectItem value="Desainer Grafis">Desainer Grafis</SelectItem>
-            <SelectItem value="Content Creator">Content Creator</SelectItem>
-            <SelectItem value="Social Media Specialist">Social Media Specialist</SelectItem>
-            <SelectItem value="Project Manager">Project Manager</SelectItem>
-            <SelectItem value="IT">IT</SelectItem>
-            <SelectItem value="HR">HR</SelectItem>
-            <SelectItem value="Finance">Finance</SelectItem>
-            <SelectItem value="Marketing">Marketing</SelectItem>
-            <SelectItem value="Operations">Operations</SelectItem>
+            <SelectItem value="Kreavoks Development Team (KDT)">Kreavoks Development Team (KDT)</SelectItem>
+            <SelectItem value="Kreavoks Creative Team (KCT)">Kreavoks Creative Team (KCT)</SelectItem>
+            <SelectItem value="Kreavoks Management Team (KMT)">Kreavoks Management Team (KMT)</SelectItem>
+            <SelectItem value="Kreavoks Collaboration Mentor (KCM)">Kreavoks Collaboration Mentor (KCM)</SelectItem>
+            <SelectItem value="Lainnya">Lainnya</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -62,7 +55,9 @@
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableRow v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-accent/50 transition-colors">
+          <TableSkeleton v-if="loading" :rows="5" :columns="7" />
+          <template v-else>
+            <TableRow v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-accent/50 transition-colors">
             <TableCell class="font-medium text-muted-foreground whitespace-nowrap">{{ emp.npk || '-' }}</TableCell>
             <TableCell>
               <div class="flex items-center gap-3">
@@ -91,11 +86,20 @@
             </TableCell>
             <TableCell>
               <Badge 
-                :variant="emp.status === 'Aktif' ? 'default' : 'secondary'"
-                class="px-3 py-1 rounded-3xl text-sm font-medium"
-                :class="emp.status === 'Aktif' ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 border-transparent' : 'bg-muted text-muted-foreground border-border'"
+                class="px-3 py-1 rounded-3xl text-sm font-medium border-transparent"
+                :class="{
+                  'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE',
+                  'bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20': emp.status === 'TERMINATED',
+                  'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': emp.status === 'SUSPENDED',
+                  'bg-slate-500/15 text-slate-600 dark:text-slate-400 hover:bg-slate-500/20': emp.status === 'RESIGNED',
+                }"
               >
-                {{ emp.status }}
+                {{ 
+                  emp.status === 'ACTIVE' ? 'Aktif' : 
+                  emp.status === 'TERMINATED' ? 'Terminated' : 
+                  emp.status === 'SUSPENDED' ? 'Suspended' : 
+                  emp.status === 'RESIGNED' ? 'Resigned' : emp.status 
+                }}
               </Badge>
             </TableCell>
             <TableCell class="text-right">
@@ -118,7 +122,8 @@
                 <Button variant="link" @click="searchQuery = ''; filterDepartment = ''" class="mt-2">Hapus Filter</Button>
               </div>
             </TableCell>
-          </TableRow>
+            </TableRow>
+          </template>
         </TableBody>
       </Table>
     </Card>
@@ -205,6 +210,7 @@
 </template>
 
 <script setup lang="ts">
+import TableSkeleton from '~/components/ui/skeleton/TableSkeleton.vue'
 import { 
   UserPlus, 
   Search, 

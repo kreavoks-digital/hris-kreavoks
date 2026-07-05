@@ -1,0 +1,1 @@
+import{u as r}from"./sK6Zj2ml.js";import"./BdKEYFig.js";const i={getPayroll:async(a,o)=>await r()("/payroll",{query:{month:a,year:o}}),processPayroll:async(a,o)=>await r()("/payroll/process",{method:"POST",body:{month:a,year:o}})};export{i as payrollApi};

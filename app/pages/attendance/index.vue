@@ -36,18 +36,19 @@
     </div>
 
     <!-- Summary Grid -->
-    <div class="grid gap-6 md:grid-cols-4">
-      <Card v-for="(val, key) in summaryItems" :key="key" class="border border-border bg-card overflow-hidden group rounded-3xl transition-all duration-300 hover:bg-accent/50">
-        <CardContent class="p-6 flex items-center gap-4">
-          <div :class="[val.color, 'h-11 w-11 rounded-2xl flex items-center justify-center transition-all']">
-             <component :is="val.icon" class="h-5 w-5" />
-          </div>
-          <div>
-            <p class="text-sm font-medium text-muted-foreground">{{ val.label }}</p>
-            <p class="text-2xl font-semibold text-foreground">{{ val.count }}</p>
-          </div>
-        </CardContent>
-      </Card>
+    <CardSkeleton v-if="loading" :cards="4" />
+    <div v-else class="grid gap-6 md:grid-cols-4">
+        <Card v-for="(val, key) in summaryItems" :key="key" class="border border-border bg-card overflow-hidden group rounded-3xl transition-all duration-300 hover:bg-accent/50">
+          <CardContent class="p-6 flex items-center gap-4">
+            <div :class="[val.color, 'h-11 w-11 rounded-2xl flex items-center justify-center transition-all']">
+               <component :is="val.icon" class="h-5 w-5" />
+            </div>
+            <div>
+              <p class="text-sm font-medium text-muted-foreground">{{ val.label }}</p>
+              <p class="text-2xl font-semibold text-foreground">{{ val.count }}</p>
+            </div>
+          </CardContent>
+        </Card>
     </div>
 
     <!-- Filters Section -->
@@ -80,7 +81,8 @@
       <div class="relative overflow-x-auto">
         <Table>
           <TableBody>
-            <template v-for="(group, key) in groupedAttendance" :key="key">
+            <TableSkeleton v-if="loading" :rows="3" :columns="6" />
+            <template v-else v-for="(group, key) in groupedAttendance" :key="key">
               <TableRow class="bg-muted/30 border-y border-border" :class="{ 'cursor-pointer hover:bg-accent': canViewAll }" @click="canViewAll && toggleGroup(key as string)">
                 <TableCell colspan="6" class="py-3">
                   <div class="flex items-center gap-3">
@@ -153,6 +155,10 @@
                               </TableCell>
                               <TableCell class="text-right">
                                 <div class="flex items-center justify-end gap-1">
+                                  <Button v-if="canManageAttendance && (!record.checkOut || record.checkOut === '--:--')" variant="ghost" size="sm" class="h-8 gap-1 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10" @click="forgiveAttendance(record.id)">
+                                    <CheckCircle2 class="h-4 w-4" />
+                                    <span class="hidden sm:inline">Koreksi</span>
+                                  </Button>
                                   <Button v-if="record.logbook" variant="ghost" size="sm" class="h-8 gap-1 text-blue-500 hover:text-blue-600 hover:bg-blue-500/10" @click="toggleLogbook(record.id)">
                                     <FileText class="h-4 w-4" />
                                     <span class="hidden sm:inline">{{ expandedLogbooks[record.id] ? 'Tutup' : 'Lihat' }} Logbook</span>
@@ -296,6 +302,8 @@ import { format } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { parseDate } from '@internationalized/date'
 import { cn } from '@/lib/utils'
+import CardSkeleton from '~/components/ui/skeleton/CardSkeleton.vue'
+import TableSkeleton from '~/components/ui/skeleton/TableSkeleton.vue'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { Calendar } from '~/components/ui/calendar'
 import { useAttendance } from './hooks/useAttendance'
@@ -305,6 +313,7 @@ import { Textarea } from '~/components/ui/textarea'
 import { Label } from '~/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
+import { Skeleton } from '~/components/ui/skeleton'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import {
   AlertDialog,
@@ -361,6 +370,7 @@ const {
   exportAttendance,
   loading,
   deleteRecord,
+  forgiveAttendance,
   updateLogbook,
   deleteLogbook,
   isAdmin,

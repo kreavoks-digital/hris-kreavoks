@@ -75,13 +75,13 @@
             <!-- Reason -->
             <div class="space-y-2 md:col-span-2">
               <Label for="reason" class="text-kv-black font-medium">Alasan / Keperluan</Label>
-              <textarea
+              <Textarea
                 id="reason"
                 v-model="form.reason"
-                class="flex min-h-[120px] w-full rounded-3xl border border-slate-200 bg-background px-4 py-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                class="min-h-[120px] rounded-3xl border-slate-200 resize-none"
                 placeholder="Tuliskan alasan pengajuan cuti secara detail..."
                 required
-              ></textarea>
+              />
             </div>
           </div>
 
@@ -126,6 +126,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
+import { Textarea } from '~/components/ui/textarea'
 import { toast } from 'vue-sonner'
 
 definePageMeta({

@@ -68,6 +68,7 @@ export const useAttendance = () => {
     loading.value = true
     error.value = null
     try {
+      await new Promise(resolve => setTimeout(resolve, 800))
       const response = await attendanceApi.getAttendance(selectedDate.value as string, canViewAll.value)
       if (response.success) {
         attendance.value = response.data.records
@@ -108,6 +109,27 @@ export const useAttendance = () => {
       toast.success("Data absensi berhasil dihapus")
     } catch (err: any) {
       toast.error("Gagal menghapus absensi", {
+        description: err?.message || "Terjadi kesalahan.",
+      })
+    }
+  }
+
+  const forgiveAttendance = async (id: string) => {
+    if (!canManageAttendance.value) return
+    try {
+      const defaultClockOut = new Date()
+      defaultClockOut.setHours(17, 0, 0, 0)
+      
+      await attendanceApi.updateAttendance(id, {
+        clockOut: defaultClockOut,
+        notes: "Lupa clock out (Dikoreksi Admin)"
+      })
+      await fetchAttendance()
+      toast.success("Data absensi berhasil dikoreksi", {
+        description: "Jam keluar telah diisi otomatis dan catatan ditambahkan."
+      })
+    } catch (err: any) {
+      toast.error("Gagal mengoreksi absensi", {
         description: err?.message || "Terjadi kesalahan.",
       })
     }
@@ -164,6 +186,7 @@ export const useAttendance = () => {
     getStatusLabel,
     exportAttendance,
     deleteRecord,
+    forgiveAttendance,
     updateLogbook,
     deleteLogbook,
     isAdmin,

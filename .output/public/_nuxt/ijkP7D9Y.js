@@ -1,1 +1,0 @@
-import{u as i}from"./HFAabMFX.js";import"./DxM42NzW.js";const e={getEmployees:async()=>{const t=await i()("/users");return{success:t.success,data:t.data.map(a=>({id:a.id.toString(),npk:a.npk,name:a.fullName||"Tanpa Nama",email:a.email,phone:a.phone||"-",department:a.department,position:a.position,status:a.isActive?"Aktif":"Nonaktif",role:a.role}))}}};export{e as karyawanApi};

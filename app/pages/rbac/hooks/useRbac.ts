@@ -12,16 +12,29 @@ export const useRbac = () => {
   const selectedUser = ref<any>(null)
   const selectedPermissionIds = ref<number[]>([])
 
+  const searchQuery = ref("")
+  const page = ref(1)
+  const limit = ref(15)
+  const totalItems = ref(0)
+  const totalPages = ref(1)
+
   const fetchData = async () => {
     loading.value = true
     try {
+      // Delay for skeleton loading testing
+      await new Promise(resolve => setTimeout(resolve, 800))
+
       const [usersRes, permRes] = await Promise.all([
-        rbacApi.getUsers(),
+        rbacApi.getUsers(page.value, limit.value, searchQuery.value),
         rbacApi.getPermissions()
       ])
       
       if (usersRes.success) {
         users.value = usersRes.data || []
+        if (usersRes.pagination) {
+          totalItems.value = usersRes.pagination.totalItems
+          totalPages.value = usersRes.pagination.totalPages
+        }
       }
       if (permRes.success) {
         permissions.value = permRes.data
@@ -65,6 +78,19 @@ export const useRbac = () => {
     }
   }
 
+  watch(page, () => {
+    fetchData()
+  })
+
+  let debounceTimeout: any
+  watch(searchQuery, () => {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+      page.value = 1
+      fetchData()
+    }, 300)
+  })
+
   return {
     users,
     permissions,
@@ -73,6 +99,11 @@ export const useRbac = () => {
     isAssignModalOpen,
     selectedUser,
     selectedPermissionIds,
+    searchQuery,
+    page,
+    limit,
+    totalItems,
+    totalPages,
     fetchData,
     openAssignModal,
     closeAssignModal,

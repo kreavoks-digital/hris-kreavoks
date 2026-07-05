@@ -1,1 +1,0 @@
-import{a}from"./CMZIrn4u.js";import{g as r,o as t,j as n,k as c,l,m}from"./DxM42NzW.js";const u=r({__name:"CardDescription",props:{class:{}},setup(s){const e=s;return(o,p)=>(t(),n("p",{class:c(l(a)("text-sm text-muted-foreground",e.class))},[m(o.$slots,"default")],2))}});export{u as _};

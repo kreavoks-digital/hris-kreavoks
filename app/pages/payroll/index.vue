@@ -38,7 +38,8 @@
     </div>
 
     <!-- Summary Statistics -->
-    <div class="grid gap-6 md:grid-cols-3">
+    <CardSkeleton v-if="loading" :cards="3" />
+    <div v-else class="grid gap-6 md:grid-cols-3">
       <Card class="border border-slate-100 rounded-3xl overflow-hidden relative">
         <CardContent class="p-6">
           <div class="flex items-center gap-4">
@@ -133,7 +134,9 @@
             </TableRow>
           </TableHeader>
           <TableBody>
-            <TableRow v-for="payroll in filteredPayroll" :key="payroll.id" class="hover:bg-slate-50/30 transition-colors">
+            <TableSkeleton v-if="loading" :rows="3" :columns="7" />
+            <template v-else>
+              <TableRow v-for="payroll in filteredPayroll" :key="payroll.id" class="hover:bg-slate-50/30 transition-colors">
               <TableCell>
                 <div class="flex flex-col">
                   <span class="font-semibold text-kv-black">{{ payroll.employeeName }}</span>
@@ -173,6 +176,7 @@
                 </div>
               </TableCell>
             </TableRow>
+            </template>
           </TableBody>
         </Table>
       </div>
@@ -190,6 +194,8 @@ import {
   FileText, 
   BadgeCent
 } from 'lucide-vue-next'
+import TableSkeleton from '~/components/ui/skeleton/TableSkeleton.vue'
+import CardSkeleton from '~/components/ui/skeleton/CardSkeleton.vue'
 import { usePayroll } from './hooks/usePayroll'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'

@@ -10,10 +10,20 @@
           Manage roles and permissions for all system users.
         </p>
       </div>
-      <Button @click="fetchData" variant="outline" :disabled="loading" class="gap-2">
-        <RefreshCw :class="{'animate-spin': loading}" class="h-4 w-4" />
-        Refresh
-      </Button>
+      <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3">
+        <div class="relative w-full sm:w-64">
+          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            v-model="searchQuery"
+            placeholder="Cari karyawan..." 
+            class="pl-9 bg-card border-border rounded-xl w-full"
+          />
+        </div>
+        <Button @click="fetchData" variant="outline" :disabled="loading" class="gap-2 rounded-xl">
+          <RefreshCw :class="{'animate-spin': loading}" class="h-4 w-4" />
+          Refresh
+        </Button>
+      </div>
     </div>
 
     <!-- Users Table Card -->
@@ -36,14 +46,7 @@
               </TableRow>
             </TableHeader>
             <TableBody>
-              <TableRow v-if="loading && users.length === 0">
-                <TableCell colspan="4" class="h-24 text-center">
-                  <div class="flex items-center justify-center gap-2 text-slate-500">
-                    <Loader2 class="h-4 w-4 animate-spin" />
-                    Memuat data RBAC...
-                  </div>
-                </TableCell>
-              </TableRow>
+              <TableSkeleton v-if="loading" :rows="5" :columns="4" />
               <TableRow v-else-if="users.length === 0">
                 <TableCell colspan="4" class="h-24 text-center text-slate-500">
                   Tidak ada data pengguna ditemukan
@@ -52,9 +55,15 @@
               <template v-else>
                 <TableRow v-for="user in users" :key="user.id" class="hover:bg-slate-50/50">
                   <TableCell>
-                    <div class="flex flex-col">
-                      <span class="font-medium text-slate-900 dark:text-slate-100">{{ user.fullName }}</span>
-                      <span class="text-xs text-slate-500">{{ user.email }}</span>
+                    <div class="flex items-center gap-3">
+                      <Avatar class="h-9 w-9 border-2 border-card">
+                        <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.fullName}`" />
+                        <AvatarFallback>{{ user.fullName ? user.fullName.charAt(0) : 'U' }}</AvatarFallback>
+                      </Avatar>
+                      <div class="flex flex-col">
+                        <span class="font-medium text-slate-900 dark:text-slate-100 leading-tight">{{ user.fullName }}</span>
+                        <span class="text-xs text-slate-500">{{ user.email }}</span>
+                      </div>
                     </div>
                   </TableCell>
                   <TableCell>
@@ -87,6 +96,83 @@
               </template>
             </TableBody>
           </Table>
+        </div>
+
+        <!-- Pagination Section -->
+        <div class="flex items-center justify-between px-6 py-4 border-t border-border">
+          <div class="flex flex-1 justify-between sm:hidden">
+            <Button
+              @click="page--"
+              :disabled="page === 1"
+              variant="outline"
+              class="rounded-xl"
+            >
+              Previous
+            </Button>
+            <Button
+              @click="page++"
+              :disabled="page === totalPages"
+              variant="outline"
+              class="rounded-xl"
+            >
+              Next
+            </Button>
+          </div>
+          <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+              <p class="text-sm text-muted-foreground">
+                Menampilkan
+                <span class="font-medium text-foreground">{{ totalItems === 0 ? 0 : (page - 1) * limit + 1 }}</span>
+                sampai
+                <span class="font-medium text-foreground">{{ Math.min(page * limit, totalItems) }}</span>
+                dari
+                <span class="font-medium text-foreground">{{ totalItems }}</span>
+                karyawan
+              </p>
+            </div>
+            <div>
+              <nav class="isolate inline-flex -space-x-px rounded-md gap-1" aria-label="Pagination">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  :disabled="page === 1"
+                  @click="page--"
+                  class="h-9 w-9 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground"
+                >
+                  <ChevronLeft class="h-4 w-4" />
+                </Button>
+                
+                <template v-for="p in totalPages" :key="p">
+                  <Button
+                    v-if="p === 1 || p === totalPages || (p >= page - 2 && p <= page + 2)"
+                    variant="outline"
+                    size="sm"
+                    @click="page = p"
+                    class="h-9 w-9 rounded-xl border-border"
+                    :class="page === p ? 'bg-kv-primary text-white border-transparent hover:bg-kv-primary/95' : 'bg-background hover:bg-accent text-muted-foreground hover:text-foreground'"
+                  >
+                    {{ p }}
+                  </Button>
+                  <span 
+                    v-else-if="(p === 2 && page > 4) || (p === totalPages - 1 && page < totalPages - 3)" 
+                    class="inline-flex items-center px-2 text-sm font-semibold text-muted-foreground"
+                  >
+                    ...
+                  </span>
+                </template>
+
+                <Button
+                  variant="outline"
+                  size="icon"
+                  :disabled="page === totalPages"
+                  @click="page++"
+                  class="h-9 w-9 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground"
+                >
+                  <ChevronRight class="h-4 w-4" />
+                </Button>
+              </nav>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
@@ -137,16 +223,22 @@
 </template>
 
 <script setup lang="ts">
+import TableSkeleton from '~/components/ui/skeleton/TableSkeleton.vue'
 import { 
   ShieldCheck, 
   Loader2,
-  RefreshCw
+  RefreshCw,
+  Search,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
 import { Button } from '~/components/ui/button'
+import { Input } from '~/components/ui/input'
 import { Badge } from '~/components/ui/badge'
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Checkbox } from '~/components/ui/checkbox'
 import {
   Dialog,
@@ -177,6 +269,11 @@ const {
   isAssignModalOpen,
   selectedUser,
   selectedPermissionIds,
+  searchQuery,
+  page,
+  limit,
+  totalItems,
+  totalPages,
   fetchData,
   openAssignModal,
   closeAssignModal,

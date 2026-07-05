@@ -1,1 +1,0 @@
-import{a}from"./CMZIrn4u.js";import{g as o,o as n,j as t,k as c,l,m as d}from"./DxM42NzW.js";const u=o({__name:"Card",props:{class:{}},setup(r){const s=r;return(e,m)=>(n(),t("div",{class:c(l(a)("rounded-3xl border bg-card text-card-foreground",s.class))},[d(e.$slots,"default")],2))}});export{u as _};

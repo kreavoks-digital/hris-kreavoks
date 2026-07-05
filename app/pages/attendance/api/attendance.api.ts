@@ -52,5 +52,13 @@ export const attendanceApi = {
   deleteAttendance: async (id: string): Promise<any> => {
     const api = useApi()
     return await api(`/attendance/${id}` as any, { method: 'DELETE' })
+  },
+
+  updateAttendance: async (id: string, payload: { clockOut?: string | Date | null, notes?: string | null }): Promise<any> => {
+    const api = useApi()
+    return await api(`/attendance/${id}` as any, { 
+      method: 'PUT',
+      body: payload
+    })
   }
 }

@@ -19,6 +19,9 @@ export const useEmployee = () => {
     loading.value = true
     error.value = null
     try {
+      // Delay untuk testing skeleton
+      await new Promise(resolve => setTimeout(resolve, 800))
+      
       const response = await employeeApi.getEmployees(
         page.value,
         limit.value,
