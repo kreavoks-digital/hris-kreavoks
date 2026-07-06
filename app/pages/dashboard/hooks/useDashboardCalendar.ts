@@ -1,39 +1,82 @@
-import { CalendarDate } from '@internationalized/date'
 import type { CalendarEvent, LogbookEntry } from '../types'
 
+interface SimpleDate {
+  year: number
+  month: number
+  day: number
+  iso: string
+}
+
+function makeDateObj(year: number, month: number, day: number): SimpleDate {
+  const mm = String(month).padStart(2, '0')
+  const dd = String(day).padStart(2, '0')
+  return { year, month, day, iso: `${year}-${mm}-${dd}` }
+}
+
 export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
-  const selectedDateVal = ref<CalendarDate>(new CalendarDate(2024, 11, 29))
+  const now = new Date()
+  const selectedDateVal = ref<SimpleDate>(makeDateObj(now.getFullYear(), now.getMonth() + 1, now.getDate()))
+
   const selectedDate = computed(() => selectedDateVal.value.day)
 
+  const MONTHS_ID = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ]
+
   const currentMonthYear = computed(() => {
-    const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ]
-    return `${months[selectedDateVal.value.month - 1]} ${selectedDateVal.value.year}`
+    return `${MONTHS_ID[selectedDateVal.value.month - 1]} ${selectedDateVal.value.year}`
   })
 
-  const getCustomIndicators = (date: any) => {
+  const holidays = ref<Record<string, string>>({})
+  const fetchedYears = ref<Set<number>>(new Set())
+
+  const fetchHolidaysForYear = async (year: number) => {
+    if (fetchedYears.value.has(year)) return
+    try {
+      const currentSystemYear = new Date().getFullYear()
+      const endpoint = year === currentSystemYear
+        ? 'https://libur.deno.dev/api'
+        : `https://libur.deno.dev/api?year=${year}`
+
+      const response = await $fetch<any[]>(endpoint)
+
+      if (response && Array.isArray(response)) {
+        const updated = { ...holidays.value }
+        response.forEach((h: any) => {
+          updated[h.date] = h.name
+        })
+        holidays.value = updated
+        fetchedYears.value = new Set([...fetchedYears.value, year])
+      }
+    } catch (e) {
+      console.error(`Failed to fetch holidays for ${year}:`, e)
+    }
+  }
+
+  onMounted(() => {
+    fetchHolidaysForYear(selectedDateVal.value.year)
+  })
+
+  // When selected year changes, fetch holidays for that year
+  watch(() => selectedDateVal.value.year, (newYear) => {
+    fetchHolidaysForYear(newYear)
+  })
+
+  const getCustomIndicators = (date: SimpleDate) => {
     const list: Array<'blue' | 'yellow' | 'green'> = []
     if (!date) return list
-    const d = date.day
-    const m = date.month
-    const y = date.year
 
-    if (m === 11 && y === 2024) {
-      if (d === 10 || d === 24 || d === 3 || d === 17) {
-        list.push('yellow')
-      }
-      if (d === 29 || d === 12 || d === 19 || d === 26) {
-        list.push('blue')
-      }
+    if (holidays.value[date.iso]) {
+      list.push('yellow')
     }
-    
+
+    const monthName = MONTHS_ID[date.month - 1]
     const matchLogbook = logbooks.value.find((lb: any) => {
       const parts = lb.tanggal.split(' ')
-      return parseInt(parts[0]) === d && parts[1] === currentMonthYear.value.split(' ')[0] && parseInt(parts[2]) === y
+      return parseInt(parts[0]) === date.day && parts[1] === monthName && parseInt(parts[2]) === date.year
     })
-    
+
     if (matchLogbook) {
       list.push('green')
     }
@@ -42,31 +85,25 @@ export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
   }
 
   const selectedDateEvents = computed(() => {
-    const d = selectedDateVal.value.day
-    const m = selectedDateVal.value.month
-    const y = selectedDateVal.value.year
+    const { day: d, month: m, year: y, iso } = selectedDateVal.value
     const list: Array<CalendarEvent> = []
 
-    if (m === 11 && y === 2024) {
-      if (d === 10) {
-        list.push({ title: 'Hari Pahlawan', date: '10 Nov 2024', time: 'Hari Libur Nasional', type: 'yellow' })
-      } else if (d === 24) {
-        list.push({ title: 'Cuti Bersama', date: '24 Nov 2024', time: 'Hari Libur', type: 'yellow' })
-      } else if (d === 3 || d === 17) {
-        list.push({ title: 'Hari Libur Akhir Pekan', date: `${d} Nov 2024`, time: '', type: 'yellow' })
-      }
-      if (d === 29) {
-        list.push({ title: 'Meeting Tim Develop', date: '29 Nov 2024', time: '19.00 WIB', type: 'blue' })
-      } else if (d === 12 || d === 19 || d === 26) {
-        list.push({ title: 'Weekly Meeting', date: `${d} Nov 2024`, time: '10.00 WIB', type: 'blue' })
-      }
+    const holidayTitle = holidays.value[iso]
+    if (holidayTitle) {
+      list.push({
+        title: holidayTitle,
+        date: `${d} ${MONTHS_ID[m - 1]} ${y}`,
+        time: 'Hari Libur Nasional / Cuti Bersama',
+        type: 'yellow'
+      })
     }
 
+    const monthName = MONTHS_ID[m - 1]
     const matchingLogbooks = logbooks.value.filter((lb: any) => {
       const parts = lb.tanggal.split(' ')
-      return parseInt(parts[0]) === d && parts[1] === currentMonthYear.value.split(' ')[0] && parseInt(parts[2]) === y
+      return parseInt(parts[0]) === d && parts[1] === monthName && parseInt(parts[2]) === y
     })
-    
+
     matchingLogbooks.forEach((lb: any) => {
       list.push({
         title: `Logbook: ${lb.deskripsi}`,
@@ -79,5 +116,12 @@ export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
     return list
   })
 
-  return { selectedDate, selectedDateVal, currentMonthYear, events: selectedDateEvents, getCustomIndicators }
+  return {
+    selectedDate,
+    selectedDateVal,
+    currentMonthYear,
+    events: selectedDateEvents,
+    getCustomIndicators,
+    holidays
+  }
 }

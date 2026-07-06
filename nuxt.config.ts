@@ -11,10 +11,10 @@ export default defineNuxtConfig({
   },
 
   ignore: [
-    'pages/**/components/**',
-    'pages/**/types/**',
-    'pages/**/hooks/**',
-    'pages/**/api/**'
+    'app/pages/**/components/**',
+    'app/pages/**/types/**',
+    'app/pages/**/hooks/**',
+    'app/pages/**/api/**'
   ],
 
   modules: [

@@ -94,6 +94,7 @@
                   <SelectItem value="RESIGNED">Resigned (Mengundurkan Diri)</SelectItem>
                   <SelectItem value="SUSPENDED">Suspended (Ditangguhkan)</SelectItem>
                   <SelectItem value="TERMINATED">Terminated (Diberhentikan)</SelectItem>
+                  <SelectItem value="GRADUATE">Graduate (Lulus / Alumni)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -130,7 +131,7 @@
           </div>
         </CardHeader>
         <CardContent class="p-6" v-if="!isLifetime">
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="space-y-2">
               <Label for="startDate" class="text-foreground font-medium ml-1">Tanggal Mulai (Start Date)</Label>
               <Popover>
@@ -177,6 +178,10 @@
                   <SelectItem value="SELESAI">Selesai / Terbit</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div class="space-y-2">
+              <Label for="agreementLink" class="text-foreground font-medium ml-1">Link Surat Perjanjian</Label>
+              <Input id="agreementLink" v-model="formData.agreementLink" type="url" placeholder="https://drive.google.com/..." class="border-border focus:ring-kv-primary bg-background rounded-3xl h-11" />
             </div>
           </div>
         </CardContent>
@@ -246,6 +251,7 @@ const formData = ref({
   startDate: "",
   endDate: "",
   certificateStatus: "NONE",
+  agreementLink: "",
 });
 
 const isLifetime = ref(true);
@@ -288,8 +294,7 @@ const departmentGroups: Record<string, string[]> = {
 const departments = Object.keys(departmentGroups).map(k => ({ value: k, label: k }));
 
 const availablePositions = computed(() => {
-  if (!formData.value.department || !departmentGroups[formData.value.department]) return [];
-  return departmentGroups[formData.value.department].map(p => ({ value: p, label: p }));
+  return (departmentGroups[formData.value.department] || []).map(p => ({ value: p, label: p }));
 });
 
 watch(() => formData.value.department, (newVal, oldVal) => {
@@ -319,6 +324,7 @@ onMounted(async () => {
             startDate: emp.startDate || "",
             endDate: emp.endDate || "",
             certificateStatus: emp.certificateStatus || "NONE",
+            agreementLink: emp.agreementLink || "",
           };
           
           isLifetime.value = !emp.startDate || emp.startDate.startsWith("9999");

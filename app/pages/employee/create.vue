@@ -197,6 +197,7 @@ const employmentTypes = [
   { value: "permanent", label: "Karyawan Tetap" },
   { value: "contract", label: "Karyawan Kontrak" },
   { value: "intern", label: "Magang / Internship" },
+  { value: "graduate", label: "Graduate / Alumni" },
 ];
 
 const submitForm = async () => {

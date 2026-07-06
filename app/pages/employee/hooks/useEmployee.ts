@@ -8,6 +8,7 @@ export const useEmployee = () => {
   const limit = ref(15)
   const totalItems = ref(0)
   const totalPages = ref(1)
+  const pendingVerification = ref(false)
 
   const employees = ref<Employee[]>([])
   const loading = ref(false)
@@ -26,7 +27,8 @@ export const useEmployee = () => {
         page.value,
         limit.value,
         searchQuery.value,
-        filterDepartment.value
+        filterDepartment.value,
+        pendingVerification.value
       )
       if (response.success && response.data) {
         employees.value = response.data.employees
@@ -43,8 +45,8 @@ export const useEmployee = () => {
     }
   }
 
-  // Refetch when page or department filters change
-  watch([page, filterDepartment], () => {
+  // Refetch when page, department, or pendingVerification changes
+  watch([page, filterDepartment, pendingVerification], () => {
     fetchEmployees()
   })
 
@@ -69,12 +71,14 @@ export const useEmployee = () => {
     searchQuery,
     filterDepartment,
     filteredEmployees,
+    employees,
     page,
     limit,
     totalItems,
     totalPages,
     loading,
     error,
+    pendingVerification,
     fetchEmployees,
     resetFilters
   }

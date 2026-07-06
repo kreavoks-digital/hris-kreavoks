@@ -10,12 +10,15 @@
     <ClockWidget class="lg:col-span-3" />
 
     <!-- Column 3: Calendar & Upcoming Events (span 5) -->
-    <CalendarWidget 
+    <CalendarWidget
       class="lg:col-span-5"
-      v-model="selectedDateVal"
+      :model-value="selectedDateVal"
+      @update:model-value="(val) => { context.selectedDateVal.value = val }"
       :events="events"
       :selected-date="selectedDate"
+      :current-month-year="currentMonthYear"
       :get-custom-indicators="getCustomIndicators"
+      :holidays="holidays"
     />
   </div>
 </template>
@@ -36,6 +39,7 @@ const {
   attendanceStatus,
   selectedDate,
   selectedDateVal,
+  currentMonthYear,
   getCustomIndicators,
   attendanceState,
   currentTime,
@@ -48,6 +52,7 @@ const {
   isIzinModalOpen,
   leaveForm,
   isClockOutFormValid,
-  formErrors
+  formErrors,
+  holidays
 } = context
 </script>

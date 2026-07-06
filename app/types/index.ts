@@ -9,10 +9,15 @@ export interface Employee {
   department: string;
   position: string;
   status: string;
+  isActive?: boolean;
   role: string;
   startDate?: string;
   endDate?: string;
   certificateStatus?: string;
+  agreementLink?: string | null;
+  presentCount?: number;
+  institution?: string | null;
+  address?: string | null;
 }
 
 export interface AttendanceRecord {

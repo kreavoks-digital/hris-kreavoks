@@ -8,19 +8,25 @@ const mapEmployee = (user: any): Employee => ({
   phone: user.phone || '-',
   department: user.department,
   position: user.position,
-  status: user.status || (user.isActive ? 'ACTIVE' : 'TERMINATED'),
+  status: user.status || (user.isActive ? 'ACTIVE' : 'SUSPENDED'),
+  isActive: user.isActive,
   role: user.role,
   startDate: user.startDate ? new Date(user.startDate).toISOString().split('T')[0] : '',
   endDate: user.endDate ? new Date(user.endDate).toISOString().split('T')[0] : '',
-  certificateStatus: user.certificateStatus || 'NONE'
+  certificateStatus: user.certificateStatus || 'NONE',
+  agreementLink: user.agreementLink || null,
+  presentCount: user.presentCount || 0,
+  institution: user.institution || null,
+  address: user.address || null,
 })
 
 export const employeeApi = {
-  getEmployees: async (page = 1, limit = 10, search = "", department = ""): Promise<ApiResponse<{ employees: Employee[], pagination: any }>> => {
+  getEmployees: async (page = 1, limit = 10, search = "", department = "", pendingVerification = false): Promise<ApiResponse<{ employees: Employee[], pagination: any }>> => {
     const api = useApi()
     let url = `/users?page=${page}&limit=${limit}`
     if (search) url += `&search=${encodeURIComponent(search)}`
     if (department && department !== 'none') url += `&department=${encodeURIComponent(department)}`
+    if (pendingVerification) url += `&pendingVerification=true`
 
     const res = await api(url as any)
     return {

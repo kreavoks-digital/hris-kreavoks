@@ -14,8 +14,9 @@ export const useRegister = () => {
       const response = await registerApi.register(data)
       
       if (response.success) {
-        toast.success('Berhasil', {
-          description: 'Registrasi berhasil! Silakan login.'
+        toast.success('Pendaftaran Berhasil! 🎉', {
+          description: 'Akun Anda telah didaftarkan dan sedang menunggu verifikasi dari Admin. Kami akan menghubungi Anda segera.',
+          duration: 6000,
         })
         router.push('/auth/login')
       } else {

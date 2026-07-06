@@ -72,3 +72,15 @@
     font-family: 'Plus Jakarta Sans', sans-serif;
   }
 }
+
+/* ============================================
+   REUSABLE COMPONENT STYLES (Sync with Careers)
+   ============================================ */
+
+/* Custom Checkbox - rounded-md, primary color, proper size */
+.checkbox-custom {
+  height: 1.25rem !important; /* h-5 */
+  width: 1.25rem !important;  /* w-5 */
+  border-radius: 0.375rem !important; /* 6px */
+}
+

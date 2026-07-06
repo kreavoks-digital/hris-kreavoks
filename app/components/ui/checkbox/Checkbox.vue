@@ -19,7 +19,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
     v-bind="forwarded"
     :class="cn(
       // Base layout & styling
-      'peer h-5 w-5 shrink-0 rounded-[4px] border-2 border-slate-300 dark:border-slate-600 ring-offset-background',
+      'peer shrink-0 checkbox-custom border-2 border-muted-foreground/30 ring-offset-background',
       // Transitions
       'transition-all duration-200',
       // Focus state
@@ -31,7 +31,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
       props.class
     )"
   >
-    <CheckboxIndicator class="flex h-full w-full items-center justify-center text-white">
+    <CheckboxIndicator class="flex h-full w-full items-center justify-center text-primary-foreground">
       <slot>
         <svg
           viewBox="0 0 24 24"

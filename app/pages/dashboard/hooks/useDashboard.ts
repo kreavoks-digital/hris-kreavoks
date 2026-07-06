@@ -26,7 +26,7 @@ export const useDashboard = () => {
     formErrors
   } = useDashboardAttendance(fetchStats, fetchLogbooks)
   
-  const { selectedDate, selectedDateVal, currentMonthYear, events, getCustomIndicators } = useDashboardCalendar(logbooks)
+  const { selectedDate, selectedDateVal, currentMonthYear, events, getCustomIndicators, holidays } = useDashboardCalendar(logbooks)
   const { isIzinModalOpen, leaveForm, submitIzin, handleIzin } = useDashboardLeaves()
 
   const searchQuery = useState('dashboard_search_query', () => '')
@@ -74,6 +74,7 @@ export const useDashboard = () => {
     isClockOutFormValid,
     formErrors,
     isIzinModalOpen,
-    leaveForm
+    leaveForm,
+    holidays
   }
 }
