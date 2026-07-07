@@ -45,6 +45,10 @@ export default defineNuxtConfig({
     },
   },
 
+  app: {
+    spaLoadingTemplate: './spa-loading-template.html',
+  },
+
   experimental: {
     appManifest: false
   },
