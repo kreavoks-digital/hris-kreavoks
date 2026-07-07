@@ -10,5 +10,8 @@
 <script setup>
 import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
-// loadAuth sekarang dipindah ke plugin auth.client.ts agar lebih stabil
+import { useDark } from '@vueuse/core'
+
+// Initialize dark mode globally so it syncs on all pages (including login)
+const isDark = useDark()
 </script>
