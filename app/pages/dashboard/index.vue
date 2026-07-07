@@ -1,13 +1,29 @@
 <template>
   <div class="space-y-4 animate-in fade-in duration-500">
-    <!-- Stats Section -->
-    <StatsSection :stats="stats" />
+    <template v-if="dashboard.isLoading.value">
+      <!-- Skeleton Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div v-for="i in 4" :key="i" class="h-32 bg-muted animate-pulse rounded-3xl"></div>
+      </div>
+      <!-- Skeleton Attendance Section -->
+      <div class="grid gap-4 lg:grid-cols-12">
+        <div class="lg:col-span-4 h-80 bg-muted animate-pulse rounded-3xl"></div>
+        <div class="lg:col-span-3 h-80 bg-muted animate-pulse rounded-3xl"></div>
+        <div class="lg:col-span-5 h-80 bg-muted animate-pulse rounded-3xl"></div>
+      </div>
+      <!-- Skeleton Logbook Section -->
+      <div class="h-64 bg-muted animate-pulse rounded-3xl"></div>
+    </template>
 
+    <template v-else>
+      <!-- Stats Section -->
+      <StatsSection :stats="stats" />
 
-    <!-- Attendance logs, Clock Widget, Calendar -->
-    <AttendanceSection />
+      <!-- Attendance logs, Clock Widget, Calendar -->
+      <AttendanceSection />
 
-    <LogbookSection />
+      <LogbookSection />
+    </template>
   </div>
 </template>
 

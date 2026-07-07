@@ -30,12 +30,17 @@ export const useDashboard = () => {
   const { isIzinModalOpen, leaveForm, submitIzin, handleIzin } = useDashboardLeaves()
 
   const searchQuery = useState('dashboard_search_query', () => '')
+  const isLoading = ref(true)
 
-  onMounted(() => {
-    fetchTodayAttendance(stopClockTimer)
-    fetchAttendanceHistory()
-    fetchLogbooks()
-    fetchStats()
+  onMounted(async () => {
+    isLoading.value = true
+    await Promise.allSettled([
+      fetchTodayAttendance(stopClockTimer),
+      fetchAttendanceHistory(),
+      fetchLogbooks(),
+      fetchStats()
+    ])
+    isLoading.value = false
   })
 
   watch([logbookFilterMonth, logbookFilterYear], () => {
@@ -47,6 +52,7 @@ export const useDashboard = () => {
   const _handleClockOut = () => handleClockOut(stopClockTimer)
 
   return {
+    isLoading,
     stats,
     attendanceLogs,
     selectedDate,
