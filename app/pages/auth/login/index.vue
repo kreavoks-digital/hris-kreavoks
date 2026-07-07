@@ -40,12 +40,12 @@
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <Label for="password" class="text-sm font-medium">Password</Label>
-              <NuxtLink
+              <!-- <NuxtLink
                 to="/auth/forgot-password"
                 class="text-sm text-kv-primary hover:underline hover:text-kv-primary/80 transition-colors"
               >
                 Lupa password?
-              </NuxtLink>
+              </NuxtLink> -->
             </div>
             <div class="relative">
               <Lock class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
