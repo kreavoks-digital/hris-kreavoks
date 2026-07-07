@@ -234,19 +234,19 @@
             </div>
 
             <!-- Terms -->
-            <div class="flex items-start space-x-2 pt-1">
+            <div class="flex items-start space-x-2 pt-1" @click.prevent="agreedToTerms = !agreedToTerms">
               <Checkbox 
                 id="terms" 
                 :checked="agreedToTerms" 
-                @update:checked="(val) => agreedToTerms = val" 
               />
               <label
-                for="terms"
-                class="text-sm text-slate-500 leading-tight peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                class="text-sm text-slate-500 leading-tight cursor-pointer select-none"
               >
-                Saya setuju dengan <a href="#" class="text-kv-primary hover:underline">Ketentuan Layanan</a> dan <a href="#" class="text-kv-primary hover:underline">Kebijakan Privasi</a>.
+                Saya setuju dengan <a href="#" class="text-kv-primary hover:underline" @click.stop>Ketentuan Layanan</a> dan <a href="#" class="text-kv-primary hover:underline" @click.stop>Kebijakan Privasi</a>.
               </label>
             </div>
+            <!-- DEBUG: hapus setelah fix -->
+            <p class="text-xs text-slate-400">agreedToTerms = {{ agreedToTerms }}</p>
 
             <!-- Info verifikasi -->
             <div class="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-md">
