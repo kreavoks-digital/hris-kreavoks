@@ -1,17 +1,17 @@
 <template>
-  <div class="grid gap-4 lg:grid-cols-12">
+  <div class="grid gap-4 grid-cols-1 lg:grid-cols-12 flex-col">
     <!-- Column 1: Attendance Log Table (span 4) -->
     <AttendanceHistoryTable 
-      class="lg:col-span-4"
+      class="order-2 lg:order-1 lg:col-span-4"
       :logs="filteredLogs"
     />
 
     <!-- Column 2: Clock-in/Clock-out (span 3) -->
-    <ClockWidget class="lg:col-span-3" />
+    <ClockWidget class="order-1 lg:order-2 lg:col-span-3" />
 
     <!-- Column 3: Calendar & Upcoming Events (span 5) -->
     <CalendarWidget
-      class="lg:col-span-5"
+      class="order-3 lg:col-span-5"
       :model-value="selectedDateVal"
       @update:model-value="(val) => { context.selectedDateVal.value = val }"
       :events="events"
