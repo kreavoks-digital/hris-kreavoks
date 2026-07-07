@@ -94,41 +94,6 @@
           </div>
         </div>
         
-        <!-- Doughnut Chart (Hadir vs Izin) -->
-        <div class="relative w-16 h-16 md:w-20 md:h-20 shrink-0 flex items-center justify-center group cursor-pointer">
-          <!-- Tooltip on hover -->
-          <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 bg-popover/90 backdrop-blur text-popover-foreground text-[10px] md:text-xs font-medium px-2.5 py-1 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 group-hover:translate-y-1 transition-all duration-300 whitespace-nowrap pointer-events-none z-20 border border-border/50">
-            <span class="text-kv-primary">Hadir: {{ stats.totalHadirCount || 0 }}</span> &nbsp;|&nbsp; <span class="text-orange-500">Izin: {{ stats.totalIzinCount || 0 }}</span>
-          </div>
-          
-          <svg viewBox="0 0 36 36" class="w-full h-full transform -rotate-90">
-            <!-- Izin (Background) -->
-            <path
-              class="text-orange-400/40 group-hover:text-orange-500/60 transition-colors duration-300"
-              stroke-dasharray="100, 100"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3"
-            />
-            <!-- Hadir (Foreground) -->
-            <path
-              class="text-kv-primary drop-shadow-sm transition-all duration-700 ease-out group-hover:stroke-[4]"
-              :stroke-dasharray="`${Math.max(0, Math.min(100, ((stats.totalHadirCount || 0) / Math.max(1, (stats.totalHadirCount || 0) + (stats.totalIzinCount || 0))) * 100))}, 100`"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="3.5"
-              stroke-linecap="round"
-            />
-          </svg>
-          <!-- Center Text -->
-          <div class="absolute flex flex-col items-center justify-center text-center">
-            <span class="text-xs md:text-sm font-bold text-kv-primary leading-none">
-              {{ Math.round(((stats.totalHadirCount || 0) / Math.max(1, (stats.totalHadirCount || 0) + (stats.totalIzinCount || 0))) * 100) }}%
-            </span>
-          </div>
-        </div>
       </div>
     </Card>
   </div>
