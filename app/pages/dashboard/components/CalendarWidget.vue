@@ -16,7 +16,7 @@
         {{ modelValue?.day }} {{ monthName }} {{ modelValue?.year }}
       </h4>
 
-      <div class="mt-4 space-y-3 flex-1">
+      <div class="mt-4 space-y-3 flex-1 max-h-[240px] overflow-y-auto pr-2">
         <div v-if="events.length === 0" class="text-xs text-muted-foreground py-4 italic">
           Tidak ada agenda, hari libur, atau logbook pada tanggal ini.
         </div>
