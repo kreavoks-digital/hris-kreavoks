@@ -14,8 +14,7 @@
         <select
           :value="viewMonth"
           @change="onMonthChange"
-          class="h-8 text-xs font-semibold bg-transparent border border-border rounded-md px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-kv-primary appearance-none pr-5 relative"
-          style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22%3E%3Cpolyline points=%226 9 12 15 18 9%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 4px center;"
+          class="h-8 text-xs font-semibold bg-background text-foreground border border-border rounded-md px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-kv-primary"
         >
           <option v-for="(name, idx) in MONTHS" :key="idx" :value="idx + 1">{{ name }}</option>
         </select>
@@ -24,8 +23,7 @@
         <select
           :value="viewYear"
           @change="onYearChange"
-          class="h-8 text-xs font-semibold bg-transparent border border-border rounded-md px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-kv-primary appearance-none pr-5"
-          style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2210%22 height=%2210%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%236b7280%22 stroke-width=%222%22%3E%3Cpolyline points=%226 9 12 15 18 9%22/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 4px center;"
+          class="h-8 text-xs font-semibold bg-background text-foreground border border-border rounded-md px-2 cursor-pointer focus:outline-none focus:ring-1 focus:ring-kv-primary"
         >
           <option v-for="y in yearRange" :key="y" :value="y">{{ y }}</option>
         </select>
@@ -50,12 +48,12 @@
       </div>
     </div>
 
-    <!-- Calendar Grid -->
-    <div class="grid grid-cols-7 gap-y-0.5">
+    <!-- Calendar Grid - always 6 rows (42 cells) for fixed height -->
+    <div class="grid grid-cols-7" style="grid-auto-rows: 40px;">
       <div
         v-for="(cell, idx) in calendarCells"
         :key="idx"
-        class="flex flex-col items-center"
+        class="flex flex-col items-center justify-start pt-1"
       >
         <template v-if="cell">
           <button
@@ -91,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 interface CalendarCell {
   year: number
@@ -118,41 +116,68 @@ const MONTHS = [
 const DAY_NAMES = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
 
 const now = new Date()
-const viewYear = ref(props.modelValue?.year ?? now.getFullYear())
-const viewMonth = ref(props.modelValue?.month ?? now.getMonth() + 1)
+const viewYear = ref<number>(props.modelValue?.year ?? now.getFullYear())
+const viewMonth = ref<number>(props.modelValue?.month ?? now.getMonth() + 1)
 
-watch(() => props.modelValue, (val) => {
-  if (val) {
-    viewYear.value = val.year
-    viewMonth.value = val.month
-  }
-})
 
-const yearRange = computed(() => {
-  const base = viewYear.value
+const yearRange: number[] = (() => {
+  const base = now.getFullYear()
   const result: number[] = []
   for (let y = base - 10; y <= base + 10; y++) result.push(y)
   return result
-})
+})()
+
+function onMonthChange(e: Event) {
+  viewMonth.value = parseInt((e.target as HTMLSelectElement).value, 10)
+}
+
+function onYearChange(e: Event) {
+  viewYear.value = parseInt((e.target as HTMLSelectElement).value, 10)
+}
+
+function prevMonth() {
+  if (viewMonth.value === 1) {
+    viewMonth.value = 12
+    viewYear.value -= 1
+  } else {
+    viewMonth.value -= 1
+  }
+}
+
+function nextMonth() {
+  if (viewMonth.value === 12) {
+    viewMonth.value = 1
+    viewYear.value += 1
+  } else {
+    viewMonth.value += 1
+  }
+}
 
 const calendarCells = computed(() => {
   const cells: (CalendarCell | null)[] = []
-  const firstDay = new Date(viewYear.value, viewMonth.value - 1, 1).getDay()
-  const daysInMonth = new Date(viewYear.value, viewMonth.value, 0).getDate()
+  const year = viewYear.value
+  const month = viewMonth.value
+  const firstDay = new Date(year, month - 1, 1).getDay()
+  const daysInMonth = new Date(year, month, 0).getDate()
 
   // Leading empty cells
   for (let i = 0; i < firstDay; i++) cells.push(null)
 
   // Day cells
   for (let d = 1; d <= daysInMonth; d++) {
-    const mm = String(viewMonth.value).padStart(2, '0')
+    const mm = String(month).padStart(2, '0')
     const dd = String(d).padStart(2, '0')
     cells.push({
-      year: viewYear.value,
-      month: viewMonth.value,
+      year,
+      month,
       day: d,
-      iso: `${viewYear.value}-${mm}-${dd}`
+      iso: `${year}-${mm}-${dd}`
     })
+  }
+
+  // Always pad to exactly 42 cells (6 rows of 7) to prevent height jump
+  while (cells.length < 42) {
+    cells.push(null)
   }
 
   return cells
@@ -185,31 +210,5 @@ function getCellClass(cell: CalendarCell) {
 
 function selectDate(cell: CalendarCell) {
   emit('update:modelValue', cell)
-}
-
-function prevMonth() {
-  if (viewMonth.value === 1) {
-    viewMonth.value = 12
-    viewYear.value--
-  } else {
-    viewMonth.value--
-  }
-}
-
-function nextMonth() {
-  if (viewMonth.value === 12) {
-    viewMonth.value = 1
-    viewYear.value++
-  } else {
-    viewMonth.value++
-  }
-}
-
-function onMonthChange(e: Event) {
-  viewMonth.value = parseInt((e.target as HTMLSelectElement).value)
-}
-
-function onYearChange(e: Event) {
-  viewYear.value = parseInt((e.target as HTMLSelectElement).value)
 }
 </script>

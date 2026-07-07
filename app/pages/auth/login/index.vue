@@ -15,7 +15,7 @@
             Selamat Datang Kembali
           </h1>
           <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-[340px] mx-auto">
-            Masuk ke akun Anda untuk mengelola tugas harian dan meningkatkan produktivitas tim.
+            Masuk HRIS Anda untuk mengelola tugas harian dan meningkatkan produktivitas tim.
           </p>
         </div>
       </div>
@@ -74,7 +74,7 @@
             :disabled="loading"
           >
             <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
-            {{ loading ? 'Sedang Masuk...' : 'Masuk ke Akun' }}
+            {{ loading ? 'Sedang Masuk...' : 'Masuk HRIS' }}
           </Button>
         </form>
 

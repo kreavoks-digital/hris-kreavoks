@@ -93,9 +93,9 @@
             <TableHead>Departemen</TableHead>
             <TableHead>Posisi</TableHead>
             <template v-if="activeTab === 'all'">
-              <TableHead>Masa Kerja</TableHead>
-              <TableHead>Sisa Hari Kerja</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead class="whitespace-nowrap">Masa Kerja</TableHead>
+              <TableHead class="whitespace-nowrap w-[140px]">Sisa Hari Kerja</TableHead>
+              <TableHead class="whitespace-nowrap">Status</TableHead>
             </template>
             <template v-else>
               <TableHead>No. Telepon</TableHead>
@@ -123,20 +123,21 @@
               </TableCell>
               <TableCell class="text-sm text-muted-foreground">{{ (emp as any).institution || '-' }}</TableCell>
               <TableCell>
-                <Badge variant="outline" class="font-medium bg-accent text-accent-foreground border-border">
+                <Badge variant="outline" class="font-medium bg-accent text-accent-foreground border-border whitespace-nowrap">
                   {{ emp.department }}
                 </Badge>
               </TableCell>
-              <TableCell class="text-foreground text-sm">{{ emp.position }}</TableCell>
+              <TableCell class="text-foreground text-sm whitespace-nowrap">{{ emp.position }}</TableCell>
 
               <!-- All tab columns -->
               <template v-if="activeTab === 'all'">
                 <TableCell>
-                  <div v-if="emp.startDate && emp.endDate && !emp.startDate.startsWith('9999')" class="flex flex-col text-xs space-y-1">
+                  <div v-if="emp.startDate && !emp.startDate.startsWith('9999')" class="flex flex-col text-xs space-y-1">
                     <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.startDate), 'dd MMM yyyy', { locale: idLocale }) }} -</span>
-                    <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.endDate), 'dd MMM yyyy', { locale: idLocale }) }}</span>
+                    <span class="text-foreground whitespace-nowrap" v-if="emp.endDate && !emp.endDate.startsWith('9999')">{{ format(new Date(emp.endDate), 'dd MMM yyyy', { locale: idLocale }) }}</span>
+                    <span class="text-muted-foreground italic whitespace-nowrap" v-else>Pilih Tanggal</span>
                   </div>
-                  <span v-else class="text-sm text-muted-foreground italic">Lifetime</span>
+                  <span v-else class="text-sm text-muted-foreground italic">-</span>
                 </TableCell>
                 <TableCell>
                   <div v-if="emp.endDate && !emp.endDate.startsWith('9999') && emp.startDate">

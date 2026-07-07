@@ -5,7 +5,7 @@ export default defineNuxtConfig({
   ssr: false,
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  
+
   future: {
     compatibilityVersion: 4,
   },
@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     '@nuxtjs/google-fonts',
     'shadcn-nuxt'
   ],
-  
+
   css: [
     '~/assets/css/main.css'
   ],
@@ -34,11 +34,11 @@ export default defineNuxtConfig({
 
   googleFonts: {
     families: {
-      "Plus Jakarta Sans": [300,400,500,600,700]
+      "Plus Jakarta Sans": [300, 400, 500, 600, 700]
     },
     display: 'swap'
   },
-  
+
   runtimeConfig: {
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL,
@@ -52,6 +52,14 @@ export default defineNuxtConfig({
   router: {
     options: {
       scrollBehaviorType: 'smooth'
+    }
+  },
+
+  vite: {
+    server: {
+      watch: {
+        usePolling: true
+      }
     }
   }
 })

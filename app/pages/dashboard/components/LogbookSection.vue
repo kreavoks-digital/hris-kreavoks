@@ -45,7 +45,7 @@
           </TableRow>
         </TableHeader>
         <TableBody class="divide-y divide-border">
-          <TableRow v-for="logbook in logbooks" :key="logbook.id" class="hover:bg-accent/50 transition-colors border-none">
+          <TableRow v-for="logbook in paginatedLogbooks" :key="logbook.id" class="hover:bg-accent/50 transition-colors border-none">
             <TableCell class="text-foreground/80 py-2">{{ logbook.divisi }}</TableCell>
             <TableCell class="text-foreground/80 py-2 whitespace-nowrap">{{ logbook.tanggal }}</TableCell>
             <TableCell class="text-foreground/80 py-2">{{ logbook.deskripsi }}</TableCell>
@@ -64,6 +64,22 @@
           </TableRow>
         </TableBody>
       </Table>
+
+      <!-- Pagination Controls -->
+      <div v-if="totalPages > 1" class="flex items-center justify-between pt-4 mt-2 border-t border-border/50">
+        <span class="text-xs text-muted-foreground">
+          Menampilkan {{ paginatedLogbooks.length }} dari {{ logbooks.length }} data
+        </span>
+        <div class="flex items-center gap-2">
+          <Button variant="outline" size="sm" class="h-8 text-xs px-3" :disabled="currentPage === 1" @click="currentPage--">
+            Sebelumnya
+          </Button>
+          <span class="text-xs font-medium text-foreground px-2">Hal {{ currentPage }} / {{ totalPages }}</span>
+          <Button variant="outline" size="sm" class="h-8 text-xs px-3" :disabled="currentPage === totalPages" @click="currentPage++">
+            Selanjutnya
+          </Button>
+        </div>
+      </div>
       
       <!-- Empty State -->
       <div v-else class="flex-1 flex flex-col items-center justify-center py-12 text-center bg-muted/30 dark:bg-muted/10 rounded-2xl border border-dashed border-border mt-2 animate-in fade-in duration-500">
@@ -105,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, ref, computed } from 'vue'
+import { inject, ref, computed, watch } from 'vue'
 import { Plus, MoreVertical, Pencil, FileText, Link as LinkIcon } from 'lucide-vue-next'
 import type { LogbookEntry } from '../types'
 import { DashboardContextKey } from '../context/dashboardContext'
@@ -177,6 +193,24 @@ const handleSave = () => {
   
   showEditDialog.value = false
 }
+
+// Pagination logic
+const currentPage = ref(1)
+const itemsPerPage = 10
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil((logbooks.value?.length || 0) / itemsPerPage))
+})
+
+const paginatedLogbooks = computed(() => {
+  if (!logbooks.value) return []
+  const start = (currentPage.value - 1) * itemsPerPage
+  return logbooks.value.slice(start, start + itemsPerPage)
+})
+
+watch(() => logbooks.value, () => {
+  currentPage.value = 1
+}, { deep: true })
 
 const filterMonth = computed({
   get: () => monthModel.value?.toString() ?? '',

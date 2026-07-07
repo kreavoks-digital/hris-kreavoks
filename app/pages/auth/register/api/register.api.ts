@@ -12,7 +12,7 @@ export interface SelfRegisterData {
 }
 
 export const registerApi = {
-  register: async (data: SelfRegisterData): Promise<ApiResponse> => {
+  register: async (data: FormData): Promise<ApiResponse> => {
     const api = useApi()
     return await api('/auth/self-register' as any, {
       method: 'POST',
