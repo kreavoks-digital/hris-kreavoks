@@ -85,7 +85,11 @@ export const useDashboardAttendance = (
     }
   }
 
+  const isSubmitting = ref(false)
+
   const handleClockIn = async (stopClockTimer: () => void) => {
+    if (isSubmitting.value) return
+    isSubmitting.value = true
     try {
       const api = useApi()
       await api('/attendance/clock-in', { method: 'POST' })
@@ -94,10 +98,14 @@ export const useDashboardAttendance = (
       await fetchStats()
     } catch (err) {
       console.error('Clock in failed', err)
+    } finally {
+      isSubmitting.value = false
     }
   }
 
   const handleClockOut = async (stopClockTimer: () => void) => {
+    if (isSubmitting.value) return
+    isSubmitting.value = true
     try {
       const api = useApi()
       await api('/logbook', { 
@@ -116,6 +124,8 @@ export const useDashboardAttendance = (
     } catch (err) {
       console.error('Clock out failed', err)
       throw err 
+    } finally {
+      isSubmitting.value = false
     }
   }
 
@@ -137,6 +147,7 @@ export const useDashboardAttendance = (
     showClockOutModal,
     clockOutLogbook,
     isClockOutFormValid,
-    formErrors
+    formErrors,
+    isSubmitting
   }
 }

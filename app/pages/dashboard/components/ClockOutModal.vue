@@ -63,9 +63,10 @@
         </div>
 
         <DialogFooter class="px-6 py-4 border-t border-border bg-muted/20 sm:justify-end gap-2">
-          <Button variant="outline" type="button" class="border-border rounded-xl font-semibold bg-background" @click="showClockOutModal = false">Batal</Button>
-          <Button :disabled="!isClockOutFormValid" type="submit" class="bg-kv-primary rounded-xl font-semibold text-white hover:bg-kv-primary/90">
-            Kirim & Clock Out
+          <Button variant="outline" type="button" class="border-border rounded-xl font-semibold bg-background" :disabled="isSubmitting" @click="showClockOutModal = false">Batal</Button>
+          <Button :disabled="!isClockOutFormValid || isSubmitting" type="submit" class="bg-kv-primary rounded-xl font-semibold text-white hover:bg-kv-primary/90">
+            <template v-if="isSubmitting">Mengirim...</template>
+            <template v-else>Kirim & Clock Out</template>
           </Button>
         </DialogFooter>
       </form>
@@ -94,7 +95,8 @@ const {
   formErrors,
   attendanceState,
   currentTime,
-  handleClockOut
+  handleClockOut,
+  isSubmitting
 } = context
 
 const submitClockOut = () => {

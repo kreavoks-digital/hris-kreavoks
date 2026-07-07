@@ -1,1 +1,0 @@
-import{a}from"./8pLkiM3F.js";import{d as r,o as t,e as n,v as c,g as p,x as l}from"./BdKEYFig.js";const i=r({__name:"CardDescription",props:{class:{}},setup(s){const e=s;return(o,m)=>(t(),n("p",{class:c(p(a)("text-sm text-muted-foreground",e.class))},[l(o.$slots,"default")],2))}});export{i as _};

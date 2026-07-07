@@ -23,7 +23,8 @@ export const useDashboard = () => {
     showClockOutModal,
     clockOutLogbook,
     isClockOutFormValid,
-    formErrors
+    formErrors,
+    isSubmitting
   } = useDashboardAttendance(fetchStats, fetchLogbooks)
   
   const { selectedDate, selectedDateVal, currentMonthYear, events, getCustomIndicators, holidays } = useDashboardCalendar(logbooks)
@@ -81,6 +82,7 @@ export const useDashboard = () => {
     formErrors,
     isIzinModalOpen,
     leaveForm,
-    holidays
+    holidays,
+    isSubmitting
   }
 }

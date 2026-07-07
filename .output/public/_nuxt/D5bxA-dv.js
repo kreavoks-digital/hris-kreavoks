@@ -1,1 +1,0 @@
-import{a}from"./8pLkiM3F.js";import{d as o,o as n,e as t,v as c,g as d,x as l}from"./BdKEYFig.js";const u=o({__name:"Card",props:{class:{}},setup(e){const r=e;return(s,p)=>(n(),t("div",{class:c(d(a)("rounded-3xl border bg-card text-card-foreground",r.class))},[l(s.$slots,"default")],2))}});export{u as _};

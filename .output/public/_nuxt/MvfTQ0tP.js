@@ -1,1 +1,0 @@
-import{u as i}from"./sK6Zj2ml.js";import"./BdKEYFig.js";const e={getPermissions:async()=>await i()("/permissions"),getUsers:async()=>await i()("/users"),assignPermissions:async(s,a)=>await i()(`/permissions/${s}/assign`,{method:"POST",body:{permissionIds:a}})};export{e as rbacApi};

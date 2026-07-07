@@ -1,0 +1,1 @@
+import{a}from"./M0AZBYDb.js";import{e as r,o as t,c as n,i as c,g as p,y as l}from"./Cnc4-ANY.js";const u=r({__name:"CardDescription",props:{class:{}},setup(s){const e=s;return(o,m)=>(t(),n("p",{class:c(p(a)("text-sm text-muted-foreground",e.class))},[l(o.$slots,"default")],2))}});export{u as _};

@@ -46,12 +46,15 @@
                 Apakah Anda yakin ingin melakukan Clock In pada pukul {{ currentTime }} WIB?
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
+              <AlertDialogFooter>
               <AlertDialogCancel as-child>
-                <Button variant="outline">Batal</Button>
+                <Button variant="outline" :disabled="isSubmitting">Batal</Button>
               </AlertDialogCancel>
               <AlertDialogAction as-child>
-                <Button @click="handleClockIn" class="bg-kv-primary text-white hover:bg-kv-primary/90">Ya, Clock In</Button>
+                <Button @click="handleClockIn" :disabled="isSubmitting" class="bg-kv-primary text-white hover:bg-kv-primary/90">
+                  <template v-if="isSubmitting">Memproses...</template>
+                  <template v-else>Ya, Clock In</template>
+                </Button>
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -85,7 +88,8 @@ const {
   currentTime,
   clockRangeText,
   attendanceStatus: statusText,
-  handleClockIn
+  handleClockIn,
+  isSubmitting
 } = context
 
 const hourNow = computed(() => parseInt(currentTime.value.split(':')[0] || '0', 10))
