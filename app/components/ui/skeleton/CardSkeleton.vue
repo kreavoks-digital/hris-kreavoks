@@ -1,5 +1,5 @@
 <template>
-  <div class="grid gap-6 md:grid-cols-4">
+  <div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
     <Card v-for="i in cards" :key="i" class="border border-border bg-card overflow-hidden rounded-3xl">
       <CardContent class="p-6 flex items-center gap-4">
         <Skeleton class="h-11 w-11 rounded-2xl" />

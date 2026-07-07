@@ -1,7 +1,7 @@
 <template>
-  <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+  <div class="grid gap-4 grid-cols-2 lg:grid-cols-4">
     <!-- Total Hadir Card -->
-    <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
+    <Card class="p-3 md:p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
         <p class="text-xs font-semibold text-muted-foreground">Total Hadir</p>
         <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.totalHadir }}</h3>
@@ -26,7 +26,7 @@
     </Card>
 
     <!-- Total Tidak Hadir Card -->
-    <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
+    <Card class="p-3 md:p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
         <p class="text-xs font-semibold text-muted-foreground">Total Tidak Hadir</p>
         <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.tidakHadir }}</h3>
@@ -52,7 +52,7 @@
     </Card>
 
     <!-- Logbook Terisi Card -->
-    <Card class="p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
+    <Card class="p-3 md:p-4 flex items-center justify-between bg-card border-border shadow-sm rounded-2xl md:rounded-3xl">
       <div class="space-y-1">
         <p class="text-xs font-semibold text-muted-foreground">Logbook Terisi</p>
         <h3 class="text-xl md:text-2xl font-bold text-foreground">{{ stats.logbookTerisi }}</h3>
@@ -77,7 +77,7 @@
     </Card>
 
     <!-- Sisa Masa Kerja Card -->
-    <Card class="p-4 flex flex-col justify-center bg-kv-primary/5 dark:bg-kv-primary/10 border-kv-primary/20 shadow-sm rounded-2xl md:rounded-3xl relative">
+    <Card class="p-3 md:p-4 flex flex-col justify-center bg-kv-primary/5 dark:bg-kv-primary/10 border-kv-primary/20 shadow-sm rounded-2xl md:rounded-3xl relative">
       <!-- Background elements bounded to card -->
       <div class="absolute inset-0 overflow-hidden rounded-2xl md:rounded-3xl pointer-events-none">
         <div class="absolute -right-4 -top-4 w-24 h-24 bg-kv-primary/20 rounded-full blur-2xl"></div>
