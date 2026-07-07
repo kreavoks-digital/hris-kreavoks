@@ -93,9 +93,11 @@ export const useDashboardAttendance = (
     try {
       const api = useApi()
       await api('/attendance/clock-in', { method: 'POST' })
-      await fetchTodayAttendance(stopClockTimer)
-      await fetchAttendanceHistory()
-      await fetchStats()
+      await Promise.allSettled([
+        fetchTodayAttendance(stopClockTimer),
+        fetchAttendanceHistory(),
+        fetchStats()
+      ])
     } catch (err) {
       console.error('Clock in failed', err)
     } finally {
@@ -114,10 +116,12 @@ export const useDashboardAttendance = (
       })
       await api('/attendance/clock-out', { method: 'POST' })
       
-      await fetchTodayAttendance(stopClockTimer)
-      await fetchAttendanceHistory()
-      await fetchLogbooks()
-      await fetchStats()
+      await Promise.allSettled([
+        fetchTodayAttendance(stopClockTimer),
+        fetchAttendanceHistory(),
+        fetchLogbooks(),
+        fetchStats()
+      ])
 
       showClockOutModal.value = false
       clockOutLogbook.value = { activity: '', planTomorrow: '', obstacle: '', documentLink: '' }
