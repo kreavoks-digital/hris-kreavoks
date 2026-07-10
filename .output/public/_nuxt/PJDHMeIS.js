@@ -1,1 +1,0 @@
-import{a}from"./M0AZBYDb.js";import{e as o,o as n,c as t,i as c,g as l,y as d}from"./Cnc4-ANY.js";const i=o({__name:"Card",props:{class:{}},setup(e){const r=e;return(s,p)=>(n(),t("div",{class:c(l(a)("rounded-3xl border bg-card text-card-foreground",r.class))},[d(s.$slots,"default")],2))}});export{i as _};

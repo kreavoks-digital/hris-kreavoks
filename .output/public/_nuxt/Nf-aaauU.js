@@ -1,1 +1,0 @@
-import{a4 as r,N as c,a5 as h,n as u}from"./Cnc4-ANY.js";const l=r(async n=>{let t,a;const{accessToken:e,loadAuth:i}=c();e.value||([t,a]=h(()=>i()),await t,a());const s=n.path.startsWith("/auth/"),o=!!e.value;if(o&&s)return u("/dashboard");if(!o&&!s)return u("/auth/login")});export{l as default};

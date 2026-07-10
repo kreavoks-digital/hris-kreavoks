@@ -1,1 +1,0 @@
-import{u as e}from"./w05SrWW0.js";const i={getLeaves:async()=>await e()("/leaves"),getLeaveById:async a=>await e()(`/leaves/${a}`),createLeave:async a=>await e()("/leaves",{method:"POST",body:a}),cancelLeave:async a=>await e()(`/leaves/${a}`,{method:"DELETE"})};export{i as l};

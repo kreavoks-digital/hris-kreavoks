@@ -245,6 +245,7 @@ const editingData = ref({
   documentLink: ''
 })
 
+
 const openEditDialog = (logbook: any) => {
   editingData.value = {
     id: logbook.id,
@@ -254,6 +255,7 @@ const openEditDialog = (logbook: any) => {
   }
   showEditDialog.value = true
 }
+
 
 const handleSave = (updated: { id: string; activity: string; obstacle: string; documentLink: string }) => {
   updateLogbook(updated.id, {
