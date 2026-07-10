@@ -2,8 +2,8 @@ import { leaveApi } from '../api/leave.api'
 import type { LeaveRecord } from '~/types'
 
 export const useLeave = () => {
-  const filterStatus = ref("")
-  const filterType = ref("")
+  const filterStatus = ref("none")
+  const filterType = ref("none")
   const leaves = ref<LeaveRecord[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
@@ -16,7 +16,7 @@ export const useLeave = () => {
   const filteredLeaves = computed(() => {
     let result = leaves.value
 
-    if (filterStatus.value) {
+    if (filterStatus.value && filterStatus.value !== "none") {
       result = result.filter((leave) => leave.status === filterStatus.value)
     }
 
@@ -82,6 +82,20 @@ export const useLeave = () => {
     return new Date(dateString).toLocaleDateString("id-ID")
   }
 
+  const updateLeaveStatus = async (leaveId: string, status: string) => {
+    try {
+      const response = await leaveApi.updateLeaveStatus(leaveId, status)
+      if (response.success) {
+        await fetchLeaves()
+      } else {
+        alert(response.message || "Gagal memperbarui status cuti")
+      }
+    } catch (err: any) {
+      console.error("Error updating leave status:", err)
+      alert("Terjadi kesalahan sistem")
+    }
+  }
+
   return {
     filterStatus,
     filterType,
@@ -91,6 +105,7 @@ export const useLeave = () => {
     error,
     fetchLeaves,
     cancelLeave,
+    updateLeaveStatus,
     getLeaveTypeLabel,
     getStatusLabel,
     formatDate,

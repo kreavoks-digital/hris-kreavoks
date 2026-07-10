@@ -21,5 +21,12 @@ export const leaveApi = {
     return await api(`/leaves/${id}` as any, {
       method: 'DELETE'
     })
+  },
+  updateLeaveStatus: async (id: string, status: string): Promise<ApiResponse> => {
+    const api = useApi()
+    return await api(`/leaves/${id}/status` as any, {
+      method: 'PUT',
+      body: { status }
+    })
   }
 }

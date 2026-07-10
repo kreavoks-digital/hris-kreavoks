@@ -6,7 +6,7 @@ import { toast } from 'vue-sonner'
 export const useAttendance = () => {
   const selectedDate = ref("")
   const searchQuery = ref("")
-  const filterStatus = ref("")
+  const filterStatus = ref("none")
   const attendance = ref<AttendanceRecord[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)

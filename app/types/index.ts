@@ -55,6 +55,11 @@ export interface LeaveRecord {
   reason: string;
   status: string;
   createdAt: string;
+  date?: string;
+  user?: {
+    fullName: string;
+    email: string;
+  };
 }
 
 export interface PayrollRecord {
