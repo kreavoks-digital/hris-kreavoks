@@ -9,14 +9,14 @@
         Ajukan Izin
       </Button>
     </DialogTrigger>
-    <DialogContent class="sm:max-w-4xl p-0 overflow-hidden border-border bg-card">
-      <DialogHeader class="px-6 py-4 border-b border-border bg-muted/20">
+    <DialogContent class="sm:max-w-4xl w-[95vw] sm:w-full p-0 overflow-hidden border-border bg-card flex flex-col max-h-[90dvh]">
+      <DialogHeader class="px-6 py-4 border-b border-border bg-muted/20 shrink-0">
         <DialogTitle class="text-xl font-bold text-foreground">Form Pengajuan Izin / Cuti</DialogTitle>
         <DialogDescription class="text-muted-foreground text-sm">
           Silakan lengkapi form di bawah ini. Semua field wajib diisi kecuali dinyatakan opsional.
         </DialogDescription>
       </DialogHeader>
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-0">
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-0 overflow-y-auto flex-1">
         <!-- Kiri: Info Dasar -->
         <div class="md:col-span-7 p-6 space-y-5">
           <div class="space-y-2">
@@ -42,7 +42,7 @@
                 Pengajuan hanya untuk 1 hari
               </label>
             </div>
-            <div class="grid grid-cols-2 gap-4" v-if="!leaveForm.isOneDay">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" v-if="!leaveForm.isOneDay">
               <div class="space-y-2">
                 <Label class="text-foreground">Tanggal Mulai</Label>
                 <Popover>
@@ -108,7 +108,7 @@
         </div>
         
         <!-- Kanan: Bukti -->
-        <div class="md:col-span-5 p-6 bg-muted/10 border-l border-border flex flex-col">
+        <div class="md:col-span-5 p-6 bg-muted/10 border-t md:border-t-0 md:border-l border-border flex flex-col">
           <div class="flex flex-col items-center text-center space-y-4 mb-6 mt-4">
             <div class="w-16 h-16 bg-blue-100 dark:bg-blue-500/20 rounded-full flex items-center justify-center mb-2">
               <LinkIcon class="w-8 h-8 text-blue-600 dark:text-blue-400" />
@@ -127,7 +127,7 @@
           </div>
         </div>
       </div>
-      <DialogFooter class="px-6 py-4 border-t border-border bg-muted/20 sm:justify-end gap-2">
+      <DialogFooter class="px-6 py-4 border-t border-border bg-muted/20 sm:justify-end gap-2 shrink-0">
         <DialogClose as-child>
           <Button variant="outline" type="button" class="border-border bg-background">Batal</Button>
         </DialogClose>
