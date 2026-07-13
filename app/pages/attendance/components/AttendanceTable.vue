@@ -169,20 +169,12 @@
             </TableCell>
           </TableRow>
         </TableBody>
-      </Table>
+</Table>
     </div>
   </Card>
-
-  <!-- Edit Logbook Dialog -->
-  <EditLogbookDialog
-    v-model:open="showEditDialog"
-    :data="editingData"
-    @save="handleSave"
-  />
 </template>
 
 <script setup lang="ts">
-import { inject } from 'vue'
 import { 
   Clock, 
   LogOut as LogOutIcon, 
@@ -219,56 +211,30 @@ import {
   TableHeader, 
   TableRow 
 } from '~/components/ui/table'
-import EditLogbookDialog from './EditLogbookDialog.vue'
 
-const {
-  loading,
-  groupedAttendance,
-  expandedGroups,
-  expandedLogbooks,
-  canViewAll,
-  canManageAttendance,
-  getStatusLabel,
-  toggleGroup,
-  toggleLogbook,
-  forgiveAttendance,
-  deleteRecord,
-  deleteLogbook,
-  updateLogbook
-} = inject('attendanceContext') as any
+const props = defineProps<{
+  loading: boolean
+  groupedAttendance: Record<string, any[]>
+  expandedGroups: Record<string, boolean>
+  expandedLogbooks: Record<string, boolean>
+  canViewAll: boolean
+  canManageAttendance: boolean
+  getStatusLabel: (status: string) => string
+}>()
 
-const showEditDialog = ref(false)
-const editingData = ref({
-  id: '',
-  deskripsi: '',
-  kendala: '',
-  documentLink: ''
-})
+const emit = defineEmits<{
+  (e: 'toggle-group', key: string): void
+  (e: 'toggle-logbook', id: string): void
+  (e: 'forgive-attendance', id: string): void
+  (e: 'delete-record', id: string): void
+  (e: 'open-edit-dialog', logbook: any): void
+  (e: 'confirm-delete-logbook', id: string): void
+}>()
 
-
-const openEditDialog = (logbook: any) => {
-  editingData.value = {
-    id: logbook.id,
-    deskripsi: logbook.activity,
-    kendala: logbook.obstacle,
-    documentLink: logbook.documentLink || ''
-  }
-  showEditDialog.value = true
-}
-
-
-const handleSave = (updated: { id: string; activity: string; obstacle: string; documentLink: string }) => {
-  updateLogbook(updated.id, {
-    activity: updated.activity,
-    obstacle: updated.obstacle,
-    documentLink: updated.documentLink
-  })
-  showEditDialog.value = false
-}
-
-const confirmDeleteLogbook = async (id: string) => {
-  if (confirm('Apakah Anda yakin ingin menghapus logbook ini?')) {
-    await deleteLogbook(id)
-  }
-}
+const toggleGroup = (key: string) => emit('toggle-group', key)
+const toggleLogbook = (id: string) => emit('toggle-logbook', id)
+const forgiveAttendance = (id: string) => emit('forgive-attendance', id)
+const deleteRecord = (id: string) => emit('delete-record', id)
+const openEditDialog = (logbook: any) => emit('open-edit-dialog', logbook)
+const confirmDeleteLogbook = (id: string) => emit('confirm-delete-logbook', id)
 </script>
