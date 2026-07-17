@@ -392,8 +392,9 @@ const switchTab = (tab: 'all' | 'pending') => {
 }
 
 const getRemainingDays = (emp: any) => {
+  if (typeof emp.remainingDays === 'number') return emp.remainingDays;
   if (!emp.startDate || !emp.endDate) return 0;
-  const totalBusinessDays = differenceInBusinessDays(new Date(emp.endDate), new Date(emp.startDate));
+  const totalBusinessDays = differenceInBusinessDays(new Date(emp.endDate), new Date(emp.startDate)) + 1;
   const attendedDays = emp.presentCount || 0;
   const remaining = totalBusinessDays - attendedDays;
   return remaining > 0 ? remaining : 0;

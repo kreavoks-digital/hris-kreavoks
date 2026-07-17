@@ -28,6 +28,9 @@ export const useLeave = () => {
   })
 
   const fetchLeaves = async () => {
+    // Mencegah double fetch (deduplikasi request)
+    if (loading.value) return
+
     loading.value = true
     error.value = null
     try {

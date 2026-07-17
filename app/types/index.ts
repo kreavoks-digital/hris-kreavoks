@@ -16,6 +16,8 @@ export interface Employee {
   certificateStatus?: string;
   agreementLink?: string | null;
   presentCount?: number;
+  totalWorkingDays?: number | null;
+  remainingDays?: number | null;
   institution?: string | null;
   address?: string | null;
 }

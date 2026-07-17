@@ -16,6 +16,8 @@ const mapEmployee = (user: any): Employee => ({
   certificateStatus: user.certificateStatus || 'NONE',
   agreementLink: user.agreementLink || null,
   presentCount: user.presentCount || 0,
+  totalWorkingDays: user.totalWorkingDays ?? null,
+  remainingDays: user.remainingDays ?? null,
   institution: user.institution || null,
   address: user.address || null,
 })
