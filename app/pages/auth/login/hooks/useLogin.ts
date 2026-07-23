@@ -21,8 +21,10 @@ export const useLogin = () => {
         toast.success('Login Berhasil', {
           description: `Selamat datang, ${response.data.user.name || response.data.user.email}!`
         })
-        // Gunakan navigateTo (Nuxt) bukan router.push agar middleware bisa berjalan ulang
-        await navigateTo('/dashboard')
+        // Redirect ke redirect param (untuk SSO) atau default ke /dashboard
+        const route = useRoute()
+        const redirectPath = route.query.redirect as string || '/dashboard'
+        await navigateTo(redirectPath)
       } else {
         error.value = response.message || 'Login gagal'
         toast.error('Login Gagal', {

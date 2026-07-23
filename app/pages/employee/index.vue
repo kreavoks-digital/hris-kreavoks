@@ -12,8 +12,8 @@
       </Button>
     </div>
 
-    <!-- Tabs: Semua Karyawan / Pending Verifikasi -->
-    <div class="flex gap-1 p-1 bg-muted rounded-xl w-fit">
+    <!-- Tabs: Semua Karyawan / Pending Verifikasi / Pendaftaran Mentor -->
+    <div class="flex gap-1 p-1 bg-muted rounded-xl w-fit flex-wrap">
       <button
         @click="switchTab('all')"
         :class="[
@@ -34,12 +34,29 @@
             : 'text-muted-foreground hover:text-foreground'
         ]"
       >
-        Pending Verifikasi
+        Pending Intern
         <span
-          v-if="pendingVerification && employees.length > 0"
+          v-if="pendingVerification && activeTab === 'pending' && employees.length > 0"
           class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-xs font-bold"
         >
           {{ employees.length }}
+        </span>
+      </button>
+      <button
+        @click="switchTab('mentor')"
+        :class="[
+          'px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2',
+          activeTab === 'mentor'
+            ? 'bg-background text-foreground shadow-sm'
+            : 'text-muted-foreground hover:text-foreground'
+        ]"
+      >
+        Pendaftaran Mentor
+        <span
+          v-if="mentorApplications.length > 0 && activeTab === 'mentor'"
+          class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-kv-primary text-white text-xs font-bold"
+        >
+          {{ mentorApplications.length }}
         </span>
       </button>
     </div>
@@ -82,147 +99,242 @@
       </div>
     </div>
 
+    <!-- Info banner for mentor tab -->
+    <div v-if="activeTab === 'mentor'" class="flex items-start gap-3 p-4 bg-kv-primary/10 border border-kv-primary/20 rounded-xl">
+      <Info class="h-5 w-5 text-kv-primary mt-0.5 flex-shrink-0" />
+      <div>
+        <p class="text-sm font-medium text-kv-primary">Pendaftaran Mentor Lintas Aplikasi (Portal)</p>
+        <p class="text-sm text-muted-foreground mt-0.5">
+          Mentor di bawah ini mendaftar melalui Kreavoks Portal. Setujui untuk membuat akun di HRIS secara otomatis & memicu sinkronisasi provisioning akun ke Portal.
+        </p>
+      </div>
+    </div>
+
     <!-- Table Section -->
     <Card class="border border-border bg-card overflow-hidden rounded-3xl">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead class="w-[120px] whitespace-nowrap">NPK</TableHead>
-            <TableHead>Karyawan</TableHead>
-            <TableHead>Institusi</TableHead>
-            <TableHead>Departemen</TableHead>
-            <TableHead>Posisi</TableHead>
-            <template v-if="activeTab === 'all'">
-              <TableHead class="whitespace-nowrap">Masa Kerja</TableHead>
-              <TableHead class="whitespace-nowrap w-[140px]">Sisa Hari Kerja</TableHead>
-              <TableHead class="whitespace-nowrap">Status</TableHead>
+            <template v-if="activeTab !== 'mentor'">
+              <TableHead class="w-[120px] whitespace-nowrap">NPK</TableHead>
+              <TableHead>Karyawan</TableHead>
+              <TableHead>Institusi</TableHead>
+              <TableHead>Departemen</TableHead>
+              <TableHead>Posisi</TableHead>
+              <template v-if="activeTab === 'all'">
+                <TableHead class="whitespace-nowrap">Masa Kerja</TableHead>
+                <TableHead class="whitespace-nowrap w-[140px]">Sisa Hari Kerja</TableHead>
+                <TableHead class="whitespace-nowrap">Status</TableHead>
+              </template>
+              <template v-else>
+                <TableHead>No. Telepon</TableHead>
+                <TableHead>Status</TableHead>
+              </template>
             </template>
             <template v-else>
-              <TableHead>No. Telepon</TableHead>
+              <TableHead>Nama Calon Mentor</TableHead>
+              <TableHead>Keahlian</TableHead>
+              <TableHead>Pengalaman</TableHead>
+              <TableHead>Portofolio</TableHead>
+              <TableHead>Kontak</TableHead>
               <TableHead>Status</TableHead>
             </template>
             <TableHead class="text-right">Aksi</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          <TableSkeleton v-if="loading" :rows="5" :columns="activeTab === 'all' ? 8 : 7" />
+          <TableSkeleton v-if="loading" :rows="5" :columns="activeTab === 'all' ? 8 : (activeTab === 'pending' ? 7 : 6)" />
           <template v-else>
-            <TableRow v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-accent/50 transition-colors">
-              <TableCell class="font-medium text-muted-foreground whitespace-nowrap">{{ emp.npk || '-' }}</TableCell>
-              <TableCell>
-                <div class="flex items-center gap-3">
-                  <Avatar class="h-9 w-9 border-2 border-card">
-                    <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${emp.name}`" />
-                    <AvatarFallback>{{ emp.name.charAt(0) }}</AvatarFallback>
-                  </Avatar>
-                  <div class="flex flex-col">
-                    <span class="font-medium text-foreground leading-tight">{{ emp.name }}</span>
-                    <span class="text-sm text-muted-foreground">{{ emp.email }}</span>
-                  </div>
-                </div>
-              </TableCell>
-              <TableCell class="text-sm text-muted-foreground">{{ (emp as any).institution || '-' }}</TableCell>
-              <TableCell>
-                <Badge variant="outline" class="font-medium bg-accent text-accent-foreground border-border whitespace-nowrap">
-                  {{ emp.department }}
-                </Badge>
-              </TableCell>
-              <TableCell class="text-foreground text-sm whitespace-nowrap">{{ emp.position }}</TableCell>
-
-              <!-- All tab columns -->
-              <template v-if="activeTab === 'all'">
+            <!-- Render Employee Rows (All / Pending) -->
+            <template v-if="activeTab !== 'mentor'">
+              <TableRow v-for="emp in filteredEmployees" :key="emp.id" class="hover:bg-accent/50 transition-colors">
+                <TableCell class="font-medium text-muted-foreground whitespace-nowrap">{{ emp.npk || '-' }}</TableCell>
                 <TableCell>
-                  <div v-if="emp.startDate && !emp.startDate.startsWith('9999')" class="flex flex-col text-xs space-y-1">
-                    <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.startDate), 'dd MMM yyyy', { locale: idLocale }) }} -</span>
-                    <span class="text-foreground whitespace-nowrap" v-if="emp.endDate && !emp.endDate.startsWith('9999')">{{ format(new Date(emp.endDate), 'dd MMM yyyy', { locale: idLocale }) }}</span>
-                    <span class="text-muted-foreground italic whitespace-nowrap" v-else>Pilih Tanggal</span>
+                  <div class="flex items-center gap-3">
+                    <Avatar class="h-9 w-9 border-2 border-card">
+                      <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${emp.name}`" />
+                      <AvatarFallback>{{ emp.name.charAt(0) }}</AvatarFallback>
+                    </Avatar>
+                    <div class="flex flex-col">
+                      <span class="font-medium text-foreground leading-tight">{{ emp.name }}</span>
+                      <span class="text-sm text-muted-foreground">{{ emp.email }}</span>
+                    </div>
                   </div>
-                  <span v-else class="text-sm text-muted-foreground italic">-</span>
+                </TableCell>
+                <TableCell class="text-sm text-muted-foreground">{{ (emp as any).institution || '-' }}</TableCell>
+                <TableCell>
+                  <Badge variant="outline" class="font-medium bg-accent text-accent-foreground border-border whitespace-nowrap">
+                    {{ emp.department }}
+                  </Badge>
+                </TableCell>
+                <TableCell class="text-foreground text-sm whitespace-nowrap">{{ emp.position }}</TableCell>
+
+                <!-- All tab columns -->
+                <template v-if="activeTab === 'all'">
+                  <TableCell>
+                    <div v-if="emp.startDate && !emp.startDate.startsWith('9999')" class="flex flex-col text-xs space-y-1">
+                      <span class="text-foreground whitespace-nowrap">{{ format(new Date(emp.startDate), 'dd MMM yyyy', { locale: idLocale }) }} -</span>
+                      <span class="text-foreground whitespace-nowrap" v-if="emp.endDate && !emp.endDate.startsWith('9999')">{{ format(new Date(emp.endDate), 'dd MMM yyyy', { locale: idLocale }) }}</span>
+                      <span class="text-muted-foreground italic whitespace-nowrap" v-else>Pilih Tanggal</span>
+                    </div>
+                    <span v-else class="text-sm text-muted-foreground italic">-</span>
+                  </TableCell>
+                  <TableCell>
+                    <div v-if="emp.endDate && !emp.endDate.startsWith('9999') && emp.startDate">
+                      <span class="font-medium text-sm" :class="getRemainingDaysClass(emp)">
+                        {{ getRemainingDays(emp) }} Hari
+                      </span>
+                    </div>
+                    <span v-else class="text-sm text-muted-foreground italic">-</span>
+                  </TableCell>
+                </template>
+
+                <!-- Pending tab columns -->
+                <template v-else>
+                  <TableCell class="text-sm text-muted-foreground">{{ emp.phone || '-' }}</TableCell>
+                </template>
+
+                <!-- Status -->
+                <TableCell>
+                  <Badge
+                    class="px-3 py-1 rounded-3xl text-sm font-medium border-transparent"
+                    :class="{
+                      'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE',
+                      'bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20': emp.status === 'TERMINATED',
+                      'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': emp.status === 'SUSPENDED',
+                      'bg-slate-500/15 text-slate-600 dark:text-slate-400 hover:bg-slate-500/20': emp.status === 'RESIGNED',
+                      'bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20': emp.status === 'GRADUATE',
+                    }"
+                  >
+                    {{
+                      emp.status === 'ACTIVE' ? 'Aktif' :
+                      emp.status === 'TERMINATED' ? 'Terminated' :
+                      emp.status === 'SUSPENDED' ? (activeTab === 'pending' ? 'Menunggu Verifikasi' : 'Suspended') :
+                      emp.status === 'RESIGNED' ? 'Resigned' :
+                      emp.status === 'GRADUATE' ? 'Lulus' : emp.status
+                    }}
+                  </Badge>
+                </TableCell>
+
+                <!-- Actions -->
+                <TableCell class="text-right">
+                  <div class="flex justify-end gap-2">
+                    <!-- Verifikasi button (pending tab only) -->
+                    <Button
+                      v-if="activeTab === 'pending'"
+                      variant="outline"
+                      size="sm"
+                      @click="verifyEmployee(emp)"
+                      :disabled="verifyingId === emp.id"
+                      class="h-8 gap-1.5 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 dark:border-emerald-800"
+                    >
+                      <Loader2 v-if="verifyingId === emp.id" class="h-3.5 w-3.5 animate-spin" />
+                      <CheckCircle2 v-else class="h-3.5 w-3.5" />
+                      Verifikasi
+                    </Button>
+                    <!-- Tolak button (pending tab only) -->
+                    <Button
+                      v-if="activeTab === 'pending'"
+                      variant="ghost"
+                      size="icon"
+                      @click="confirmDelete(emp)"
+                      class="h-8 w-8 text-destructive hover:bg-destructive/10"
+                      title="Tolak & Hapus"
+                    >
+                      <X class="h-4 w-4" />
+                    </Button>
+                    <!-- Normal actions (all tab) -->
+                    <template v-else>
+                      <Button variant="ghost" size="icon" @click="editEmployee(emp)" class="h-8 w-8 text-kv-primary hover:bg-kv-primary/10">
+                        <Edit2 class="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-destructive hover:bg-destructive/10">
+                        <Trash2 class="h-4 w-4" />
+                      </Button>
+                    </template>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </template>
+
+            <!-- Render Mentor Application Rows -->
+            <template v-else>
+              <TableRow v-for="app in mentorApplications" :key="app.id" class="hover:bg-accent/50 transition-colors">
+                <TableCell>
+                  <div class="flex flex-col cursor-pointer" @click="navigateTo(`/employee/mentor-application/${app.id}`)">
+                    <span class="font-medium text-foreground leading-tight hover:underline text-kv-primary">{{ app.name }}</span>
+                    <span class="text-xs text-muted-foreground">{{ app.email }}</span>
+                  </div>
+                </TableCell>
+                <TableCell class="text-sm text-foreground font-medium">
+                  {{ app.expertise || '-' }}
+                </TableCell>
+                <TableCell class="text-sm text-muted-foreground">
+                  {{ app.experience || '0' }} Tahun
                 </TableCell>
                 <TableCell>
-                  <div v-if="emp.endDate && !emp.endDate.startsWith('9999') && emp.startDate">
-                    <span class="font-medium text-sm" :class="getRemainingDaysClass(emp)">
-                      {{ getRemainingDays(emp) }} Hari
-                    </span>
-                  </div>
-                  <span v-else class="text-sm text-muted-foreground italic">-</span>
+                  <a v-if="app.portfolioLink" :href="app.portfolioLink" target="_blank" class="text-xs text-kv-primary underline hover:text-kv-primary/80">
+                    Buka Portofolio
+                  </a>
+                  <span v-else class="text-xs text-muted-foreground italic">-</span>
                 </TableCell>
-              </template>
-
-              <!-- Pending tab columns -->
-              <template v-else>
-                <TableCell class="text-sm text-muted-foreground">{{ emp.phone || '-' }}</TableCell>
-              </template>
-
-              <!-- Status -->
-              <TableCell>
-                <Badge
-                  class="px-3 py-1 rounded-3xl text-sm font-medium border-transparent"
-                  :class="{
-                    'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE',
-                    'bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20': emp.status === 'TERMINATED',
-                    'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': emp.status === 'SUSPENDED',
-                    'bg-slate-500/15 text-slate-600 dark:text-slate-400 hover:bg-slate-500/20': emp.status === 'RESIGNED',
-                    'bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20': emp.status === 'GRADUATE',
-                  }"
-                >
-                  {{
-                    emp.status === 'ACTIVE' ? 'Aktif' :
-                    emp.status === 'TERMINATED' ? 'Terminated' :
-                    emp.status === 'SUSPENDED' ? (activeTab === 'pending' ? 'Menunggu Verifikasi' : 'Suspended') :
-                    emp.status === 'RESIGNED' ? 'Resigned' :
-                    emp.status === 'GRADUATE' ? 'Lulus' : emp.status
-                  }}
-                </Badge>
-              </TableCell>
-
-              <!-- Actions -->
-              <TableCell class="text-right">
-                <div class="flex justify-end gap-2">
-                  <!-- Verifikasi button (pending tab only) -->
-                  <Button
-                    v-if="activeTab === 'pending'"
-                    variant="outline"
-                    size="sm"
-                    @click="verifyEmployee(emp)"
-                    :disabled="verifyingId === emp.id"
-                    class="h-8 gap-1.5 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 dark:border-emerald-800"
-                  >
-                    <Loader2 v-if="verifyingId === emp.id" class="h-3.5 w-3.5 animate-spin" />
-                    <CheckCircle2 v-else class="h-3.5 w-3.5" />
-                    Verifikasi
-                  </Button>
-                  <!-- Tolak button (pending tab only) -->
-                  <Button
-                    v-if="activeTab === 'pending'"
-                    variant="ghost"
-                    size="icon"
-                    @click="confirmDelete(emp)"
-                    class="h-8 w-8 text-destructive hover:bg-destructive/10"
-                    title="Tolak & Hapus"
-                  >
-                    <X class="h-4 w-4" />
-                  </Button>
-                  <!-- Normal actions (all tab) -->
-                  <template v-else>
-                    <Button variant="ghost" size="icon" @click="editEmployee(emp)" class="h-8 w-8 text-kv-primary hover:bg-kv-primary/10">
-                      <Edit2 class="h-4 w-4" />
+                <TableCell class="text-xs text-muted-foreground">
+                  {{ app.phone || '-' }}
+                </TableCell>
+                <TableCell>
+                  <Badge class="px-2 py-0.5 rounded-full text-xs bg-amber-500/10 text-amber-500 border-none">
+                    Menunggu Approval
+                  </Badge>
+                </TableCell>
+                <TableCell class="text-right">
+                  <div class="flex justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      @click="navigateTo(`/employee/mentor-application/${app.id}`)"
+                      class="h-8 text-muted-foreground hover:text-foreground"
+                    >
+                      Detail
                     </Button>
-                    <Button variant="ghost" size="icon" @click="confirmDelete(emp)" class="h-8 w-8 text-destructive hover:bg-destructive/10">
-                      <Trash2 class="h-4 w-4" />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      @click="reviewMentor(app.id, 'APPROVED')"
+                      :disabled="verifyingId === app.id"
+                      class="h-8 gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 dark:border-emerald-800"
+                    >
+                      <Loader2 v-if="verifyingId === app.id" class="h-3.5 w-3.5 animate-spin" />
+                      <CheckCircle2 v-else class="h-3.5 w-3.5" />
+                      Setujui
                     </Button>
-                  </template>
-                </div>
-              </TableCell>
-            </TableRow>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      @click="reviewMentor(app.id, 'REJECTED')"
+                      :disabled="verifyingId === app.id"
+                      class="h-8 w-8 text-destructive hover:bg-destructive/10"
+                      title="Tolak Pengajuan"
+                    >
+                      <X class="h-4 w-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </template>
 
-            <TableRow v-if="filteredEmployees.length === 0 && !loading">
-              <TableCell colspan="9" class="h-64 text-center">
+            <!-- Empty Row Handling -->
+            <TableRow v-if="((activeTab !== 'mentor' && filteredEmployees.length === 0) || (activeTab === 'mentor' && mentorApplications.length === 0)) && !loading">
+              <TableCell :colspan="activeTab === 'all' ? 9 : (activeTab === 'pending' ? 8 : 7)" class="h-64 text-center">
                 <div class="flex flex-col items-center justify-center text-muted-foreground">
                   <template v-if="activeTab === 'pending'">
                     <CheckCircle2 class="h-12 w-12 mb-2 opacity-20 text-emerald-500" />
                     <p class="font-medium">Tidak ada pendaftar yang menunggu verifikasi</p>
                     <p class="text-sm mt-1">Semua akun sudah terverifikasi</p>
+                  </template>
+                  <template v-else-if="activeTab === 'mentor'">
+                    <Users class="h-12 w-12 mb-2 opacity-20 text-kv-primary" />
+                    <p class="font-medium">Tidak ada pendaftaran mentor masuk</p>
+                    <p class="text-sm mt-1">Belum ada mentor mendaftar via Kreavoks Portal</p>
                   </template>
                   <template v-else>
                     <Users class="h-12 w-12 mb-2 opacity-20" />
@@ -268,7 +380,7 @@
             <span class="font-medium text-foreground">{{ Math.min(page * limit, totalItems) }}</span>
             dari
             <span class="font-medium text-foreground">{{ totalItems }}</span>
-            karyawan
+            data
           </p>
         </div>
         <div>
@@ -337,7 +449,7 @@ import {
 import { useEmployee } from './hooks/useEmployee'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
-import { Card, CardContent } from '~/components/ui/card'
+import { Card } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { 
@@ -358,6 +470,7 @@ import {
 import { format, differenceInBusinessDays } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { toast } from 'vue-sonner'
+import { mentorApplicationApi, type MentorApplication } from '~/pages/employee/api/mentorApplication.api'
 
 definePageMeta({
   layout: "default",
@@ -379,16 +492,42 @@ const {
   resetFilters
 } = useEmployee()
 
-const activeTab = ref<'all' | 'pending'>('all')
+const activeTab = ref<'all' | 'pending' | 'mentor'>('all')
 const verifyingId = ref<string | null>(null)
 
-const switchTab = (tab: 'all' | 'pending') => {
+// Mentor application specific states
+const mentorApplications = ref<MentorApplication[]>([])
+
+const fetchMentorApplications = async () => {
+  loading.value = true
+  try {
+    const response = await mentorApplicationApi.getApplications(page.value, limit.value, searchQuery.value)
+    if (response.success && response.data) {
+      mentorApplications.value = response.data.applications
+      if (response.data.pagination) {
+        totalItems.value = response.data.pagination.totalItems
+        totalPages.value = response.data.pagination.totalPages
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load mentor applications', error)
+  } finally {
+    loading.value = false
+  }
+}
+
+const switchTab = (tab: 'all' | 'pending' | 'mentor') => {
   activeTab.value = tab
   pendingVerification.value = tab === 'pending'
   searchQuery.value = ''
   filterDepartment.value = ''
   page.value = 1
-  fetchEmployees()
+  
+  if (tab === 'mentor') {
+    fetchMentorApplications()
+  } else {
+    fetchEmployees()
+  }
 }
 
 const getRemainingDays = (emp: any) => {
@@ -449,7 +588,30 @@ const confirmDelete = async (employee: any) => {
   }
 };
 
+// Review & Approval Mentor pendaftaran
+const reviewMentor = async (id: string, status: 'APPROVED' | 'REJECTED') => {
+  verifyingId.value = id
+  const actionText = status === 'APPROVED' ? 'menyetujui' : 'menolak'
+  
+  try {
+    const response = await mentorApplicationApi.reviewApplication(id, status)
+    if (response.success) {
+      toast.success(`Pendaftaran ${status === 'APPROVED' ? 'Disetujui' : 'Ditolak'}`, {
+        description: `Mentor berhasil di-${actionText} dan provisioning data dijalankan.`
+      })
+      fetchMentorApplications()
+    }
+  } catch (error: any) {
+    toast.error('Gagal memproses keputusan', {
+      description: error?.data?.message || 'Terjadi masalah koneksi dengan backend HRIS.'
+    })
+  } finally {
+    verifyingId.value = null
+  }
+}
+
 onMounted(() => {
   fetchEmployees();
 });
 </script>
+
