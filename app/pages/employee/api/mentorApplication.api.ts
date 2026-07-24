@@ -2,18 +2,28 @@
 import type { ApiResponse } from '~/types'
 
 export interface MentorApplication {
-  id: string
+  id: string | number
+  uuid?: string | null
   name: string
   email: string
-  phone: string | null
-  currentJob: string | null
-  company: string | null
-  expertise: string | null
-  experience: string | null
-  portfolioLink: string | null
-  linkedinLink: string | null
-  cvFileUrl: string | null
-  ktpFileUrl: string | null
+  phone?: string | null
+  currentJob?: string | null
+  company?: string | null
+  expertise?: string | null
+  experience?: string | null
+  portfolioLink?: string | null
+  linkedinLink?: string | null
+  cvFileUrl?: string | null
+  ktpFileUrl?: string | null
+  bankName?: string | null
+  accountNumber?: string | null
+  accountHolder?: string | null
+  ktpNumber?: string | null
+  npwpNumber?: string | null
+  teachingAvailability?: string | null
+  teachingExperience?: string | null
+  bio?: string | null
+  reason?: string | null
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   createdAt: string
 }
@@ -37,7 +47,7 @@ export const mentorApplicationApi = {
     }
   },
 
-  getApplicationDetail: async (id: string): Promise<ApiResponse<MentorApplication>> => {
+  getApplicationDetail: async (id: string | number): Promise<ApiResponse<MentorApplication>> => {
     const api = useApi()
     const res = await api(`/mentor-applications/${id}` as any)
     return {
@@ -46,7 +56,7 @@ export const mentorApplicationApi = {
     }
   },
 
-  reviewApplication: async (id: string, status: 'APPROVED' | 'REJECTED'): Promise<ApiResponse<any>> => {
+  reviewApplication: async (id: string | number, status: 'APPROVED' | 'REJECTED'): Promise<ApiResponse<any>> => {
     const api = useApi()
     const res = await api(`/mentor-applications/${id}/review` as any, {
       method: 'PATCH',

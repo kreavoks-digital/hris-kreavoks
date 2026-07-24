@@ -30,14 +30,22 @@ export const useAttendance = () => {
     absent: 0,
   })
 
-  const filteredAttendance = computed(() => {
-    // FE filtering is no longer needed because the BE handles it
-    return attendance.value
-  })
+  const isServerPaginated = ref(false)
 
-  const groupedAttendance = computed(() => {
+  const allUserGroups = computed(() => {
+    let result = attendance.value
+    if (!isServerPaginated.value) {
+      if (searchQuery.value) {
+        const q = searchQuery.value.toLowerCase()
+        result = result.filter(r => r.employeeName.toLowerCase().includes(q) || r.npk.toLowerCase().includes(q))
+      }
+      if (filterStatus.value && filterStatus.value !== 'none') {
+        result = result.filter(r => r.status === filterStatus.value)
+      }
+    }
+
     const groups: Record<string, AttendanceRecord[]> = {}
-    filteredAttendance.value.forEach((record) => {
+    result.forEach((record) => {
       const key = `${record.npk} - ${record.employeeName}`
       if (!groups[key]) {
         groups[key] = []
@@ -45,6 +53,22 @@ export const useAttendance = () => {
       groups[key]!.push(record)
     })
     return groups
+  })
+
+  const groupedAttendance = computed(() => {
+    const keys = Object.keys(allUserGroups.value)
+    if (isServerPaginated.value) {
+      return allUserGroups.value
+    }
+    const start = (page.value - 1) * limit.value
+    const end = start + limit.value
+    const pageKeys = keys.slice(start, end)
+
+    const paginatedGroups: Record<string, AttendanceRecord[]> = {}
+    pageKeys.forEach((key) => {
+      paginatedGroups[key] = allUserGroups.value[key]!
+    })
+    return paginatedGroups
   })
 
   const toggleGroup = (key: string) => {
@@ -64,8 +88,8 @@ export const useAttendance = () => {
       const response = await attendanceApi.getAttendance(
         selectedDate.value as string, 
         canViewAll.value, 
-        page.value, 
-        limit.value,
+        1, 
+        10000,
         searchQuery.value,
         filterStatus.value
       )
@@ -74,11 +98,14 @@ export const useAttendance = () => {
         summary.value = response.data.summary
         
         if (response.data.pagination) {
+          isServerPaginated.value = true
           totalItems.value = response.data.pagination.totalItems
           totalPages.value = response.data.pagination.totalPages
         } else {
-          totalItems.value = attendance.value.length
-          totalPages.value = 1
+          isServerPaginated.value = false
+          const totalUsers = Object.keys(allUserGroups.value).length
+          totalItems.value = totalUsers
+          totalPages.value = Math.max(1, Math.ceil(totalUsers / limit.value))
         }
       }
     } catch (err: any) {
@@ -143,8 +170,15 @@ export const useAttendance = () => {
   }
 
   let debounceTimeout: any
-  watch([selectedDate, page, filterStatus], () => {
+  watch([selectedDate, filterStatus], () => {
+    page.value = 1
     fetchAttendance()
+  })
+
+  watch(page, () => {
+    if (isServerPaginated.value) {
+      fetchAttendance()
+    }
   })
 
   watch(searchQuery, () => {
@@ -190,7 +224,6 @@ export const useAttendance = () => {
     filterStatus,
     attendance,
     summary,
-    filteredAttendance,
     groupedAttendance,
     expandedGroups,
     toggleGroup,

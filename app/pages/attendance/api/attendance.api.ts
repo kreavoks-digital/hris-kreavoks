@@ -1,10 +1,10 @@
 import type { AttendanceRecord, AttendanceSummary } from '~/types'
 
 export const attendanceApi = {
-  getAttendance: async (date: string, isAdmin: boolean, page: number = 1, limit: number = 15, search: string = "", status: string = ""): Promise<any> => {
+  getAttendance: async (date: string, isAdmin: boolean, page: number = 1, limit: number = 10000, search: string = "", status: string = ""): Promise<any> => {
     const api = useApi()
     const endpoint = isAdmin ? '/attendance/history/all' : '/attendance/history'
-    const query: any = { page, limit }
+    const query: any = { limit }
     if (date) query.date = date
     if (search) query.search = search
     if (status && status !== "none") query.status = status
@@ -49,7 +49,7 @@ export const attendanceApi = {
       }
     }
 
-    const pagination = res.meta || null
+    const pagination = res.meta || res.pagination || (res.totalItems ? { totalItems: res.totalItems, totalPages: res.totalPages } : null)
 
     return { success: true, data: { records, summary, pagination } }
   },

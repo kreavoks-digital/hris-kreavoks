@@ -192,7 +192,7 @@
             <Checkbox 
               :id="'perm-' + permission.id" 
               :checked="selectedPermissionIds.includes(permission.id)"
-              @update:checked="(checked: boolean) => togglePermission(permission.id, checked)"
+              @update:checked="(checked: any) => togglePermission(permission.id, Boolean(checked))"
             />
             <div class="space-y-1 leading-none">
               <label

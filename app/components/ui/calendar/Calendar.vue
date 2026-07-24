@@ -32,9 +32,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         <Select 
           :model-value="grid[0].value.month.toString()"
           @update:model-value="(val) => {
-            if (!grid[0]) return
+            if (!grid[0] || !val) return
             const date = grid[0].value
-            emits('update:placeholder', date.set({ month: parseInt(val) }))
+            emits('update:placeholder', date.set({ month: parseInt(val as string) }))
           }"
         >
           <SelectTrigger class="h-8 px-2 text-sm w-[110px] font-medium border-none shadow-none focus:ring-0">
@@ -50,9 +50,9 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
         <Select
           :model-value="grid[0].value.year.toString()"
           @update:model-value="(val) => {
-            if (!grid[0]) return
+            if (!grid[0] || !val) return
             const date = grid[0].value
-            emits('update:placeholder', date.set({ year: parseInt(val) }))
+            emits('update:placeholder', date.set({ year: parseInt(val as string) }))
           }"
         >
           <SelectTrigger class="h-8 px-2 text-sm w-[80px] font-medium border-none shadow-none focus:ring-0">

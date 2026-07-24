@@ -79,7 +79,7 @@
     />
 
     <!-- Pagination -->
-    <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-1">
+    <div v-if="totalItems > 0" class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-1">
       <div class="flex items-center text-sm text-muted-foreground">
         <p>
           Menampilkan
@@ -88,7 +88,7 @@
           <span class="font-medium text-foreground">{{ Math.min(page * limit, totalItems) }}</span>
           dari
           <span class="font-medium text-foreground">{{ totalItems }}</span>
-          data
+          karyawan
         </p>
       </div>
       <div>
