@@ -1,0 +1,1 @@
+import{c as r}from"./B9v3S9O7.js";import{e as t,o as a,c as n,m as c,i as m,T as p}from"./D_0uWgId.js";const u=t({__name:"CardDescription",props:{class:{}},setup(s){const e=s;return(o,l)=>(a(),n("p",{class:c(m(r)("text-sm text-muted-foreground",e.class))},[p(o.$slots,"default")],2))}});export{u as _};

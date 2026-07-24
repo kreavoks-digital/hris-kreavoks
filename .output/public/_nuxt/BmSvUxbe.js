@@ -1,1 +1,0 @@
-import{ai as a,v as s,n as o}from"./Ct11pioA.js";const u=a(r=>{const{user:e}=s();if(e.value?.role!=="ADMIN"&&!e.value?.permissions?.includes("manage_users"))return o("/dashboard")});export{u as default};

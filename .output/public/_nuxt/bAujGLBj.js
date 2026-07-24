@@ -1,1 +1,0 @@
-import{ai as r,v as c,aj as h,n as u}from"./Ct11pioA.js";const l=r(async n=>{let t,a;const{accessToken:e,loadAuth:i}=c();e.value||([t,a]=h(()=>i()),await t,a());const s=n.path.startsWith("/auth/"),o=!!e.value;if(o&&s)return u("/dashboard");if(!o&&!s)return u("/auth/login")});export{l as default};
