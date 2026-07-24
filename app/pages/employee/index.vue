@@ -36,10 +36,10 @@
       >
         Pending Intern
         <span
-          v-if="pendingVerification && activeTab === 'pending' && employees.length > 0"
-          class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-amber-500 text-white text-xs font-bold"
+          v-if="pendingInternCount > 0"
+          class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-amber-500 text-white text-[10px] font-bold ml-1"
         >
-          {{ employees.length }}
+          {{ pendingInternCount }}
         </span>
       </button>
       <button
@@ -53,10 +53,10 @@
       >
         Pendaftaran Mentor
         <span
-          v-if="mentorApplications.length > 0 && activeTab === 'mentor'"
-          class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-kv-primary text-white text-xs font-bold"
+          v-if="pendingMentorCount > 0"
+          class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full bg-kv-primary text-white text-[10px] font-bold ml-1"
         >
-          {{ mentorApplications.length }}
+          {{ pendingMentorCount }}
         </span>
       </button>
     </div>
@@ -471,6 +471,7 @@ import { format, differenceInBusinessDays } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { toast } from 'vue-sonner'
 import { mentorApplicationApi, type MentorApplication } from '~/pages/employee/api/mentorApplication.api'
+import { employeeApi } from '~/pages/employee/api/employee.api'
 
 definePageMeta({
   layout: "default",
@@ -495,8 +496,29 @@ const {
 const activeTab = ref<'all' | 'pending' | 'mentor'>('all')
 const verifyingId = ref<string | null>(null)
 
-// Mentor application specific states
 const mentorApplications = ref<MentorApplication[]>([])
+
+const pendingInternCount = ref(0)
+const pendingMentorCount = ref(0)
+
+const fetchTabCounts = async () => {
+  try {
+    const [internRes, mentorRes] = await Promise.all([
+      employeeApi.getEmployees(1, 1, '', '', true),
+      mentorApplicationApi.getApplications(1, 1, '')
+    ])
+    
+    if (internRes.success && internRes.data?.pagination) {
+      pendingInternCount.value = internRes.data.pagination.totalItems
+    }
+    
+    if (mentorRes.success && mentorRes.data?.pagination) {
+      pendingMentorCount.value = mentorRes.data.pagination.totalItems
+    }
+  } catch (error) {
+    console.error('Failed to fetch tab counts:', error)
+  }
+}
 
 const fetchMentorApplications = async () => {
   loading.value = true
@@ -563,6 +585,7 @@ const verifyEmployee = async (employee: any) => {
       description: `Akun ${employee.name} telah diverifikasi dan dapat digunakan untuk login.`
     })
     fetchEmployees()
+    fetchTabCounts()
   } catch (error: any) {
     toast.error('Gagal Verifikasi', {
       description: error?.data?.message || 'Terjadi kesalahan saat memverifikasi akun.'
@@ -582,6 +605,7 @@ const confirmDelete = async (employee: any) => {
         toast.success('Pendaftar Ditolak', { description: `Akun ${employee.name} telah dihapus.` })
       }
       fetchEmployees();
+      fetchTabCounts();
     } catch (error) {
       console.error("Error deleting employee:", error);
     }
@@ -600,6 +624,7 @@ const reviewMentor = async (id: string, status: 'APPROVED' | 'REJECTED') => {
         description: `Mentor berhasil di-${actionText} dan provisioning data dijalankan.`
       })
       fetchMentorApplications()
+      fetchTabCounts()
     }
   } catch (error: any) {
     toast.error('Gagal memproses keputusan', {
@@ -612,6 +637,7 @@ const reviewMentor = async (id: string, status: 'APPROVED' | 'REJECTED') => {
 
 onMounted(() => {
   fetchEmployees();
+  fetchTabCounts();
 });
 </script>
 

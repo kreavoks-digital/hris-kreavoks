@@ -11,6 +11,11 @@ export const useAttendance = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
+  const page = ref(1)
+  const limit = ref(15)
+  const totalItems = ref(0)
+  const totalPages = ref(1)
+
   const expandedGroups = ref<Record<string, boolean>>({})
 
   const auth = useAuth()
@@ -26,20 +31,8 @@ export const useAttendance = () => {
   })
 
   const filteredAttendance = computed(() => {
-    let result = attendance.value
-
-    if (searchQuery.value) {
-      result = result.filter((record) =>
-        (record.employeeName || "").toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        (record.npk || "").toLowerCase().includes(searchQuery.value.toLowerCase())
-      )
-    }
-
-    if (filterStatus.value && filterStatus.value !== "none") {
-      result = result.filter((record) => record.status === filterStatus.value)
-    }
-
-    return result
+    // FE filtering is no longer needed because the BE handles it
+    return attendance.value
   })
 
   const groupedAttendance = computed(() => {
@@ -68,11 +61,25 @@ export const useAttendance = () => {
     loading.value = true
     error.value = null
     try {
-      await new Promise(resolve => setTimeout(resolve, 800))
-      const response = await attendanceApi.getAttendance(selectedDate.value as string, canViewAll.value)
+      const response = await attendanceApi.getAttendance(
+        selectedDate.value as string, 
+        canViewAll.value, 
+        page.value, 
+        limit.value,
+        searchQuery.value,
+        filterStatus.value
+      )
       if (response.success) {
         attendance.value = response.data.records
         summary.value = response.data.summary
+        
+        if (response.data.pagination) {
+          totalItems.value = response.data.pagination.totalItems
+          totalPages.value = response.data.pagination.totalPages
+        } else {
+          totalItems.value = attendance.value.length
+          totalPages.value = 1
+        }
       }
     } catch (err: any) {
       error.value = "Gagal mengambil data absensi"
@@ -135,8 +142,17 @@ export const useAttendance = () => {
     }
   }
 
-  watch(selectedDate, () => {
+  let debounceTimeout: any
+  watch([selectedDate, page, filterStatus], () => {
     fetchAttendance()
+  })
+
+  watch(searchQuery, () => {
+    clearTimeout(debounceTimeout)
+    debounceTimeout = setTimeout(() => {
+      page.value = 1
+      fetchAttendance()
+    }, 300)
   })
 
   const updateLogbook = async (id: string, data: any) => {
@@ -182,6 +198,10 @@ export const useAttendance = () => {
     toggleLogbook,
     loading,
     error,
+    page,
+    limit,
+    totalItems,
+    totalPages,
     fetchAttendance,
     getStatusLabel,
     exportAttendance,

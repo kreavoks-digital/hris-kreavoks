@@ -21,8 +21,7 @@ export const useRbac = () => {
   const fetchData = async () => {
     loading.value = true
     try {
-      // Delay for skeleton loading testing
-      await new Promise(resolve => setTimeout(resolve, 800))
+
 
       const [usersRes, permRes] = await Promise.all([
         rbacApi.getUsers(page.value, limit.value, searchQuery.value),

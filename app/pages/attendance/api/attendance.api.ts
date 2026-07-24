@@ -1,12 +1,15 @@
 import type { AttendanceRecord, AttendanceSummary } from '~/types'
 
 export const attendanceApi = {
-  getAttendance: async (date: string, isAdmin: boolean): Promise<any> => {
+  getAttendance: async (date: string, isAdmin: boolean, page: number = 1, limit: number = 15, search: string = "", status: string = ""): Promise<any> => {
     const api = useApi()
     const endpoint = isAdmin ? '/attendance/history/all' : '/attendance/history'
-    const res: any = await api(endpoint as any, {
-      query: date ? { date } : {}
-    })
+    const query: any = { page, limit }
+    if (date) query.date = date
+    if (search) query.search = search
+    if (status && status !== "none") query.status = status
+
+    const res: any = await api(endpoint as any, { query })
 
     // BE-13 FIX: Gunakan npk dari profile jika tersedia, fallback ke generate dari userId
     const records: AttendanceRecord[] = res.data.map((item: any) => ({
@@ -46,7 +49,9 @@ export const attendanceApi = {
       }
     }
 
-    return { success: true, data: { records, summary } }
+    const pagination = res.meta || null
+
+    return { success: true, data: { records, summary, pagination } }
   },
 
   deleteAttendance: async (id: string): Promise<any> => {

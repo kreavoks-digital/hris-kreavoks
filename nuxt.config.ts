@@ -10,12 +10,28 @@ export default defineNuxtConfig({
     compatibilityVersion: 4,
   },
 
-  ignore: [
-    'app/pages/**/components/**',
-    'app/pages/**/types/**',
-    'app/pages/**/hooks/**',
-    'app/pages/**/api/**'
-  ],
+  hooks: {
+    'pages:extend'(pages) {
+      const removePages = (pagesArr: any[]) => {
+        for (let i = pagesArr.length - 1; i >= 0; i--) {
+          const page = pagesArr[i]
+          if (
+            page.file && (
+              page.file.includes('/components/') ||
+              page.file.includes('/types/') ||
+              page.file.includes('/hooks/') ||
+              page.file.includes('/api/')
+            )
+          ) {
+            pagesArr.splice(i, 1)
+          } else if (page.children) {
+            removePages(page.children)
+          }
+        }
+      }
+      removePages(pages)
+    }
+  },
 
   modules: [
     '@nuxtjs/tailwindcss',
@@ -59,11 +75,5 @@ export default defineNuxtConfig({
     }
   },
 
-  vite: {
-    server: {
-      watch: {
-        usePolling: true
-      }
-    }
-  }
+
 })

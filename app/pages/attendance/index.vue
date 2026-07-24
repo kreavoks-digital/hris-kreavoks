@@ -78,6 +78,63 @@
       @confirm-delete-logbook="confirmDeleteLogbook"
     />
 
+    <!-- Pagination -->
+    <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 px-1">
+      <div class="flex items-center text-sm text-muted-foreground">
+        <p>
+          Menampilkan
+          <span class="font-medium text-foreground">{{ Math.min((page - 1) * limit + 1, totalItems) }}</span>
+          sampai
+          <span class="font-medium text-foreground">{{ Math.min(page * limit, totalItems) }}</span>
+          dari
+          <span class="font-medium text-foreground">{{ totalItems }}</span>
+          data
+        </p>
+      </div>
+      <div>
+        <nav class="isolate inline-flex -space-x-px rounded-md gap-1" aria-label="Pagination">
+          <Button
+            variant="outline"
+            size="icon"
+            :disabled="page === 1"
+            @click="page--"
+            class="h-9 w-9 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground"
+          >
+            <ChevronLeft class="h-4 w-4" />
+          </Button>
+          
+          <template v-for="p in totalPages" :key="p">
+            <Button
+              v-if="p === 1 || p === totalPages || (p >= page - 2 && p <= page + 2)"
+              variant="outline"
+              size="sm"
+              @click="page = p"
+              class="h-9 w-9 rounded-xl border-border"
+              :class="page === p ? 'bg-kv-primary text-white border-transparent hover:bg-kv-primary/95' : 'bg-background hover:bg-accent text-muted-foreground hover:text-foreground'"
+            >
+              {{ p }}
+            </Button>
+            <span 
+              v-else-if="(p === 2 && page > 4) || (p === totalPages - 1 && page < totalPages - 3)" 
+              class="inline-flex items-center px-2 text-sm font-semibold text-muted-foreground"
+            >
+              ...
+            </span>
+          </template>
+
+          <Button
+            variant="outline"
+            size="icon"
+            :disabled="page === totalPages"
+            @click="page++"
+            class="h-9 w-9 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground"
+          >
+            <ChevronRight class="h-4 w-4" />
+          </Button>
+        </nav>
+      </div>
+    </div>
+
     <!-- Edit Logbook Dialog -->
     <EditLogbookDialog
       v-model:open="showEditDialog"
@@ -90,8 +147,10 @@
 <script setup lang="ts">
 import { 
   Download, 
-  Search, 
-  Calendar as CalendarIcon
+  Search,
+  Calendar as CalendarIcon,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-vue-next'
 import { format } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
@@ -132,6 +191,10 @@ const {
   getStatusLabel,
   exportAttendance,
   loading,
+  page,
+  limit,
+  totalItems,
+  totalPages,
   deleteRecord,
   forgiveAttendance,
   updateLogbook,
