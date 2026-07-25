@@ -4,17 +4,17 @@ import { toast } from 'vue-sonner'
 
 export const useLogin = () => {
   const { setAuth } = useAuth()
-  
+
   const loading = ref(false)
   const error = ref<string | null>(null)
 
   const handleLogin = async (credentials: any) => {
     loading.value = true
     error.value = null
-    
+
     try {
       const response = await loginApi.login(credentials)
-      
+
       if (response.success) {
         // setAuth hanya butuh user dan accessToken — refreshToken di HttpOnly cookie
         setAuth(response.data.user, response.data.accessToken)

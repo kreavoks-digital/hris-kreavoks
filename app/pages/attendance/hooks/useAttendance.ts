@@ -86,9 +86,9 @@ export const useAttendance = () => {
     error.value = null
     try {
       const response = await attendanceApi.getAttendance(
-        selectedDate.value as string, 
-        canViewAll.value, 
-        1, 
+        selectedDate.value as string,
+        canViewAll.value,
+        1,
         10000,
         searchQuery.value,
         filterStatus.value
@@ -96,7 +96,7 @@ export const useAttendance = () => {
       if (response.success) {
         attendance.value = response.data.records
         summary.value = response.data.summary
-        
+
         if (response.data.pagination) {
           isServerPaginated.value = true
           totalItems.value = response.data.pagination.totalItems
@@ -153,7 +153,7 @@ export const useAttendance = () => {
     try {
       const defaultClockOut = new Date()
       defaultClockOut.setHours(17, 0, 0, 0)
-      
+
       await attendanceApi.updateAttendance(id, {
         clockOut: defaultClockOut,
         notes: "Lupa clock out (Dikoreksi Admin)"
