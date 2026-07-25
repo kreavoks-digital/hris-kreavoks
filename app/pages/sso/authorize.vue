@@ -83,6 +83,12 @@ const handleAuthorize = async () => {
     const url = new URL(redirectUri)
     url.searchParams.append('token', token)
     
+    // SECURITY FIX: Teruskan parameter state kembali ke Kreavoks untuk divalidasi
+    const state = route.query.state as string
+    if (state) {
+      url.searchParams.append('state', state)
+    }
+    
     window.location.href = url.toString()
     
   } catch (err) {
