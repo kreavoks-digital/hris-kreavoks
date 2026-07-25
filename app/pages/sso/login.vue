@@ -43,13 +43,18 @@ const targetAppName = computed(() => {
 const getRedirectUrl = () => {
   const redirect = route.query.redirect as string
   const redirectUri = route.query.redirect_uri as string
+  const state = route.query.state as string
 
   // Validasi internal path (dari /sso/authorize yang redirect ke /sso/login)
   if (redirect && isValidInternalRedirect(redirect)) return redirect
 
   // Validasi redirect_uri ke domain eksternal yang diizinkan
   if (redirectUri && isValidRedirectUri(redirectUri)) {
-    return `/sso/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`
+    let url = `/sso/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`
+    if (state) {
+      url += `&state=${encodeURIComponent(state)}`
+    }
+    return url
   }
 
   return '/dashboard'
@@ -64,7 +69,8 @@ onMounted(() => {
 })
 
 const onSubmit = async () => {
-  await handleLogin(form.value)
+  const target = getRedirectUrl()
+  await handleLogin(form.value, target)
 }
 </script>
 

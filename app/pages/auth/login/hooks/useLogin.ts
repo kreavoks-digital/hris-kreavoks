@@ -8,7 +8,7 @@ export const useLogin = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const handleLogin = async (credentials: any) => {
+  const handleLogin = async (credentials: any, redirectUrl?: string) => {
     loading.value = true
     error.value = null
 
@@ -21,9 +21,9 @@ export const useLogin = () => {
         toast.success('Login Berhasil', {
           description: `Selamat datang, ${response.data.user.name || response.data.user.email}!`
         })
-        // Redirect ke redirect param (untuk SSO) atau default ke /dashboard
-        const route = useRoute()
-        const redirectPath = route.query.redirect as string || '/dashboard'
+        
+        // Redirect ke target yang diteruskan (untuk SSO/fallback) atau default ke /dashboard
+        const redirectPath = redirectUrl || '/dashboard'
         await navigateTo(redirectPath)
       } else {
         error.value = response.message || 'Login gagal'
