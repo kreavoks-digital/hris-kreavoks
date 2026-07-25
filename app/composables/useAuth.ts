@@ -1,7 +1,9 @@
 // ─── Session flag ────────────────────────────────────────────────────────────
 // Kita tidak bisa baca HttpOnly cookie dari JS.
-// Gunakan flag di sessionStorage sebagai sinyal "pernah login".
-// Flag ini hanya ada jika user benar-benar sudah login di tab ini atau sebelumnya.
+// Gunakan flag di localStorage sebagai sinyal "pernah login".
+// localStorage berbagi antar semua tab di origin yang sama, sehingga jika user
+// login di tab SSO, tab HRIS lain langsung bisa deteksi sesi aktif.
+// user_display tetap di sessionStorage (hanya untuk tampilan optimistic, tidak kritis).
 const SESSION_KEY = 'kvhris_session_active'
 
 // ─── Mutex: satu request refresh sekaligus ──────────────────────────────────
@@ -30,8 +32,9 @@ export const useAuth = () => {
         email: u?.email ?? '',
       }
       sessionStorage.setItem('user_display', JSON.stringify(safeDisplayData))
-      // Tandai bahwa session aktif → izinkan refresh pada page load berikutnya
-      sessionStorage.setItem(SESSION_KEY, '1')
+      // Tandai bahwa session aktif → izinkan refresh pada page load berikutnya.
+      // Pakai localStorage agar flag ini dibaca oleh SEMUA tab di origin yang sama.
+      localStorage.setItem(SESSION_KEY, '1')
     }
   }
 
@@ -62,7 +65,7 @@ export const useAuth = () => {
         user.value = null
         if (process.client) {
           sessionStorage.removeItem('user_display')
-          sessionStorage.removeItem(SESSION_KEY)
+          localStorage.removeItem(SESSION_KEY)
         }
         throw err
       } finally {
@@ -95,8 +98,9 @@ export const useAuth = () => {
     // Jika sudah ada token di memory, tidak perlu refresh
     if (accessToken.value) return
 
-    // Hanya coba refresh jika user PERNAH login (flag aktif)
-    const hasSession = sessionStorage.getItem(SESSION_KEY)
+    // Hanya coba refresh jika user PERNAH login (flag aktif).
+    // Pakai localStorage agar flag ini terbaca dari tab manapun.
+    const hasSession = localStorage.getItem(SESSION_KEY)
     if (!hasSession) return
 
     try {
@@ -127,7 +131,7 @@ export const useAuth = () => {
     user.value = null
     if (process.client) {
       sessionStorage.removeItem('user_display')
-      sessionStorage.removeItem(SESSION_KEY)
+      localStorage.removeItem(SESSION_KEY)
     }
   }
 
