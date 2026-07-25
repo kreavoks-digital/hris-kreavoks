@@ -22,7 +22,14 @@ export const useAuth = () => {
   const setUser = (u: any) => {
     user.value = u
     if (process.client) {
-      sessionStorage.setItem('user', JSON.stringify(u))
+      // SECURITY FIX: Simpan HANYA data display yang tidak sensitif di sessionStorage.
+      // Data seperti id, role, npk, permissions TIDAK disimpan di storage browser.
+      // Data lengkap selalu di-fetch ulang dari server setelah token di-refresh.
+      const safeDisplayData = {
+        fullName: u?.fullName ?? u?.name ?? '',
+        email: u?.email ?? '',
+      }
+      sessionStorage.setItem('user_display', JSON.stringify(safeDisplayData))
       // Tandai bahwa session aktif → izinkan refresh pada page load berikutnya
       sessionStorage.setItem(SESSION_KEY, '1')
     }
@@ -54,7 +61,7 @@ export const useAuth = () => {
         accessToken.value = null
         user.value = null
         if (process.client) {
-          sessionStorage.removeItem('user')
+          sessionStorage.removeItem('user_display')
           sessionStorage.removeItem(SESSION_KEY)
         }
         throw err
@@ -74,11 +81,15 @@ export const useAuth = () => {
   const loadAuth = async () => {
     if (!process.client) return
 
-    // FE-05 FIX: Restore user dari sessionStorage sebagai data optimistic (tampilan awal cepat)
-    // tapi selalu verifikasi ke server setelah token di-refresh
-    const savedUser = sessionStorage.getItem('user')
-    if (savedUser && !user.value) {
-      try { user.value = JSON.parse(savedUser) } catch {}
+    // Restore data display minimal dari sessionStorage untuk optimistic UI (tampilan awal cepat)
+    // Ini BUKAN data autoritatif — akan diganti oleh data server setelah refresh berhasil
+    const savedDisplayUser = sessionStorage.getItem('user_display')
+    if (savedDisplayUser && !user.value) {
+      try {
+        const displayData = JSON.parse(savedDisplayUser)
+        // Hanya set untuk tampilan optimistic — tidak mengandung role/permissions
+        user.value = displayData
+      } catch {}
     }
 
     // Jika sudah ada token di memory, tidak perlu refresh
@@ -90,8 +101,7 @@ export const useAuth = () => {
 
     try {
       await refreshAccessToken()
-      // FE-05 FIX: Selalu fetch ulang data user dari server setelah refresh berhasil
-      // untuk memastikan data di state adalah data yang valid dan terkini
+      // Selalu fetch ulang data user lengkap dari server setelah refresh berhasil
       await fetchUser()
     } catch {
       // Cookie expired — user perlu login ulang
@@ -116,7 +126,7 @@ export const useAuth = () => {
     accessToken.value = null
     user.value = null
     if (process.client) {
-      sessionStorage.removeItem('user')
+      sessionStorage.removeItem('user_display')
       sessionStorage.removeItem(SESSION_KEY)
     }
   }

@@ -6,6 +6,7 @@ import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 import { useAuth } from '~/composables/useAuth'
 import { useLogin } from '~/pages/auth/login/hooks/useLogin'
+import { useSsoWhitelist } from '~/composables/useSsoWhitelist'
 
 definePageMeta({
   layout: false,
@@ -15,45 +16,42 @@ const route = useRoute()
 const router = useRouter()
 const { user, accessToken } = useAuth()
 const { loading, error, handleLogin } = useLogin()
+const { isValidRedirectUri, getAppName, isValidInternalRedirect } = useSsoWhitelist()
 
 const form = ref({
   email: '',
   password: '',
 })
 
+/**
+ * SECURITY FIX: App name hanya berasal dari redirect_uri yang sudah divalidasi whitelist.
+ * Query param ?app_name dari user DIABAIKAN untuk mencegah phishing.
+ */
 const targetAppName = computed(() => {
-  const appName = route.query.app_name as string
-  if (appName) return appName
-
-  const redirectUrl = (route.query.redirect_uri || route.query.redirect) as string
-  if (redirectUrl) {
-    try {
-      // Parse URL
-      const url = new URL(redirectUrl, 'http://localhost')
-      const host = url.hostname.toLowerCase()
-
-      if (host.includes('hris')) return 'HRIS'
-      if (host.includes('careers')) return 'Careers'
-      if (host.includes('localhost') || host.includes('127.0.0.1')) return 'Kreavoks'
-      
-      // Capitalize first letter of the domain if no specific match
-      const domainName = host.split('.')[0]
-      if (domainName) {
-        return domainName.charAt(0).toUpperCase() + domainName.slice(1)
-      }
-    } catch {
-      return 'Kreavoks'
-    }
+  const redirectUri = route.query.redirect_uri as string
+  if (redirectUri && isValidRedirectUri(redirectUri)) {
+    return getAppName(redirectUri)
   }
   return 'Kreavoks'
 })
 
+/**
+ * SECURITY FIX: Validasi redirect param agar tidak bisa jadi open redirect.
+ * - redirect_uri: harus lolos whitelist domain
+ * - redirect: harus berupa path relatif (dimulai dengan /)
+ */
 const getRedirectUrl = () => {
   const redirect = route.query.redirect as string
   const redirectUri = route.query.redirect_uri as string
 
-  if (redirect) return redirect
-  if (redirectUri) return `/sso/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`
+  // Validasi internal path (dari /sso/authorize yang redirect ke /sso/login)
+  if (redirect && isValidInternalRedirect(redirect)) return redirect
+
+  // Validasi redirect_uri ke domain eksternal yang diizinkan
+  if (redirectUri && isValidRedirectUri(redirectUri)) {
+    return `/sso/authorize?redirect_uri=${encodeURIComponent(redirectUri)}`
+  }
+
   return '/dashboard'
 }
 

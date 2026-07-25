@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Button } from '~/components/ui/button'
 import { useAuth } from '~/composables/useAuth'
+import { useSsoWhitelist } from '~/composables/useSsoWhitelist'
 
 definePageMeta({
   layout: false,
@@ -11,31 +12,19 @@ definePageMeta({
 const route = useRoute()
 const router = useRouter()
 const { user, accessToken } = useAuth()
+const { isValidRedirectUri, getAppName } = useSsoWhitelist()
 
 const loading = ref(true)
 const errorMsg = ref('')
 
+/**
+ * SECURITY FIX: App name hanya berasal dari redirect_uri yang sudah divalidasi whitelist.
+ * Tidak menerima input dari user sama sekali.
+ */
 const targetAppName = computed(() => {
-  const appName = route.query.app_name as string
-  if (appName) return appName
-
-  const redirectUrl = (route.query.redirect_uri || route.query.redirect) as string
-  if (redirectUrl) {
-    try {
-      const url = new URL(redirectUrl, 'http://localhost')
-      const host = url.hostname.toLowerCase()
-
-      if (host.includes('hris')) return 'HRIS'
-      if (host.includes('careers')) return 'Careers'
-      if (host.includes('localhost') || host.includes('127.0.0.1')) return 'Kreavoks'
-      
-      const domainName = host.split('.')[0]
-      if (domainName) {
-        return domainName.charAt(0).toUpperCase() + domainName.slice(1)
-      }
-    } catch {
-      return 'Kreavoks'
-    }
+  const redirectUri = route.query.redirect_uri as string
+  if (redirectUri && isValidRedirectUri(redirectUri)) {
+    return getAppName(redirectUri)
   }
   return 'Kreavoks'
 })
@@ -45,13 +34,21 @@ const handleAuthorize = async () => {
   errorMsg.value = ''
   
   const redirectUri = route.query.redirect_uri as string
+
+  // SECURITY FIX: Validasi redirect_uri terhadap whitelist domain sebelum diproses
   if (!redirectUri) {
     errorMsg.value = "Parameter redirect_uri tidak ditemukan."
     loading.value = false
     return
   }
 
-  // Ensure the user is logged into HRIS/SSO first
+  if (!isValidRedirectUri(redirectUri)) {
+    errorMsg.value = "Tujuan redirect tidak diizinkan."
+    loading.value = false
+    return
+  }
+
+  // Pastikan user sudah login ke HRIS/SSO terlebih dahulu
   if (!user.value || !accessToken.value) {
     const fullPath = route.fullPath
     router.push(`/sso/login?redirect=${encodeURIComponent(fullPath)}`)
@@ -62,11 +59,16 @@ const handleAuthorize = async () => {
     const config = useRuntimeConfig()
     const apiUrl = (config.public.apiUrl as string) || 'http://localhost:3001/api/v1'
 
+    // SECURITY FIX: Kirim redirect_uri ke backend agar bisa divalidasi dan
+    // dimasukkan ke dalam payload SSO token sebagai audience (aud).
     const { data, error } = await useFetch<{ success: boolean; token: string }>('/auth/sso-token', {
       baseURL: apiUrl,
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken.value}`
+      },
+      body: {
+        redirect_uri: redirectUri,
       }
     })
 
@@ -76,7 +78,7 @@ const handleAuthorize = async () => {
       return
     }
 
-    // Redirect back to the requested URI with the token
+    // Kirim SSO token ke redirect_uri yang sudah tervalidasi
     const token = data.value.token
     const url = new URL(redirectUri)
     url.searchParams.append('token', token)
@@ -168,7 +170,8 @@ onMounted(() => {
           </div>
         </div>
       </div>
+
+      </div>
     </div>
   </div>
-</div>
 </template>

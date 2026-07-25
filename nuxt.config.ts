@@ -58,6 +58,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL,
+      // Domains yang diizinkan sebagai redirect_uri SSO (pisahkan dengan koma)
+      // Contoh: NUXT_PUBLIC_SSO_ALLOWED_DOMAINS=kreavoks.com,careers.kreavoks.com
+      ssoAllowedDomains: process.env.NUXT_PUBLIC_SSO_ALLOWED_DOMAINS || '',
     },
   },
 
