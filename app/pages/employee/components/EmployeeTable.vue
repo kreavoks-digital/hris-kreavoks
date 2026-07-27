@@ -74,17 +74,17 @@
             <Badge
               class="px-3 py-1 rounded-3xl text-sm font-medium border-transparent"
               :class="{
-                'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE',
+                'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE' && activeTab !== 'pending',
+                'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': (emp.status === 'ACTIVE' && activeTab === 'pending') || emp.status === 'SUSPENDED',
                 'bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20': emp.status === 'TERMINATED',
-                'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': emp.status === 'SUSPENDED',
                 'bg-slate-500/15 text-slate-600 dark:text-slate-400 hover:bg-slate-500/20': emp.status === 'RESIGNED',
                 'bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20': emp.status === 'GRADUATE',
               }"
             >
               {{
-                emp.status === 'ACTIVE' ? 'Aktif' :
+                emp.status === 'ACTIVE' ? (activeTab === 'pending' ? 'Menunggu Verifikasi' : 'Aktif') :
                 emp.status === 'TERMINATED' ? 'Terminated' :
-                emp.status === 'SUSPENDED' ? (activeTab === 'pending' ? 'Menunggu Verifikasi' : 'Suspended') :
+                emp.status === 'SUSPENDED' ? 'Suspended' :
                 emp.status === 'RESIGNED' ? 'Resigned' :
                 emp.status === 'GRADUATE' ? 'Lulus' : emp.status
               }}
