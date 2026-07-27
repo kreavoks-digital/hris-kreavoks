@@ -184,10 +184,7 @@
           </div>
 
           <!-- Notification Bell -->
-          <Button variant="ghost" size="icon" class="relative h-9 w-9">
-            <Bell class="h-4 w-4 text-muted-foreground" />
-            <span class="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-rose-500 ring-2 ring-white" />
-          </Button>
+          <NotificationDropdown />
 
           <Separator orientation="vertical" class="h-6" />
 
@@ -248,6 +245,8 @@
       </footer>
     </div>
   </div>
+  <!-- Global Notification Toast (teleported to body) -->
+  <NotificationToast />
 </template>
 
 <script setup lang="ts">
@@ -281,11 +280,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu'
+import NotificationDropdown from '~/components/shared/NotificationDropdown.vue'
+import NotificationToast from '~/components/shared/NotificationToast.vue'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const { user, logoutAndRedirect } = useAuth()
 const searchQuery = useState('dashboard_search_query', () => '')
+const { fetchNotifications, setupFcmListener, destroyFcmListener } = useNotifications()
 
 // --- Sidebar State ---
 const isCollapsed = ref(false)
@@ -296,7 +298,7 @@ const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
 // Restore from localStorage on client
-onMounted(() => {
+onMounted(async () => {
   const saved = localStorage.getItem('kvhris-sidebar-collapsed')
   if (saved !== null) {
     isCollapsed.value = saved === 'true'
@@ -310,6 +312,14 @@ onMounted(() => {
   }
   window.addEventListener('resize', onResize)
   onUnmounted(() => window.removeEventListener('resize', onResize))
+
+  // Fetch notifikasi awal & setup FCM foreground listener
+  await fetchNotifications()
+  setupFcmListener()
+})
+
+onUnmounted(() => {
+  destroyFcmListener()
 })
 
 // Close mobile sidebar on route change
