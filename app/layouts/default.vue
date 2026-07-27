@@ -266,7 +266,8 @@ import {
   Search,
   Shield,
   Sun,
-  Moon
+  Moon,
+  FileText
 } from 'lucide-vue-next'
 import { useDark, useToggle } from '@vueuse/core'
 import { Button } from '~/components/ui/button'
@@ -328,17 +329,19 @@ const navigation = [
   { name: 'Leave', to: '/leave', icon: CalendarDays, permission: 'manage_users' },
   // { name: 'Payroll', to: '/payroll', icon: CircleDollarSign },
   { name: 'Employee', to: '/employee', icon: Users, permission: 'manage_users' },
+  { name: 'Letters', to: '/letters', icon: FileText, permission: 'manage_letters' },
   { name: 'RBAC', to: '/rbac', icon: Shield, permission: 'manage_roles' },
 ]
 
 const filteredNavigation = computed(() => {
   return navigation.filter(item => {
     if (item.permission) {
-      return user.value?.permissions?.includes(item.permission)
+      if (user.value?.role === 'ADMIN') return true;
+      return user.value?.permissions?.includes(item.permission);
     }
-    return true
-  })
-})
+    return true;
+  });
+});
 
 const pageTitle = computed(() => {
   const item = navigation.find(n => n.to === route.path)
