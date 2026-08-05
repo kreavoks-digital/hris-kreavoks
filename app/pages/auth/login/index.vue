@@ -71,10 +71,11 @@
           <Button
             type="submit"
             class="w-full text-base font-medium"
-            :disabled="loading"
+            variant="primary"
+            size="md"
+            :loading="loading"
           >
-            <Loader2 v-if="loading" class="mr-2 h-4 w-4 animate-spin" />
-            {{ loading ? 'Sedang Masuk...' : 'Masuk HRIS' }}
+            Masuk HRIS
           </Button>
         </form>
 
@@ -117,8 +118,8 @@
 
 <script setup>
 import { useLogin } from './hooks/useLogin'
-import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-vue-next'
-import { Button } from '~/components/ui/button'
+import { Mail, Lock, Eye, EyeOff } from 'lucide-vue-next'
+import { Button } from '@kreavoks/kreaui'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
 

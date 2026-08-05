@@ -9,6 +9,7 @@ module.exports = {
   content: [
     "./app/**/*.{vue,js,ts,jsx,tsx}",
     "./app.vue",
+    "./node_modules/@kreavoks/kreaui/lib/**/*.js",
   ],
 
   theme: {
@@ -83,5 +84,8 @@ module.exports = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@kreavoks/kreaui").kreauiPlugin,
+  ],
 }
