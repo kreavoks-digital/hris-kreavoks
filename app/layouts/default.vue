@@ -73,7 +73,7 @@
               :class="[
                 'flex items-center gap-3 rounded-xl transition-all duration-200 text-sm font-medium relative overflow-hidden',
                 isCollapsed ? 'justify-center w-11 h-11 mx-auto p-0' : 'justify-start px-3 py-2.5',
-                route.path === item.to
+                (item.children ? route.path.startsWith(item.to) : route.path === item.to)
                   ? 'bg-kv-primary text-white shadow-sm'
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
               ]"
@@ -82,17 +82,38 @@
                 :is="item.icon"
                 :class="[
                   'shrink-0 transition-colors w-5 h-5',
-                  route.path === item.to ? 'text-white' : 'text-muted-foreground/70 group-hover:text-accent-foreground'
+                  (item.children ? route.path.startsWith(item.to) : route.path === item.to) ? 'text-white' : 'text-muted-foreground/70 group-hover:text-accent-foreground'
                 ]"
                 stroke-width="1.75"
               />
               <!-- Label: only show when not collapsed -->
               <Transition name="sidebar-label">
-                <span v-if="!isCollapsed" class="whitespace-nowrap">
+                <span v-if="!isCollapsed" class="whitespace-nowrap flex-1 text-left">
                   {{ item.name }}
                 </span>
               </Transition>
+              
+              <!-- Chevron for children -->
+              <Transition name="sidebar-label">
+                <div v-if="!isCollapsed && item.children" class="ml-auto opacity-70">
+                  <ChevronDown v-if="route.path.startsWith(item.to)" class="w-4 h-4" />
+                  <ChevronRight v-else class="w-4 h-4" />
+                </div>
+              </Transition>
             </NuxtLink>
+
+            <!-- Sub Navigation -->
+            <div v-if="!isCollapsed && item.children && route.path.startsWith(item.to)" class="mt-1 flex flex-col pl-9 space-y-1">
+              <NuxtLink
+                v-for="child in item.children"
+                :key="child.name"
+                :to="child.to"
+                class="px-3 py-2 text-[13px] rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-accent"
+                :class="{ 'bg-accent text-foreground font-medium': route.path === child.to }"
+              >
+                {{ child.name }}
+              </NuxtLink>
+            </div>
 
             <!-- Collapsed tooltip -->
             <div
@@ -261,6 +282,7 @@ import {
   Menu,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   UserCircle,
   Search,
   Shield,
@@ -338,7 +360,17 @@ const navigation = [
   { name: 'Attendance', to: '/attendance', icon: CheckCircle2 },
   { name: 'Leave', to: '/leave', icon: CalendarDays, permission: 'manage_users' },
   // { name: 'Payroll', to: '/payroll', icon: CircleDollarSign },
-  { name: 'Employee', to: '/employee', icon: Users, permission: 'manage_users' },
+  { 
+    name: 'Employee', 
+    to: '/employee', 
+    icon: Users, 
+    permission: 'manage_users',
+    children: [
+      { name: 'Semua Karyawan', to: '/employee' },
+      { name: 'Pending Intern', to: '/employee/intern' },
+      { name: 'Pendaftaran Mentor', to: '/employee/mentor' }
+    ]
+  },
   { name: 'Letters', to: '/letters', icon: FileText, permission: 'manage_letters' },
   { name: 'RBAC', to: '/rbac', icon: Shield, permission: 'manage_roles' },
 ]
