@@ -37,8 +37,15 @@
             {{ app.phone || '-' }}
           </TableCell>
           <TableCell>
-            <Badge class="px-2 py-0.5 rounded-full text-xs bg-amber-500/10 text-amber-500 border-none">
+            <!-- Badge status dinamis berdasarkan app.status -->
+            <Badge v-if="app.status === 'PENDING'" class="px-2 py-0.5 rounded-full text-xs bg-amber-500/10 text-amber-600 border border-amber-200 dark:border-amber-800 dark:text-amber-400">
               Menunggu Approval
+            </Badge>
+            <Badge v-else-if="app.status === 'APPROVED'" class="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-600 border border-emerald-200 dark:border-emerald-800 dark:text-emerald-400">
+              Disetujui
+            </Badge>
+            <Badge v-else-if="app.status === 'REJECTED'" class="px-2 py-0.5 rounded-full text-xs bg-destructive/10 text-destructive border border-destructive/20">
+              Ditolak
             </Badge>
           </TableCell>
           <TableCell class="text-right">
@@ -51,26 +58,41 @@
               >
                 Detail
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                @click="$emit('review', app.id, 'APPROVED')"
-                :disabled="verifyingId === app.id"
-                class="h-8 gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 dark:border-emerald-800"
-              >
-                <Loader2 v-if="verifyingId === app.id" class="h-3.5 w-3.5 animate-spin" />
-                <CheckCircle2 v-else class="h-3.5 w-3.5" />
-                Setujui
-              </Button>
+              <!-- Tombol Setujui & Tolak hanya tampil jika masih PENDING -->
+              <template v-if="app.status === 'PENDING'">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  @click="$emit('review', app.id, 'APPROVED')"
+                  :disabled="verifyingId === app.id"
+                  class="h-8 gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 dark:border-emerald-800"
+                >
+                  <Loader2 v-if="verifyingId === app.id" class="h-3.5 w-3.5 animate-spin" />
+                  <CheckCircle2 v-else class="h-3.5 w-3.5" />
+                  Setujui
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  @click="$emit('review', app.id, 'REJECTED')"
+                  :disabled="verifyingId === app.id"
+                  class="h-8 w-8 text-destructive hover:bg-destructive/10"
+                  title="Tolak Pengajuan"
+                >
+                  <X class="h-4 w-4" />
+                </Button>
+              </template>
+              
+              <!-- Tombol Delete Permanent -->
               <Button
                 variant="ghost"
                 size="icon"
-                @click="$emit('review', app.id, 'REJECTED')"
+                @click="$emit('delete', app)"
                 :disabled="verifyingId === app.id"
                 class="h-8 w-8 text-destructive hover:bg-destructive/10"
-                title="Tolak Pengajuan"
+                title="Hapus Permanen"
               >
-                <X class="h-4 w-4" />
+                <Trash2 class="h-4 w-4" />
               </Button>
             </div>
           </TableCell>
@@ -103,7 +125,7 @@ import {
 import TableSkeleton from '~/components/ui/skeleton/TableSkeleton.vue'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
-import { CheckCircle2, X, Loader2, Users } from 'lucide-vue-next'
+import { CheckCircle2, X, Loader2, Users, Trash2 } from 'lucide-vue-next'
 import type { MentorApplication } from '~/pages/employee/api/mentorApplication.api'
 
 defineProps<{
@@ -114,5 +136,6 @@ defineProps<{
 
 defineEmits<{
   (e: 'review', id: string | number, status: 'APPROVED' | 'REJECTED'): void
+  (e: 'delete', app: MentorApplication): void
 }>()
 </script>

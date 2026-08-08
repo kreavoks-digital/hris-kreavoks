@@ -81,6 +81,7 @@ import MentorBankCard from '../components/MentorBankCard.vue'
 definePageMeta({
   layout: "default",
   middleware: ["auth", "admin"],
+  title: "Review Pendaftaran Mentor"
 });
 
 const route = useRoute();

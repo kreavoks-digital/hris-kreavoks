@@ -41,13 +41,31 @@
     </div>
 
     <!-- Info banner for mentor tab -->
-    <div v-if="activeTab === 'mentor'" class="flex items-start gap-3 p-4 bg-kv-primary/10 border border-kv-primary/20 rounded-xl">
-      <Info class="h-5 w-5 text-kv-primary mt-0.5 flex-shrink-0" />
-      <div>
-        <p class="text-sm font-medium text-kv-primary">Pendaftaran Mentor Lintas Aplikasi (Portal)</p>
-        <p class="text-sm text-muted-foreground mt-0.5">
-          Mentor di bawah ini mendaftar melalui Kreavoks Portal. Setujui untuk membuat akun di HRIS secara otomatis & memicu sinkronisasi provisioning akun ke Portal.
-        </p>
+    <div v-if="activeTab === 'mentor'" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-kv-primary/10 border border-kv-primary/20 rounded-xl">
+      <div class="flex items-start gap-3">
+        <Info class="h-5 w-5 text-kv-primary mt-0.5 flex-shrink-0" />
+        <div>
+          <p class="text-sm font-medium text-kv-primary">Pendaftaran Mentor Lintas Aplikasi (Portal)</p>
+          <p class="text-sm text-muted-foreground mt-0.5">
+            Mentor di bawah ini mendaftar melalui Kreavoks Portal. Setujui untuk membuat akun di HRIS secara otomatis &amp; memicu sinkronisasi provisioning akun ke Portal.
+          </p>
+        </div>
+      </div>
+      <!-- Filter Status -->
+      <div class="flex gap-1 p-1 bg-background/60 rounded-lg flex-shrink-0 self-start sm:self-center">
+        <button
+          v-for="opt in mentorStatusOptions"
+          :key="opt.value"
+          @click="mentorStatusFilter = opt.value; page = 1; fetchMentorApplications()"
+          :class="[
+            'px-3 py-1 rounded-md text-xs font-medium transition-all duration-150',
+            mentorStatusFilter === opt.value
+              ? 'bg-kv-primary text-white shadow-sm'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+          ]"
+        >
+          {{ opt.label }}
+        </button>
       </div>
     </div>
 
@@ -70,6 +88,7 @@
         :verifying-id="verifyingId"
         :loading="loading"
         @review="reviewMentor"
+        @delete="confirmDeleteMentor"
       />
     </Card>
 
@@ -80,6 +99,17 @@
       :total-pages="totalPages"
       :total-items="totalItems"
       :limit="limit"
+    />
+
+    <!-- Delete Confirmation Modal -->
+    <KreaConfirmDialog
+      v-model:open="isDeleteDialogOpen"
+      title="Hapus Pendaftaran Mentor?"
+      :description="`Apakah Anda yakin ingin menghapus pendaftaran ${selectedAppToDelete?.name} secara permanen? Tindakan ini juga akan menghapus file yang dilampirkan dari cloud storage dan tidak dapat dibatalkan.`"
+      confirmText="Hapus Permanen"
+      cancelText="Batal"
+      variant="danger"
+      @confirm="handleDeleteMentor"
     />
   </div>
 </template>
@@ -98,6 +128,7 @@ import EmployeeFilters from './components/EmployeeFilters.vue'
 import EmployeeTable from './components/EmployeeTable.vue'
 import MentorApplicationTable from './components/MentorApplicationTable.vue'
 import EmployeePagination from './components/EmployeePagination.vue'
+import KreaConfirmDialog from '~/components/shared/KreaConfirmDialog.vue'
 
 definePageMeta({
   layout: "default",
@@ -122,6 +153,10 @@ const activeTab = ref<'all' | 'pending' | 'mentor'>('all')
 const verifyingId = ref<string | number | null>(null)
 const mentorApplications = ref<MentorApplication[]>([])
 
+// State for Mentor Deletion
+const isDeleteDialogOpen = ref(false)
+const selectedAppToDelete = ref<MentorApplication | null>(null)
+
 const pendingInternCount = ref(0)
 const pendingMentorCount = ref(0)
 
@@ -129,7 +164,8 @@ const fetchTabCounts = async () => {
   try {
     const [internRes, mentorRes] = await Promise.all([
       employeeApi.getEmployees(1, 1, '', '', true),
-      mentorApplicationApi.getApplications(1, 1, '')
+      // Hitung HANYA yang PENDING untuk badge notifikasi di tab
+      mentorApplicationApi.getApplications(1, 1, '', 'PENDING')
     ])
     
     if (internRes.success && internRes.data?.pagination) {
@@ -144,10 +180,13 @@ const fetchTabCounts = async () => {
   }
 }
 
+const mentorStatusFilter = ref<'' | 'PENDING' | 'APPROVED' | 'REJECTED'>('')
+
 const fetchMentorApplications = async () => {
   loading.value = true
   try {
-    const response = await mentorApplicationApi.getApplications(page.value, limit.value, searchQuery.value)
+    // Tidak pass status agar semua aplikasi tampil (PENDING, APPROVED, REJECTED)
+    const response = await mentorApplicationApi.getApplications(page.value, limit.value, searchQuery.value, mentorStatusFilter.value)
     if (response.success && response.data) {
       mentorApplications.value = response.data.applications
       if (response.data.pagination) {
@@ -162,6 +201,13 @@ const fetchMentorApplications = async () => {
   }
 }
 
+const mentorStatusOptions = [
+  { label: 'Semua', value: '' as const },
+  { label: 'Menunggu', value: 'PENDING' as const },
+  { label: 'Disetujui', value: 'APPROVED' as const },
+  { label: 'Ditolak', value: 'REJECTED' as const },
+]
+
 const switchTab = (tab: 'all' | 'pending' | 'mentor') => {
   activeTab.value = tab
   pendingVerification.value = tab === 'pending'
@@ -170,6 +216,7 @@ const switchTab = (tab: 'all' | 'pending' | 'mentor') => {
   page.value = 1
   
   if (tab === 'mentor') {
+    mentorStatusFilter.value = ''
     fetchMentorApplications()
   } else {
     fetchEmployees()
@@ -218,6 +265,34 @@ const confirmDelete = async (employee: any) => {
     }
   }
 };
+
+const confirmDeleteMentor = (app: MentorApplication) => {
+  selectedAppToDelete.value = app
+  isDeleteDialogOpen.value = true
+}
+
+const handleDeleteMentor = async () => {
+  if (!selectedAppToDelete.value) return
+  
+  verifyingId.value = selectedAppToDelete.value.id
+  try {
+    const response = await mentorApplicationApi.deleteApplication(selectedAppToDelete.value.id)
+    if (response.success) {
+      toast.success('Pendaftaran Dihapus', {
+        description: `Pendaftaran ${selectedAppToDelete.value.name} telah dihapus permanen.`
+      })
+      fetchMentorApplications()
+      fetchTabCounts()
+    }
+  } catch (error: any) {
+    toast.error('Gagal Menghapus', {
+      description: error?.data?.message || 'Terjadi kesalahan saat menghapus pendaftaran mentor.'
+    })
+  } finally {
+    verifyingId.value = null
+    selectedAppToDelete.value = null
+  }
+}
 
 const reviewMentor = async (id: string | number, status: 'APPROVED' | 'REJECTED') => {
   verifyingId.value = id

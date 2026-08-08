@@ -354,8 +354,20 @@ const filteredNavigation = computed(() => {
 });
 
 const pageTitle = computed(() => {
-  const item = navigation.find(n => n.to === route.path)
-  return item ? item.name : 'HRIS'
+  // Check if page specifies a custom title in its meta
+  if (route.meta.title) {
+    return route.meta.title as string;
+  }
+  
+  // Find exact match first
+  const exactMatch = navigation.find(n => n.to === route.path);
+  if (exactMatch) return exactMatch.name;
+  
+  // Find prefix match (e.g., /employee/123 matches /employee)
+  const pathPrefix = `/${route.path.split('/')[1]}`;
+  const prefixMatch = navigation.find(n => n.to === pathPrefix);
+  
+  return prefixMatch ? prefixMatch.name : 'HRIS';
 })
 
 const initials = computed(() => {

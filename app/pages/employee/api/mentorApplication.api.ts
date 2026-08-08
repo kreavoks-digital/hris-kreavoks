@@ -29,9 +29,10 @@ export interface MentorApplication {
 }
 
 export const mentorApplicationApi = {
-  getApplications: async (page = 1, limit = 10, search = "", status = "PENDING"): Promise<ApiResponse<{ applications: MentorApplication[], pagination: any }>> => {
+  getApplications: async (page = 1, limit = 10, search = "", status = ""): Promise<ApiResponse<{ applications: MentorApplication[], pagination: any }>> => {
     const api = useApi()
-    let url = `/mentor-applications?page=${page}&limit=${limit}&status=${status}`
+    let url = `/mentor-applications?page=${page}&limit=${limit}`
+    if (status) url += `&status=${status}`
     if (search) url += `&search=${encodeURIComponent(search)}`
 
     const res = await api(url as any)
@@ -61,6 +62,17 @@ export const mentorApplicationApi = {
     const res = await api(`/mentor-applications/${id}/review` as any, {
       method: 'PATCH',
       body: { status }
+    })
+    return {
+      success: res.success ?? true,
+      data: res.data
+    }
+  },
+
+  deleteApplication: async (id: string | number): Promise<ApiResponse<any>> => {
+    const api = useApi()
+    const res = await api(`/mentor-applications/${id}` as any, {
+      method: 'DELETE'
     })
     return {
       success: res.success ?? true,
