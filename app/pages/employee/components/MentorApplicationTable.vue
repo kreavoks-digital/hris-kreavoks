@@ -14,21 +14,31 @@
     <TableBody>
       <TableSkeleton v-if="loading" :rows="5" :columns="7" />
       <template v-else-if="applications.length > 0">
-        <TableRow v-for="app in applications" :key="app.id" class="hover:bg-accent/50 transition-colors">
+        <TableRow v-for="app in applications" :key="app.id" class="hover:bg-accent/50 transition-colors cursor-pointer group" @click="navigateTo(`/employee/mentor-application/${app.id}`)">
           <TableCell>
-            <div class="flex flex-col cursor-pointer" @click="navigateTo(`/employee/mentor-application/${app.id}`)">
-              <span class="font-medium text-foreground leading-tight hover:underline text-kv-primary">{{ app.name }}</span>
+            <div class="flex flex-col">
+              <span class="font-medium text-foreground leading-tight group-hover:underline group-hover:text-kv-primary transition-colors">{{ app.name }}</span>
               <span class="text-xs text-muted-foreground">{{ app.email }}</span>
             </div>
           </TableCell>
-          <TableCell class="text-sm text-foreground font-medium">
-            {{ app.expertise || '-' }}
+          <TableCell class="text-sm text-foreground font-medium max-w-[250px]">
+            <div v-if="app.expertise" class="flex flex-wrap gap-1.5">
+              <Badge 
+                v-for="(skill, index) in parseExpertise(app.expertise)" 
+                :key="index" 
+                variant="secondary" 
+                class="font-normal text-[11px] px-2 py-0.5 whitespace-nowrap bg-muted hover:bg-muted/80 text-foreground"
+              >
+                {{ skill }}
+              </Badge>
+            </div>
+            <span v-else class="text-muted-foreground italic">-</span>
           </TableCell>
           <TableCell class="text-sm text-muted-foreground">
             {{ app.experience || '0' }} Tahun
           </TableCell>
           <TableCell>
-            <a v-if="app.portfolioLink" :href="app.portfolioLink" target="_blank" class="text-xs text-kv-primary underline hover:text-kv-primary/80">
+            <a v-if="app.portfolioLink" :href="app.portfolioLink" target="_blank" class="text-xs text-kv-primary underline hover:text-kv-primary/80" @click.stop>
               Buka Portofolio
             </a>
             <span v-else class="text-xs text-muted-foreground italic">-</span>
@@ -48,16 +58,8 @@
               Ditolak
             </Badge>
           </TableCell>
-          <TableCell class="text-right">
+          <TableCell class="text-right" @click.stop>
             <div class="flex justify-end gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                @click="navigateTo(`/employee/mentor-application/${app.id}`)"
-                class="h-8 text-muted-foreground hover:text-foreground"
-              >
-                Detail
-              </Button>
               <!-- Tombol Setujui & Tolak hanya tampil jika masih PENDING -->
               <template v-if="app.status === 'PENDING'">
                 <Button
@@ -72,14 +74,14 @@
                   Setujui
                 </Button>
                 <Button
-                  variant="ghost"
-                  size="icon"
+                  variant="outline"
+                  size="sm"
                   @click="$emit('review', app.id, 'REJECTED')"
                   :disabled="verifyingId === app.id"
-                  class="h-8 w-8 text-destructive hover:bg-destructive/10"
-                  title="Tolak Pengajuan"
+                  class="h-8 gap-1 text-rose-600 border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 dark:border-rose-800"
                 >
-                  <X class="h-4 w-4" />
+                  <X class="h-3.5 w-3.5" />
+                  Tolak
                 </Button>
               </template>
               
@@ -138,4 +140,18 @@ defineEmits<{
   (e: 'review', id: string | number, status: 'APPROVED' | 'REJECTED'): void
   (e: 'delete', app: MentorApplication): void
 }>()
+
+const parseExpertise = (expertiseStr: string | null | undefined): string[] => {
+  if (!expertiseStr) return []
+  try {
+    const parsed = JSON.parse(expertiseStr)
+    if (Array.isArray(parsed)) {
+      return parsed.map((item: any) => typeof item === 'object' ? (item.name || 'Unknown') : String(item))
+    }
+    return [String(parsed)]
+  } catch (e) {
+    // Fallback if it's a regular comma-separated string
+    return expertiseStr.split(',').map(s => s.trim()).filter(Boolean)
+  }
+}
 </script>
