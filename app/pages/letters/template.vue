@@ -143,6 +143,23 @@
         </form>
       </DialogContent>
     </Dialog>
+    <!-- Delete Confirmation Alert Dialog -->
+    <AlertDialog :open="showDeleteDialog" @update:open="(v) => showDeleteDialog = v">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+          <AlertDialogDescription>
+            Apakah Anda yakin ingin menghapus template "{{ letterToDelete?.title }}"?
+            <br/><br/>
+            Tindakan ini tidak dapat dibatalkan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="showDeleteDialog = false">Batal</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-rose-500 hover:bg-rose-600 text-white border-none">Hapus</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
 
@@ -159,6 +176,7 @@ import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Skeleton } from '~/components/ui/skeleton'
 import { Switch } from '~/components/ui/switch'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '~/components/ui/alert-dialog'
 import { toast } from 'vue-sonner'
 
 definePageMeta({
@@ -172,6 +190,9 @@ const submitting = ref(false);
 const letters = ref<any[]>([]);
 const showModal = ref(false);
 const modalMode = ref<'add'|'edit'>('add');
+
+const showDeleteDialog = ref(false);
+const letterToDelete = ref<any>(null);
 
 const formData = ref({
   id: null as number | null,
@@ -261,8 +282,8 @@ const submitLetter = async () => {
     });
     
     if (response.success) {
-      toast.success(isEdit ? 'Surat Berhasil Diperbarui' : 'Surat Berhasil Dibuat', { 
-        description: `Nomor surat: ${response.data.letterNumber}` 
+      toast.success(isEdit ? 'Template Berhasil Diperbarui' : 'Template Berhasil Dibuat', { 
+        description: `Template "${response.data.title}" telah disimpan.` 
       });
       showModal.value = false;
       fetchLetters();
@@ -276,19 +297,27 @@ const submitLetter = async () => {
   }
 };
 
-const confirmDelete = async (letter: any) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus surat ${letter.letterNumber}?`)) {
-    try {
-      const response = await api(`/letters/${letter.id}` as any, {
-        method: 'DELETE'
-      });
-      if (response.success) {
-        toast.success('Berhasil', { description: 'Surat telah dihapus.' });
-        fetchLetters();
-      }
-    } catch (error: any) {
-      toast.error('Gagal menghapus', { description: error?.data?.message || 'Terjadi kesalahan' });
+const confirmDelete = (letter: any) => {
+  letterToDelete.value = letter;
+  showDeleteDialog.value = true;
+};
+
+const executeDelete = async () => {
+  if (!letterToDelete.value) return;
+  const letter = letterToDelete.value;
+  try {
+    const response = await api(`/letters/${letter.id}` as any, {
+      method: 'DELETE'
+    });
+    if (response.success) {
+      toast.success('Berhasil', { description: 'Template telah dihapus.' });
+      fetchLetters();
     }
+  } catch (error: any) {
+    toast.error('Gagal menghapus', { description: error?.data?.message || 'Terjadi kesalahan' });
+  } finally {
+    showDeleteDialog.value = false;
+    letterToDelete.value = null;
   }
 };
 

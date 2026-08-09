@@ -151,11 +151,20 @@
               </div>
 
               <div class="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20 mt-4">
-                <Switch id="isTemplate" v-model:checked="formData.isTemplate" />
+                <Switch
+                  id="isTemplate"
+                  :checked="formData.isTemplate"
+                  @update:checked="(val: boolean) => { formData.isTemplate = val }"
+                />
                 <div class="space-y-0.5">
                   <Label for="isTemplate" class="text-sm font-medium">Jadikan Template</Label>
                   <p class="text-xs text-muted-foreground">Surat ini akan disimpan sebagai template dan tidak memiliki nomor surat.</p>
                 </div>
+              </div>
+              <!-- Warning: jika surat sudah punya nomor dan akan dijadikan template -->
+              <div v-if="formData.isTemplate && modalMode === 'edit' && formData.id" class="flex items-start gap-2.5 p-3 rounded-xl border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30 mt-2">
+                <svg class="h-4 w-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.538-1.333-3.308 0L3.732 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <p class="text-xs text-amber-700 dark:text-amber-400">Nomor surat yang sudah ter-generate akan <strong>dihapus permanen</strong> dari database setelah disimpan dan tidak dapat dikembalikan.</p>
               </div>
             </div>
 
@@ -179,6 +188,23 @@
         </form>
       </DialogContent>
     </Dialog>
+    <!-- Delete Confirmation Alert Dialog -->
+    <AlertDialog :open="showDeleteDialog" @update:open="(v) => showDeleteDialog = v">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Konfirmasi Hapus</AlertDialogTitle>
+          <AlertDialogDescription>
+            Apakah Anda yakin ingin menghapus {{ letterToDelete?.isTemplate ? `template "${letterToDelete?.title}"` : `surat ${letterToDelete?.letterNumber}` }}?
+            <br/><br/>
+            Tindakan ini tidak dapat dibatalkan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="showDeleteDialog = false">Batal</AlertDialogCancel>
+          <AlertDialogAction @click="executeDelete" class="bg-rose-500 hover:bg-rose-600 text-white border-none">Hapus</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>
 
@@ -195,6 +221,7 @@ import { Label } from '~/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Skeleton } from '~/components/ui/skeleton'
 import { Switch } from '~/components/ui/switch'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '~/components/ui/alert-dialog'
 import { toast } from 'vue-sonner'
 
 definePageMeta({
@@ -208,6 +235,9 @@ const submitting = ref(false);
 const letters = ref<any[]>([]);
 const showModal = ref(false);
 const modalMode = ref<'add'|'edit'>('add');
+
+const showDeleteDialog = ref(false);
+const letterToDelete = ref<any>(null);
 
 const formData = ref({
   id: null as number | null,
@@ -297,8 +327,9 @@ const submitLetter = async () => {
     });
     
     if (response.success) {
-      toast.success(isEdit ? 'Surat Berhasil Diperbarui' : 'Surat Berhasil Dibuat', { 
-        description: `Nomor surat: ${response.data.letterNumber}` 
+      const isTemplate = formData.value.isTemplate;
+      toast.success(isEdit ? 'Surat Berhasil Diperbarui' : (isTemplate ? 'Template Berhasil Dibuat' : 'Surat Berhasil Dibuat'), { 
+        description: isTemplate ? `Template "${response.data.title}" telah disimpan.` : `Nomor surat: ${response.data.letterNumber}` 
       });
       showModal.value = false;
       fetchLetters();
@@ -312,19 +343,27 @@ const submitLetter = async () => {
   }
 };
 
-const confirmDelete = async (letter: any) => {
-  if (confirm(`Apakah Anda yakin ingin menghapus surat ${letter.letterNumber}?`)) {
-    try {
-      const response = await api(`/letters/${letter.id}` as any, {
-        method: 'DELETE'
-      });
-      if (response.success) {
-        toast.success('Berhasil', { description: 'Surat telah dihapus.' });
-        fetchLetters();
-      }
-    } catch (error: any) {
-      toast.error('Gagal menghapus', { description: error?.data?.message || 'Terjadi kesalahan' });
+const confirmDelete = (letter: any) => {
+  letterToDelete.value = letter;
+  showDeleteDialog.value = true;
+};
+
+const executeDelete = async () => {
+  if (!letterToDelete.value) return;
+  const letter = letterToDelete.value;
+  try {
+    const response = await api(`/letters/${letter.id}` as any, {
+      method: 'DELETE'
+    });
+    if (response.success) {
+      toast.success('Berhasil', { description: letter.isTemplate ? 'Template telah dihapus.' : 'Surat telah dihapus.' });
+      fetchLetters();
     }
+  } catch (error: any) {
+    toast.error('Gagal menghapus', { description: error?.data?.message || 'Terjadi kesalahan' });
+  } finally {
+    showDeleteDialog.value = false;
+    letterToDelete.value = null;
   }
 };
 
