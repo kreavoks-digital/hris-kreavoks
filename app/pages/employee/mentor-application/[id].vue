@@ -35,20 +35,39 @@
       <!-- 3. Rekening Pembayaran -->
       <MentorBankCard :application="formData" />
 
-      <!-- Review Actions (Only show if status is PENDING) -->
-      <div v-if="formData.status === 'PENDING'" class="flex items-center justify-end gap-4 p-4">
-        <Button 
-          type="button" 
-          variant="outline" 
-          class="px-6 text-destructive border-destructive hover:bg-destructive/10" 
-          @click="reviewMentor('REJECTED')"
+      <!-- Review Actions -->
+      <!-- APPROVED: locked, show back only -->
+      <div v-if="formData.status === 'APPROVED'" class="flex justify-end p-4">
+        <Button variant="ghost" class="px-6" @click="handleBack">Kembali</Button>
+      </div>
+
+      <!-- PENDING or REJECTED: allow review/re-review -->
+      <div v-else class="flex flex-wrap items-center justify-end gap-3 p-4">
+        <!-- Reset to PENDING (only for REJECTED) -->
+        <Button
+          v-if="formData.status === 'REJECTED'"
+          type="button"
+          variant="outline"
+          class="px-6 text-amber-600 border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+          @click="reviewMentor('PENDING')"
           :disabled="loading"
+        >
+          Reset ke Menunggu
+        </Button>
+        <!-- Reject -->
+        <Button
+          type="button"
+          variant="outline"
+          class="px-6 text-destructive border-destructive hover:bg-destructive/10"
+          @click="reviewMentor('REJECTED')"
+          :disabled="loading || formData.status === 'REJECTED'"
         >
           Tolak Pendaftaran
         </Button>
-        <Button 
-          type="button" 
-          class="w-full sm:w-48 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none" 
+        <!-- Approve -->
+        <Button
+          type="button"
+          class="w-full sm:w-48 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none"
           @click="reviewMentor('APPROVED')"
           :disabled="loading"
         >
@@ -56,9 +75,6 @@
           <CheckCircle2 v-else class="h-4 w-4" />
           Setujui Mentor
         </Button>
-      </div>
-      <div v-else class="flex justify-end p-4">
-        <Button variant="ghost" class="px-6" @click="handleBack">Kembali</Button>
       </div>
     </div>
   </div>
@@ -139,18 +155,19 @@ const fetchDetail = async () => {
   }
 };
 
-const reviewMentor = async (status: 'APPROVED' | 'REJECTED') => {
+const reviewMentor = async (status: 'APPROVED' | 'REJECTED' | 'PENDING') => {
   const id = route.params.id as string;
-  const actionText = status === 'APPROVED' ? 'menyetujui' : 'menolak';
+  const actionText = status === 'APPROVED' ? 'menyetujui' : status === 'REJECTED' ? 'menolak' : 'mereset ke Menunggu';
+  const toastTitle = status === 'APPROVED' ? 'Pendaftaran Disetujui' : status === 'REJECTED' ? 'Pendaftaran Ditolak' : 'Pendaftaran Direset';
   
   loading.value = true;
   try {
     const response = await mentorApplicationApi.reviewApplication(id, status);
     if (response.success) {
-      toast.success(`Pendaftaran ${status === 'APPROVED' ? 'Disetujui' : 'Ditolak'}`, {
+      toast.success(toastTitle, {
         description: `Berhasil ${actionText} pendaftaran mentor.`
       });
-      navigateTo("/employee");
+      await fetchDetail(); // Refresh data instead of navigating away
     }
   } catch (error: any) {
     toast.error("Gagal mengirimkan keputusan", {
