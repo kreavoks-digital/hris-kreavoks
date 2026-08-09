@@ -2,27 +2,21 @@ export default defineEventHandler(async (event) => {
   const query = getQuery(event)
   const year = query.year
 
-  const endpoints = year 
-    ? [
-        `https://dayoffapi.vercel.app/api?year=${year}`,
-        `https://api-harilibur.vercel.app/api?year=${year}`,
-        `https://libur.deno.dev/api?year=${year}`
-      ]
-    : [
-        'https://dayoffapi.vercel.app/api',
-        'https://api-harilibur.vercel.app/api',
-        'https://libur.deno.dev/api'
-      ];
+  // Use Nager.Date API as fallback since Indonesian APIs are dead
+  const targetYear = year || new Date().getFullYear();
+  const nagerEndpoint = `https://date.nager.at/api/v3/PublicHolidays/${targetYear}/ID`;
 
-  for (const endpoint of endpoints) {
-    try {
-      const data = await $fetch<any[]>(endpoint)
-      if (data && Array.isArray(data) && data.length > 0) {
-        return data; // Return the first one that works
-      }
-    } catch (error) {
-      console.warn(`Fallback: Failed fetching from ${endpoint}`);
+  try {
+    const data = await $fetch<any[]>(nagerEndpoint);
+    if (data && Array.isArray(data) && data.length > 0) {
+      // Map Nager.Date format to our expected format
+      return data.map(h => ({
+        date: h.date,
+        name: h.localName || h.name
+      }));
     }
+  } catch (error) {
+    console.warn(`Failed fetching from Nager.Date API`);
   }
 
   return [];
