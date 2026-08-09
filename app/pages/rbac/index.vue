@@ -73,17 +73,26 @@
                   </TableCell>
                   <TableCell>
                     <div class="flex flex-wrap gap-1">
+                      <!-- Default Role Permissions -->
+                      <Badge v-if="user.role === 'ADMIN'" variant="outline" class="text-xs bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800">
+                        Full System Access
+                      </Badge>
+                      <Badge v-if="user.role === 'MENTOR'" variant="outline" class="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+                        Kelola Mentee & Evaluasi
+                      </Badge>
+                      <Badge v-if="user.role === 'INTERN'" variant="outline" class="text-xs bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
+                        Akses Karyawan & Logbook
+                      </Badge>
+
+                      <!-- Extra Assigned Permissions -->
                       <Badge 
                         v-for="p in user.permissions" 
                         :key="p.id" 
                         variant="outline" 
-                        class="text-xs bg-slate-50 text-slate-600 border-slate-200"
+                        class="text-xs bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
                       >
                         {{ p.name }}
                       </Badge>
-                      <span v-if="!user.permissions || user.permissions.length === 0" class="text-xs text-slate-400 italic">
-                        Tidak ada izin khusus
-                      </span>
                     </div>
                   </TableCell>
                   <TableCell class="text-right">
