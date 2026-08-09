@@ -150,13 +150,13 @@
                 <p class="text-xs text-muted-foreground">Tautkan dokumen online yang bersangkutan dengan surat ini.</p>
               </div>
 
-              <div class="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20 mt-4">
+              <div class="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20 mt-4 cursor-pointer hover:bg-muted/30 transition-colors" @click="formData.isTemplate = !formData.isTemplate">
                 <Switch
                   id="isTemplate"
                   :checked="formData.isTemplate"
-                  @update:checked="formData.isTemplate = $event"
+                  class="pointer-events-none"
                 />
-                <div class="space-y-0.5">
+                <div class="space-y-0.5 pointer-events-none">
                   <Label for="isTemplate" class="text-sm font-medium">Jadikan Template</Label>
                   <p class="text-xs text-muted-foreground">Surat ini akan disimpan sebagai template dan tidak memiliki nomor surat.</p>
                 </div>
