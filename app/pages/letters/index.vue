@@ -153,7 +153,8 @@
               <div class="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20 mt-4">
                 <Switch
                   id="isTemplate"
-                  v-model:checked="formData.isTemplate"
+                  :checked="formData.isTemplate"
+                  @update:checked="v => formData.isTemplate = v"
                 />
                 <div class="space-y-0.5">
                   <Label for="isTemplate" class="text-sm font-medium">Jadikan Template</Label>
