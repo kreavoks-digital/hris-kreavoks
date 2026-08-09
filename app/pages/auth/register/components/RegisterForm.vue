@@ -396,6 +396,8 @@
             <p v-if="!agreedToTerms" class="text-red-500 dark:text-red-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Belum mencentang Syarat & Ketentuan</p>
             <p v-if="!form.agreementFile" class="text-red-500 dark:text-red-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Belum mengunggah Surat Perjanjian</p>
           </div>
+        </template>
+
         <!-- Step 4: Success -->
         <template v-else-if="step === 4">
           <div class="flex flex-col items-center justify-center py-8 text-center space-y-4">
