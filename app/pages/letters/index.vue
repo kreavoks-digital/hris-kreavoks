@@ -154,7 +154,7 @@
                 <Switch
                   id="isTemplate"
                   :checked="formData.isTemplate"
-                  @update:checked="v => formData.isTemplate = v"
+                  @update:checked="formData.isTemplate = $event"
                 />
                 <div class="space-y-0.5">
                   <Label for="isTemplate" class="text-sm font-medium">Jadikan Template</Label>
