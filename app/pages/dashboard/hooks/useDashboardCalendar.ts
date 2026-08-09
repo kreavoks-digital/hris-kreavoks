@@ -36,8 +36,8 @@ export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
     try {
       const currentSystemYear = new Date().getFullYear()
       const endpoint = year === currentSystemYear
-        ? 'https://libur.deno.dev/api'
-        : `https://libur.deno.dev/api?year=${year}`
+        ? '/api/holidays'
+        : `/api/holidays?year=${year}`
 
       const response = await $fetch<any[]>(endpoint)
 
