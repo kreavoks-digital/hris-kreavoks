@@ -60,13 +60,59 @@ export const useRegisterForm = () => {
   const { loading, error, handleRegister: apiRegister } = useRegister()
 
   const goToStep2 = () => {
-    if (!form.fullName.trim()) return
-    if (!form.email.trim()) return
+    if (!form.fullName.trim()) {
+      toast.error('Nama lengkap wajib diisi')
+      return
+    }
+    
+    if (!form.email.trim()) {
+      toast.error('Email wajib diisi')
+      return
+    }
+    
+    // Validasi email harus sesuai format asli (e.g. user@domain.com)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+    if (!emailRegex.test(form.email.trim())) {
+      toast.error('Format email tidak valid', {
+        description: 'Pastikan email yang Anda masukkan benar (contoh: nama@gmail.com)'
+      })
+      return
+    }
+    
+    if (!form.phone.trim()) {
+      toast.error('Nomor telepon wajib diisi')
+      return
+    }
+    
+    if (!form.address.trim()) {
+      toast.error('Alamat wajib diisi')
+      return
+    }
+
     step.value = 2
   }
 
   const goToStep3 = () => {
-    // Basic validation if needed
+    if (!form.institution.trim()) {
+      toast.error('Institusi / Universitas wajib diisi')
+      return
+    }
+    if (!form.department) {
+      toast.error('Departemen wajib dipilih')
+      return
+    }
+    if (!form.position) {
+      toast.error('Posisi wajib dipilih')
+      return
+    }
+    if (!form.startDate) {
+      toast.error('Tanggal mulai wajib dipilih')
+      return
+    }
+    if (!form.endDate) {
+      toast.error('Tanggal selesai wajib dipilih')
+      return
+    }
     step.value = 3
   }
 

@@ -72,14 +72,14 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Email -->
             <div class="space-y-1.5">
-              <Label for="email" class="text-sm font-medium">Email Perusahaan <span class="text-red-500">*</span></Label>
+              <Label for="email" class="text-sm font-medium">Email <span class="text-red-500">*</span></Label>
               <div class="relative">
                 <Mail class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input
                   id="email"
                   v-model="form.email"
                   type="email"
-                  placeholder="nama@perusahaan.com"
+                  placeholder="nama@gmail.com"
                   class="pl-10"
                   required
                 />
