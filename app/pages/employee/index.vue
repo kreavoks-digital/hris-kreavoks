@@ -3,7 +3,10 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-semibold text-foreground">Semua Karyawan</h1>
+        <div class="flex items-center gap-2">
+          <h1 class="text-2xl font-semibold text-foreground">Semua Karyawan</h1>
+          <Badge variant="secondary" class="font-normal border-none bg-kv-primary/10 text-kv-primary">{{ totalItems }} Total</Badge>
+        </div>
         <p class="text-muted-foreground mt-1 text-sm">Kelola semua data karyawan di sini.</p>
       </div>
       <Button @click="navigateTo('/employee/create')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
@@ -48,6 +51,7 @@
 import { UserPlus } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
+import { Badge } from '~/components/ui/badge'
 import { toast } from 'vue-sonner'
 import { useEmployee } from './hooks/useEmployee'
 
