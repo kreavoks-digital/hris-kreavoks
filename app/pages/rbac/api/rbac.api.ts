@@ -18,5 +18,12 @@ export const rbacApi = {
       method: 'POST',
       body: { permissionIds }
     });
+  },
+  sendForgotPasswordEmail: async (email: string): Promise<any> => {
+    const api = useApi();
+    return await api('/auth/forgot-password', {
+      method: 'POST',
+      body: { email }
+    });
   }
 };

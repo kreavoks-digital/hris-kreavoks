@@ -96,10 +96,16 @@
                     </div>
                   </TableCell>
                   <TableCell class="text-right">
-                    <Button variant="ghost" size="sm" class="h-8 rounded-lg gap-1 text-kv-primary hover:text-kv-primary hover:bg-kv-primary/10" @click="openAssignModal(user)">
-                      <ShieldCheck class="h-4 w-4" />
-                      Kelola
-                    </Button>
+                    <div class="flex items-center justify-end gap-2">
+                      <Button variant="outline" size="sm" class="h-8 rounded-lg gap-1 text-slate-600 hover:text-kv-primary hover:bg-kv-primary/10 hover:border-kv-primary/30 transition-colors" @click="triggerForgotPassword(user.email)" title="Kirim email reset password">
+                        <Key class="h-3.5 w-3.5" />
+                        <span class="sr-only sm:not-sr-only text-xs">Reset Pass</span>
+                      </Button>
+                      <Button variant="ghost" size="sm" class="h-8 rounded-lg gap-1 text-kv-primary hover:text-kv-primary hover:bg-kv-primary/10" @click="openAssignModal(user)">
+                        <ShieldCheck class="h-4 w-4" />
+                        Kelola
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               </template>
@@ -239,7 +245,8 @@ import {
   RefreshCw,
   Search,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Key
 } from 'lucide-vue-next'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
@@ -286,7 +293,8 @@ const {
   fetchData,
   openAssignModal,
   closeAssignModal,
-  savePermissions
+  savePermissions,
+  triggerForgotPassword
 } = useRbac()
 
 const togglePermission = (id: number, checked: boolean) => {

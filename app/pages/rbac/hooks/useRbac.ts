@@ -63,7 +63,7 @@ export const useRbac = () => {
     isAssigning.value = true
     
     try {
-      const res = await rbacApi.assignPermissions(selectedUser.value.id, selectedPermissionIds.value)
+    const res = await rbacApi.assignPermissions(selectedUser.value.id, selectedPermissionIds.value)
       if (res.success) {
         toast.success('Hak akses berhasil diperbarui')
         await fetchData()
@@ -74,6 +74,19 @@ export const useRbac = () => {
       toast.error('Gagal memperbarui hak akses')
     } finally {
       isAssigning.value = false
+    }
+  }
+
+  const triggerForgotPassword = async (email: string) => {
+    try {
+      toast.info('Mengirim email reset password...')
+      const res = await rbacApi.sendForgotPasswordEmail(email)
+      if (res.success) {
+        toast.success(`Email reset password berhasil dikirim ke ${email}`)
+      }
+    } catch (error: any) {
+      console.error('Failed to send forgot password email', error)
+      toast.error(error?.data?.message || 'Gagal mengirim email reset password')
     }
   }
 
@@ -106,6 +119,7 @@ export const useRbac = () => {
     fetchData,
     openAssignModal,
     closeAssignModal,
-    savePermissions
+    savePermissions,
+    triggerForgotPassword
   }
 }
