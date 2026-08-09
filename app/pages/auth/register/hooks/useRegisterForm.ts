@@ -90,7 +90,10 @@ export const useRegisterForm = () => {
     if (form.endDate) formData.append('endDate', form.endDate)
     if (form.agreementFile) formData.append('agreementFile', form.agreementFile)
 
-    await apiRegister(formData)
+    const success = await apiRegister(formData)
+    if (success) {
+      step.value = 4
+    }
   }
 
   return {

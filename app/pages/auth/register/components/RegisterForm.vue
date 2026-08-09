@@ -47,7 +47,7 @@
         </div>
       </div>
       <p class="text-center text-xs text-slate-500 dark:text-slate-400 mb-5">
-        {{ step === 1 ? 'Langkah 1: Informasi Pribadi' : step === 2 ? 'Langkah 2: Data Profesional' : 'Langkah 3: Keamanan Akun' }}
+        {{ step === 1 ? 'Langkah 1: Informasi Pribadi' : step === 2 ? 'Langkah 2: Data Profesional' : step === 3 ? 'Langkah 3: Keamanan Akun' : 'Pendaftaran Selesai' }}
       </p>
 
       <form @submit.prevent="handleSubmit" class="space-y-4">
@@ -395,6 +395,31 @@
             <p v-if="form.password !== form.confirmPassword" class="text-red-500 dark:text-red-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Konfirmasi password belum sama</p>
             <p v-if="!agreedToTerms" class="text-red-500 dark:text-red-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Belum mencentang Syarat & Ketentuan</p>
             <p v-if="!form.agreementFile" class="text-red-500 dark:text-red-400 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-500"></span> Belum mengunggah Surat Perjanjian</p>
+          </div>
+        <!-- Step 4: Success -->
+        <template v-else-if="step === 4">
+          <div class="flex flex-col items-center justify-center py-8 text-center space-y-4">
+            <div class="h-20 w-20 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mb-2">
+              <Check class="h-10 w-10 text-green-600 dark:text-green-400" />
+            </div>
+            <h3 class="text-xl font-semibold text-slate-900 dark:text-slate-50">Pendaftaran Berhasil! 🎉</h3>
+            <p class="text-sm text-slate-600 dark:text-slate-400 max-w-[320px] mx-auto leading-relaxed">
+              Data Anda telah kami terima. Saat ini akun Anda sedang <strong>menunggu proses verifikasi dari Admin</strong>.
+            </p>
+            <div class="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg text-left mt-4 w-full">
+              <p class="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+                <strong class="block mb-1">⚠️ Perhatian:</strong>
+                Anda <strong>belum bisa login</strong> ke dalam sistem HRIS sebelum Admin menyetujui akun Anda. Kami akan memberitahu Anda secara terpisah jika akun sudah aktif.
+              </p>
+            </div>
+            
+            <Button
+              type="button"
+              class="w-full mt-6"
+              @click="$router.push('/auth/login')"
+            >
+              Kembali ke Halaman Login
+            </Button>
           </div>
         </template>
       </form>

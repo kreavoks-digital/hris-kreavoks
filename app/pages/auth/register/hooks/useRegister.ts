@@ -18,12 +18,13 @@ export const useRegister = () => {
           description: 'Akun Anda telah didaftarkan dan sedang menunggu verifikasi dari Admin. Kami akan menghubungi Anda segera.',
           duration: 6000,
         })
-        router.push('/auth/login')
+        return true
       } else {
         error.value = response.message || 'Registrasi gagal'
         toast.error('Gagal', {
           description: error.value || ''
         })
+        return false
       }
     } catch (err: any) {
       console.error('Register error:', err)
@@ -31,6 +32,7 @@ export const useRegister = () => {
       toast.error('Error', {
         description: error.value || ''
       })
+      return false
     } finally {
       loading.value = false
     }
