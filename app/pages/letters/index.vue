@@ -121,27 +121,27 @@
           </DialogDescription>
         </DialogHeader>
         
-        <form @submit.prevent="submitLetter" class="mt-4 flex-1 flex flex-col min-h-0">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
-            <div class="space-y-4 overflow-y-auto pr-2">
+        <form @submit.prevent="handleFormSubmit" class="flex flex-col h-full overflow-hidden">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto p-1 pr-2 pb-6 flex-1 min-h-[400px]">
+            <div class="space-y-4">
               <div class="space-y-2">
-                <Label for="type">Tipe Surat</Label>
+                <Label for="title">Judul Dokumen <span class="text-rose-500">*</span></Label>
+                <Input id="title" v-model="formData.title" placeholder="Contoh: Surat Perjanjian Magang" required />
+              </div>
+              
+              <div class="space-y-2">
+                <Label for="type">Tipe Surat <span class="text-rose-500">*</span></Label>
                 <Select v-model="formData.type" required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih tipe surat" />
+                  <SelectTrigger id="type">
+                    <SelectValue placeholder="Pilih Tipe Surat" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="MENTOR_WORKSHOP">Surat Perjanjian Mentor Workshop</SelectItem>
-                    <SelectItem value="INTERN_AGREEMENT">Surat Perjanjian Magang/Internship</SelectItem>
-                    <SelectItem value="INTERN_ACCEPTANCE">Surat Penerimaan Magang</SelectItem>
-                    <SelectItem value="PROJECT_AGREEMENT">Surat Perjanjian Kerjasama Project (SPK)</SelectItem>
+                    <SelectItem value="INTERN_AGREEMENT">Perjanjian Magang</SelectItem>
+                    <SelectItem value="INTERN_ACCEPTANCE">Penerimaan Magang</SelectItem>
+                    <SelectItem value="MENTOR_WORKSHOP">Workshop Mentor</SelectItem>
+                    <SelectItem value="PROJECT_AGREEMENT">Perjanjian Proyek</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div class="space-y-2">
-                <Label for="title">Nama / Judul Surat</Label>
-                <Input id="title" v-model="formData.title" placeholder="Contoh: MOU Temanumrah - Nabila" required />
               </div>
 
               <div class="space-y-2">
@@ -151,20 +151,24 @@
               </div>
 
               <div class="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20 mt-4 cursor-pointer hover:bg-muted/30 transition-colors" @click="formData.isTemplate = !formData.isTemplate">
-                <Switch
-                  id="isTemplate"
-                  :checked="formData.isTemplate"
-                  class="pointer-events-none"
-                />
+                <div 
+                  class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200"
+                  :class="formData.isTemplate ? 'bg-kv-primary' : 'bg-zinc-200 dark:bg-zinc-800'"
+                >
+                  <div 
+                    class="pointer-events-none block h-4 w-4 rounded-full bg-white shadow-lg transition-transform duration-200"
+                    :class="formData.isTemplate ? 'translate-x-4' : 'translate-x-0.5'"
+                  />
+                </div>
                 <div class="space-y-0.5 pointer-events-none">
-                  <Label for="isTemplate" class="text-sm font-medium">Jadikan Template</Label>
+                  <Label class="text-sm font-medium">Jadikan Template</Label>
                   <p class="text-xs text-muted-foreground">Surat ini akan disimpan sebagai template dan tidak memiliki nomor surat.</p>
                 </div>
               </div>
               <!-- Warning: jika surat sudah punya nomor dan akan dijadikan template -->
               <div v-if="formData.isTemplate && modalMode === 'edit' && formData.id" class="flex items-start gap-2.5 p-3 rounded-xl border border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950/30 mt-2">
                 <svg class="h-4 w-4 text-amber-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.538-1.333-3.308 0L3.732 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <p class="text-xs text-amber-700 dark:text-amber-400">Nomor surat yang sudah ter-generate akan <strong>dihapus permanen</strong> dari database setelah disimpan dan tidak dapat dikembalikan.</p>
+                <p class="text-xs text-amber-700 dark:text-amber-400">Peringatan: Dokumen ini akan dikonversi menjadi template.</p>
               </div>
             </div>
 
@@ -188,6 +192,24 @@
         </form>
       </DialogContent>
     </Dialog>
+    <!-- Template Conversion Confirmation Dialog -->
+    <AlertDialog :open="showTemplateConfirmDialog" @update:open="(v) => showTemplateConfirmDialog = v">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Konfirmasi Konversi Template</AlertDialogTitle>
+          <AlertDialogDescription>
+            Apakah Anda yakin ingin menjadikan dokumen ini sebagai template?
+            <br/><br/>
+            Nomor surat yang sudah ter-generate akan <strong>dihapus permanen</strong> dari database dan tidak dapat dikembalikan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="showTemplateConfirmDialog = false">Batal</AlertDialogCancel>
+          <AlertDialogAction @click="submitLetter" class="bg-amber-500 hover:bg-amber-600 text-white border-none">Ya, Jadikan Template</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
     <!-- Delete Confirmation Alert Dialog -->
     <AlertDialog :open="showDeleteDialog" @update:open="(v) => showDeleteDialog = v">
       <AlertDialogContent>
@@ -305,7 +327,21 @@ const openEdit = (letter: any) => {
   showModal.value = true;
 };
 
+const showTemplateConfirmDialog = ref(false);
+
+const handleFormSubmit = () => {
+  if (modalMode.value === 'edit' && formData.value.id && formData.value.isTemplate) {
+    // Need to check if it wasn't a template before?
+    // Let's just show it if they are saving it as a template in edit mode.
+    // Ideally we check if original was false, but for safety:
+    showTemplateConfirmDialog.value = true;
+  } else {
+    submitLetter();
+  }
+};
+
 const submitLetter = async () => {
+  showTemplateConfirmDialog.value = false;
   if (!formData.value.type || !formData.value.title) {
     toast.error('Data belum lengkap', { description: 'Pastikan tipe dan judul surat sudah diisi.' });
     return;
