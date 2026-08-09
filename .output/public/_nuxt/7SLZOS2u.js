@@ -1,0 +1,1 @@
+import{ak as s,h as a,n}from"./PNZSDwCz.js";const u=s(r=>{const{user:e}=a();if(e.value?.role!=="ADMIN"&&!e.value?.permissions?.includes("manage_users")&&!e.value?.permissions?.includes("manage_letters"))return n("/dashboard")});export{u as default};
