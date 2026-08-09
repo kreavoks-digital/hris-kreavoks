@@ -253,7 +253,7 @@
         </template>
 
         <!-- Step 3: Keamanan Akun -->
-        <template v-else>
+        <template v-else-if="step === 3">
 
           <!-- Upload Surat Perjanjian -->
           <div class="space-y-1.5">
