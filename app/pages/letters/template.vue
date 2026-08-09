@@ -3,46 +3,16 @@
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <h1 class="text-2xl font-semibold text-foreground">Manajemen Surat</h1>
-        <p class="text-muted-foreground mt-1 text-sm">Buat dan kelola penomoran surat resmi perusahaan.</p>
+        <h1 class="text-2xl font-semibold text-foreground">Template Surat</h1>
+        <p class="text-muted-foreground mt-1 text-sm">Kelola template surat resmi perusahaan.</p>
       </div>
       <Button @click="openAdd" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
         <FileText class="h-4 w-4" />
-        Buat Surat
+        Buat Template
       </Button>
     </div>
 
-    <!-- Template Letters Section -->
-    <div v-if="templateLetters.length > 0" class="space-y-4">
-      <h2 class="text-lg font-semibold text-foreground flex items-center gap-2">
-        <FileText class="h-5 w-5 text-kv-primary" />
-        Template
-      </h2>
-      <div class="flex overflow-x-auto gap-4 pb-4 snap-x">
-        <Card v-for="template in templateLetters" :key="template.id" class="snap-start min-w-[280px] max-w-[320px] shrink-0 border border-border bg-card p-4 rounded-2xl hover:border-kv-primary/50 transition-colors cursor-pointer group flex flex-col gap-3">
-          <div class="flex justify-between items-start">
-            <Badge class="bg-blue-500/15 text-blue-600 dark:text-blue-400 border-transparent text-[10px] px-2 py-0.5">
-              {{ getLetterTypeLabel(template.type) }}
-            </Badge>
-            <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="ghost" size="icon" class="h-7 w-7 text-blue-500 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-500/20" @click.stop="openEdit(template)">
-                <Edit class="h-3 w-3" />
-              </Button>
-              <Button variant="ghost" size="icon" class="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-500/20" @click.stop="confirmDelete(template)">
-                <Trash2 class="h-3 w-3" />
-              </Button>
-            </div>
-          </div>
-          <div>
-            <h3 class="font-medium text-foreground line-clamp-2 leading-tight group-hover:text-kv-primary transition-colors">{{ template.title }}</h3>
-            <p class="text-xs text-muted-foreground mt-1">{{ template.user?.profile?.fullName || 'Sistem' }}</p>
-          </div>
-          <a v-if="template.fileUrl" :href="template.fileUrl" target="_blank" class="text-xs text-blue-500 hover:underline flex items-center gap-1 mt-auto pt-2 border-t border-border/50">
-            <Link class="h-3 w-3" /> Buka File/Link
-          </a>
-        </Card>
-      </div>
-    </div>
+
 
     <!-- Table Section -->
     <Card class="border border-border bg-card overflow-hidden rounded-3xl">
@@ -65,18 +35,18 @@
               </TableCell>
             </TableRow>
           </template>
-          <template v-else-if="regularLetters.length === 0">
+          <template v-else-if="templateLetters.length === 0">
             <TableRow>
               <TableCell colspan="6" class="text-center text-muted-foreground py-8">
-                Belum ada surat yang dibuat.
+                Belum ada template surat yang dibuat.
               </TableCell>
             </TableRow>
           </template>
           <template v-else>
-            <TableRow v-for="letter in regularLetters" :key="letter.id" class="border-border hover:bg-muted/50 transition-colors">
+            <TableRow v-for="letter in templateLetters" :key="letter.id" class="border-border hover:bg-muted/50 transition-colors">
               <TableCell class="font-medium text-foreground whitespace-nowrap">
                 <Badge variant="outline" class="bg-muted text-muted-foreground font-mono">
-                  {{ letter.letterNumber }}
+                  {{ letter.letterNumber || 'TEMPLATE' }}
                 </Badge>
               </TableCell>
               <TableCell>
@@ -150,13 +120,7 @@
                 <p class="text-xs text-muted-foreground">Tautkan dokumen online yang bersangkutan dengan surat ini.</p>
               </div>
 
-              <div class="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/20 mt-4">
-                <Switch id="isTemplate" v-model:checked="formData.isTemplate" />
-                <div class="space-y-0.5">
-                  <Label for="isTemplate" class="text-sm font-medium">Jadikan Template</Label>
-                  <p class="text-xs text-muted-foreground">Surat ini akan disimpan sebagai template dan tidak memiliki nomor surat.</p>
-                </div>
-              </div>
+
             </div>
 
             <!-- Preview Iframe -->
@@ -259,7 +223,7 @@ const fetchLetters = async () => {
 
 const openAdd = () => {
   modalMode.value = 'add';
-  formData.value = { id: null, title: '', type: '', fileUrl: '', isTemplate: false };
+  formData.value = { id: null, title: '', type: '', fileUrl: '', isTemplate: true };
   showModal.value = true;
 };
 

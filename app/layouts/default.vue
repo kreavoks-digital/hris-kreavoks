@@ -371,7 +371,16 @@ const navigation = [
       { name: 'Pendaftaran Mentor', to: '/employee/mentor' }
     ]
   },
-  { name: 'Letters', to: '/letters', icon: FileText, permission: 'manage_letters' },
+  { 
+    name: 'Letters', 
+    to: '/letters', 
+    icon: FileText, 
+    permission: 'manage_letters',
+    children: [
+      { name: 'Manajemen Surat', to: '/letters' },
+      { name: 'Template Surat', to: '/letters/template' }
+    ]
+  },
   { name: 'RBAC', to: '/rbac', icon: Shield, permission: 'manage_roles' },
 ]
 
