@@ -25,7 +25,7 @@
           <!-- Error Alert -->
           <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg flex items-start gap-3">
             <div class="mt-0.5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-red-500"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <AlertCircle class="h-4 w-4 text-red-500" />
             </div>
             <p class="text-sm text-red-600 dark:text-red-400 font-medium leading-snug">{{ error }}</p>
           </div>
@@ -126,7 +126,7 @@
 
 <script setup>
 import { useLogin } from './hooks/useLogin'
-import { Mail, Lock, Eye, EyeOff } from 'lucide-vue-next'
+import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-vue-next'
 import { Button } from '@kreavoks/kreaui'
 import { Input } from '~/components/ui/input'
 import { Label } from '~/components/ui/label'
