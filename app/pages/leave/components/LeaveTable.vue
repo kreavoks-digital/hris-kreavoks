@@ -43,8 +43,10 @@
                   {{ formatDate(leave.createdAt || leave.startDate) }}
                 </div>
               </TableCell>
-              <TableCell class="max-w-xs truncate" :title="leave.reason">
-                {{ leave.reason }}
+              <TableCell class="max-w-md">
+                <div class="max-h-24 overflow-y-auto whitespace-pre-wrap text-sm leading-relaxed text-foreground/90 pr-1">
+                  {{ leave.reason }}
+                </div>
               </TableCell>
               <TableCell>
                 <Badge 

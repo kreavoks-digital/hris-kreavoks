@@ -88,8 +88,8 @@ export const useAttendance = () => {
       const response = await attendanceApi.getAttendance(
         selectedDate.value as string,
         canViewAll.value,
-        1,
-        10000,
+        page.value,
+        limit.value,
         searchQuery.value,
         filterStatus.value
       )

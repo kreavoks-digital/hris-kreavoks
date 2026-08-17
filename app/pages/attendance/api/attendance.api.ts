@@ -1,13 +1,13 @@
 import type { AttendanceRecord, AttendanceSummary } from '~/types'
 
 export const attendanceApi = {
-  getAttendance: async (date: string, isAdmin: boolean, page: number = 1, limit: number = 10000, search: string = "", status: string = ""): Promise<any> => {
+  getAttendance: async (date: string, isAdmin: boolean, page: number = 1, limit: number = 10, search: string = "", status: string = ""): Promise<any> => {
     const api = useApi()
     const endpoint = isAdmin ? '/attendance/history/all' : '/attendance/history'
-    const query: any = { limit }
+    const query: any = { page, limit }
     if (date) query.date = date
     if (search) query.search = search
-    if (status && status !== "none") query.status = status
+    if (status && status !== "none") query.status = status === 'permission' ? 'permit' : status
 
     const res: any = await api(endpoint as any, { query })
 

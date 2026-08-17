@@ -53,7 +53,7 @@
           <SelectContent class="rounded-2xl border-border bg-popover">
             <SelectItem value="none">Semua Status</SelectItem>
             <SelectItem value="present">Hadir</SelectItem>
-            <SelectItem value="permission">Izin</SelectItem>
+            <SelectItem value="permit">Izin</SelectItem>
             <SelectItem value="sick">Sakit</SelectItem>
             <SelectItem value="absent">Alfa</SelectItem>
           </SelectContent>
