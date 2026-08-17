@@ -20,7 +20,7 @@ export const useLeave = () => {
       result = result.filter((leave) => leave.status === filterStatus.value)
     }
 
-    if (filterType.value) {
+    if (filterType.value && filterType.value !== "none") {
       result = result.filter((leave) => leave.type === filterType.value)
     }
 
