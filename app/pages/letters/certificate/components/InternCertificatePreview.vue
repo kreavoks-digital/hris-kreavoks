@@ -69,7 +69,7 @@
             </div>
             <!-- Voky Owl Mascot Icon -->
             <div class="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center p-1 border border-blue-100">
-              <img src="/images/maskot.png" alt="Voky Mascot" class="w-full h-full object-contain" @error="(e: any) => e.target.style.display = 'none'" />
+              <img :src="mascotSettle" alt="Voky Mascot" class="w-full h-full object-contain" />
             </div>
           </div>
         </div>
@@ -168,6 +168,7 @@
 
 <script setup lang="ts">
 import type { CertificateScoreData } from '../types'
+import mascotSettle from '~/assets/maskot/settle.svg'
 
 const props = withDefaults(
   defineProps<{
