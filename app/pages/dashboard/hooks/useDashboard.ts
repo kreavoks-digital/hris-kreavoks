@@ -28,7 +28,7 @@ export const useDashboard = () => {
   } = useDashboardAttendance(fetchStats, fetchLogbooks)
   
   const { selectedDate, selectedDateVal, currentMonthYear, events, getCustomIndicators, holidays } = useDashboardCalendar(logbooks)
-  const { isIzinModalOpen, leaveForm, submitIzin, handleIzin } = useDashboardLeaves()
+  const { isIzinModalOpen, isLeaveSubmitting, leaveForm, submitIzin, handleIzin } = useDashboardLeaves()
 
   const searchQuery = useState('dashboard_search_query', () => '')
   const isLoading = ref(true)
@@ -83,6 +83,7 @@ export const useDashboard = () => {
     isIzinModalOpen,
     leaveForm,
     holidays,
-    isSubmitting
+    isSubmitting,
+    isLeaveSubmitting
   }
 }

@@ -51,14 +51,14 @@
               <TableCell>
                 <Badge 
                   variant="secondary"
-                  class="text-xs font-semibold px-2.5 py-0.5 rounded-3xl border-none capitalize"
+                  class="text-xs font-semibold px-2.5 py-0.5 rounded-3xl border-none"
                   :class="{
                     'bg-amber-500/10 text-amber-600': leave.status?.toLowerCase() === 'pending',
                     'bg-emerald-500/10 text-emerald-600': leave.status?.toLowerCase() === 'approved',
                     'bg-rose-500/10 text-rose-600': leave.status?.toLowerCase() === 'rejected'
                   }"
                 >
-                  {{ leave.status }}
+                  {{ formatStatusLabel(leave.status) }}
                 </Badge>
               </TableCell>
               <TableCell class="text-right">
@@ -112,4 +112,13 @@ defineEmits<{
   (e: 'reject', id: string): void
   (e: 'cancel', id: string): void
 }>()
+
+const formatStatusLabel = (status: string | undefined | null) => {
+  if (!status) return '-'
+  const s = status.toLowerCase()
+  if (s === 'pending') return 'Menunggu'
+  if (s === 'approved') return 'Disetujui'
+  if (s === 'rejected') return 'Ditolak'
+  return status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()
+}
 </script>

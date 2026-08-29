@@ -71,24 +71,51 @@
 
           <!-- Status -->
           <TableCell>
-            <Badge
-              class="px-3 py-1 rounded-3xl text-sm font-medium border-transparent"
-              :class="{
-                'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE' && activeTab !== 'pending',
-                'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': (emp.status === 'ACTIVE' && activeTab === 'pending') || emp.status === 'SUSPENDED',
-                'bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20': emp.status === 'TERMINATED',
-                'bg-slate-500/15 text-slate-600 dark:text-slate-400 hover:bg-slate-500/20': emp.status === 'RESIGNED',
-                'bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20': emp.status === 'GRADUATE',
-              }"
-            >
-              {{
-                emp.status === 'ACTIVE' ? (activeTab === 'pending' ? 'Menunggu Verifikasi' : 'Aktif') :
-                emp.status === 'TERMINATED' ? 'Terminated' :
-                emp.status === 'SUSPENDED' ? 'Suspended' :
-                emp.status === 'RESIGNED' ? 'Resigned' :
-                emp.status === 'GRADUATE' ? 'Lulus' : emp.status
-              }}
-            </Badge>
+            <div class="flex flex-col gap-1 items-start">
+              <Badge
+                class="px-3 py-1 rounded-3xl text-sm font-medium border-transparent whitespace-nowrap"
+                :class="{
+                  'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE' && activeTab !== 'pending',
+                  'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': (emp.status === 'ACTIVE' && activeTab === 'pending') || emp.status === 'SUSPENDED',
+                  'bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20': emp.status === 'TERMINATED',
+                  'bg-slate-500/15 text-slate-600 dark:text-slate-400 hover:bg-slate-500/20': emp.status === 'RESIGNED',
+                  'bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20': emp.status === 'GRADUATE',
+                }"
+              >
+                {{
+                  emp.status === 'ACTIVE' ? (activeTab === 'pending' ? 'Menunggu Verifikasi' : 'Aktif') :
+                  emp.status === 'TERMINATED' ? 'Terminated' :
+                  emp.status === 'SUSPENDED' ? 'Suspended' :
+                  emp.status === 'RESIGNED' ? 'Resigned' :
+                  emp.status === 'GRADUATE' ? 'Lulus' : emp.status
+                }}
+              </Badge>
+
+              <!-- Flag Status Sertifikat khusus untuk Lulus (GRADUATE) -->
+              <template v-if="emp.status === 'GRADUATE' && activeTab === 'all'">
+                <span
+                  v-if="emp.certificateStatus === 'SELESAI'"
+                  class="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-1 pl-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block"></span>
+                  Sertifikat Terbit
+                </span>
+                <span
+                  v-else-if="emp.certificateStatus === 'PROSES'"
+                  class="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1 pl-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500 inline-block animate-pulse"></span>
+                  Sertifikat Diproses
+                </span>
+                <span
+                  v-else
+                  class="text-[11px] font-medium text-muted-foreground flex items-center gap-1 pl-1"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-slate-400 inline-block"></span>
+                  Belum Ada Sertifikat
+                </span>
+              </template>
+            </div>
           </TableCell>
 
           <!-- Actions -->

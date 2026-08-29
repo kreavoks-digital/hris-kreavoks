@@ -11,7 +11,7 @@
     </DialogTrigger>
     <DialogContent class="sm:max-w-4xl w-[95vw] sm:w-full p-0 overflow-hidden border-border bg-card flex flex-col max-h-[90dvh]">
       <DialogHeader class="px-6 py-4 border-b border-border bg-muted/20 shrink-0">
-        <DialogTitle class="text-xl font-bold text-foreground">Form Pengajuan Izin / Cuti</DialogTitle>
+        <DialogTitle class="text-xl font-bold text-foreground">Form Pengajuan Izin</DialogTitle>
         <DialogDescription class="text-muted-foreground text-sm">
           Silakan lengkapi form di bawah ini. Semua field wajib diisi kecuali dinyatakan opsional.
         </DialogDescription>
@@ -23,12 +23,12 @@
             <Label class="text-foreground">Tipe Pengajuan</Label>
             <Select v-model="leaveForm.type">
               <SelectTrigger class="bg-background border-border">
-                <SelectValue placeholder="Pilih tipe izin atau cuti" />
+                <SelectValue placeholder="Pilih tipe izin" />
               </SelectTrigger>
-              <SelectContent class="border-border">
+              <SelectContent class="border-border bg-popover">
                 <SelectItem value="sakit">Sakit</SelectItem>
                 <SelectItem value="izin">Izin Pribadi</SelectItem>
-                <SelectItem value="cuti">Cuti Tahunan</SelectItem>
+                <SelectItem value="emergency">Keperluan Darurat</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -36,13 +36,23 @@
             <div class="flex items-center space-x-2 mb-2">
               <Checkbox 
                 id="oneDay" 
-                v-model:checked="leaveForm.isOneDay" 
+                :checked="leaveForm.isOneDay"
+                :model-value="leaveForm.isOneDay"
+                @update:checked="onToggleOneDay"
+                @update:model-value="onToggleOneDay"
               />
-              <label for="oneDay" class="text-sm font-medium leading-none cursor-pointer text-foreground">
-                Pengajuan hanya untuk 1 hari
+              <label 
+                for="oneDay" 
+                class="text-sm font-medium leading-none cursor-pointer text-foreground select-none"
+                @click.prevent="onToggleOneDay(!leaveForm.isOneDay)"
+              >
+                Pengajuan hanya untuk 1 hari (Hari Ini)
               </label>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" v-if="!leaveForm.isOneDay">
+            <div 
+              class="grid grid-cols-1 sm:grid-cols-2 gap-4"
+              :class="leaveForm.isOneDay ? 'opacity-60 pointer-events-none select-none' : ''"
+            >
               <div class="space-y-2">
                 <Label class="text-foreground">Tanggal Mulai</Label>
                 <Popover>
@@ -52,11 +62,11 @@
                       :class="cn('w-full justify-start text-left font-normal border-border bg-background text-foreground', !leaveForm.startDate && 'text-muted-foreground')"
                     >
                       <CalendarIcon class="mr-2 h-4 w-4 text-muted-foreground" />
-                      {{ leaveForm.startDate ? format(new Date(leaveForm.startDate), 'dd MMMM yyyy', { locale: idLocale }) : 'Pilih Tanggal' }}
+                      {{ fmt(leaveForm.startDate) }}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent class="w-auto p-0 rounded-2xl shadow-sm border-border bg-popover" align="start">
-                    <Calendar v-model="startDateObj" initial-focus />
+                    <Calendar v-model="startDateObj" :min-value="todayDate" initial-focus />
                   </PopoverContent>
                 </Popover>
               </div>
@@ -69,40 +79,22 @@
                       :class="cn('w-full justify-start text-left font-normal border-border bg-background text-foreground', !leaveForm.endDate && 'text-muted-foreground')"
                     >
                       <CalendarIcon class="mr-2 h-4 w-4 text-muted-foreground" />
-                      {{ leaveForm.endDate ? format(new Date(leaveForm.endDate), 'dd MMMM yyyy', { locale: idLocale }) : 'Pilih Tanggal' }}
+                      {{ fmt(leaveForm.endDate) }}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent class="w-auto p-0 rounded-2xl shadow-sm border-border bg-popover" align="start">
-                    <Calendar v-model="endDateObj" initial-focus />
+                    <Calendar v-model="endDateObj" :min-value="minEndDate" initial-focus />
                   </PopoverContent>
                 </Popover>
               </div>
             </div>
-            
-            <div class="space-y-2" v-if="leaveForm.isOneDay">
-              <Label class="text-foreground">Tanggal Izin</Label>
-              <Popover>
-                <PopoverTrigger as-child>
-                  <Button
-                    variant="outline"
-                    :class="cn('w-full justify-start text-left font-normal border-border bg-background text-foreground', !leaveForm.startDate && 'text-muted-foreground')"
-                  >
-                    <CalendarIcon class="mr-2 h-4 w-4 text-muted-foreground" />
-                    {{ leaveForm.startDate ? format(new Date(leaveForm.startDate), 'dd MMMM yyyy', { locale: idLocale }) : 'Pilih Tanggal' }}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent class="w-auto p-0 rounded-2xl shadow-sm border-border bg-popover" align="start">
-                  <Calendar v-model="startDateObj" initial-focus />
-                </PopoverContent>
-              </Popover>
-            </div>
           </div>
           <div class="space-y-2">
-            <Label class="text-foreground">Keterangan / Alasan</Label>
+            <Label class="text-foreground">Keterangan</Label>
             <textarea 
               v-model="leaveForm.reason"
               placeholder="Jelaskan alasan pengajuan secara detail..." 
-              class="flex min-h-[120px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              class="flex min-h-[120px] w-full rounded-2xl border border-border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
             ></textarea>
           </div>
         </div>
@@ -120,7 +112,7 @@
           </div>
           <div class="space-y-2 mt-auto">
             <Label class="text-foreground">Link Google Drive</Label>
-            <Input v-model="leaveForm.proofLink" type="url" placeholder="https://drive.google.com/file/d/..." class="bg-background border-border" />
+            <Input v-model="leaveForm.proofLink" type="url" placeholder="https://drive.google.com/file/d/..." class="bg-background border-border rounded-3xl h-11" />
             <p class="text-[11px] text-muted-foreground mt-1.5 leading-tight">
               *Diprioritaskan untuk diisi karena akan diverifikasi dan disetujui oleh HRD.
             </p>
@@ -128,25 +120,29 @@
         </div>
       </div>
       <DialogFooter class="px-6 py-4 border-t border-border bg-muted/20 sm:justify-end gap-2 shrink-0">
-        <DialogClose as-child>
-          <Button variant="outline" type="button" class="border-border bg-background">Batal</Button>
-        </DialogClose>
-        <DialogClose as-child>
-          <Button type="button" class="bg-kv-primary text-white hover:bg-kv-primary/90" @click="submitIzin">Kirim Pengajuan</Button>
-        </DialogClose>
+        <Button variant="outline" type="button" class="border-border bg-background" @click="isIzinModalOpen = false">Batal</Button>
+        <Button 
+          type="button" 
+          class="bg-kv-primary text-white hover:bg-kv-primary/90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed" 
+          :disabled="!isLeaveFormValid || isLeaveSubmitting" 
+          @click="submitIzin"
+        >
+          <Loader2 v-if="isLeaveSubmitting" class="mr-2 h-4 w-4 animate-spin" />
+          {{ isLeaveSubmitting ? 'Mengirim...' : 'Kirim Pengajuan' }}
+        </Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>
 </template>
 
 <script setup lang="ts">
-import { computed, watch, inject } from 'vue'
-import { Link as LinkIcon, Calendar as CalendarIcon } from 'lucide-vue-next'
+import { computed, inject } from 'vue'
+import { Link as LinkIcon, Calendar as CalendarIcon, Loader2 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Label } from '~/components/ui/label'
 import { Input } from '~/components/ui/input'
 import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger, DialogClose
+  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger
 } from '~/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
@@ -155,7 +151,7 @@ import { Checkbox } from '~/components/ui/checkbox'
 import { format } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { cn } from '@/lib/utils'
-import { parseDate } from '@internationalized/date'
+import { parseDate, today, getLocalTimeZone } from '@internationalized/date'
 import { DashboardContextKey } from '../context/dashboardContext'
 
 const context = inject(DashboardContextKey)
@@ -163,34 +159,72 @@ if (!context) throw new Error('Dashboard context not provided')
 
 const {
   isIzinModalOpen,
+  isLeaveSubmitting,
   leaveForm,
   submitIzin,
   attendanceState
 } = context
 
-watch(() => leaveForm.value.startDate, (newVal) => {
-  if (leaveForm.value.isOneDay && newVal) {
-    leaveForm.value.endDate = newVal;
-  }
-})
+const todayDate = computed(() => today(getLocalTimeZone()))
 
-watch(() => leaveForm.value.isOneDay, (newVal) => {
-  if (newVal) {
-    leaveForm.value.endDate = leaveForm.value.startDate;
+const minEndDate = computed(() =>
+  startDateObj.value ?? todayDate.value
+)
+
+const getTodayStr = (): string => {
+  const nowWib = new Date(Date.now() + 7 * 60 * 60 * 1000)
+  return nowWib.toISOString().split('T')[0]!
+}
+
+/** Format YYYY-MM-DD → "dd MMMM yyyy" dengan aman */
+const fmt = (dateStr: string) => {
+  if (!dateStr) return 'Pilih Tanggal'
+  try {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    if (!y || !m || !d) return 'Pilih Tanggal'
+    return format(new Date(y, m - 1, d), 'dd MMMM yyyy', { locale: idLocale })
+  } catch {
+    return 'Pilih Tanggal'
   }
+}
+
+const onToggleOneDay = (val: boolean | 'indeterminate') => {
+  const isChecked = val === true
+  leaveForm.value.isOneDay = isChecked
+  if (isChecked) {
+    const today = getTodayStr()
+    leaveForm.value.startDate = today
+    leaveForm.value.endDate = today
+  } else {
+    leaveForm.value.startDate = ''
+    leaveForm.value.endDate = ''
+  }
+}
+
+const isLeaveFormValid = computed(() => {
+  if (!leaveForm.value.type) return false
+
+  const todayStr = getTodayStr()
+
+  if (leaveForm.value.isOneDay) {
+    if (!leaveForm.value.startDate) return false
+  } else {
+    if (!leaveForm.value.startDate) return false
+    if (leaveForm.value.startDate < todayStr) return false
+    if (!leaveForm.value.endDate) return false
+    if (leaveForm.value.endDate < leaveForm.value.startDate) return false
+  }
+
+  return !!(leaveForm.value.reason?.trim())
 })
 
 const startDateObj = computed({
   get: () => leaveForm.value.startDate ? parseDate(leaveForm.value.startDate) : undefined,
-  set: (val: any) => {
-    leaveForm.value.startDate = val ? val.toString() : ""
-  }
+  set: (val: any) => { leaveForm.value.startDate = val ? val.toString() : '' }
 })
 
 const endDateObj = computed({
   get: () => leaveForm.value.endDate ? parseDate(leaveForm.value.endDate) : undefined,
-  set: (val: any) => {
-    leaveForm.value.endDate = val ? val.toString() : ""
-  }
+  set: (val: any) => { leaveForm.value.endDate = val ? val.toString() : '' }
 })
 </script>

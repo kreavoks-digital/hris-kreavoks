@@ -4,7 +4,6 @@ export default defineNuxtConfig({
   srcDir: 'app',
   ssr: false,
   compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
 
   future: {
     compatibilityVersion: 4,
@@ -18,17 +17,19 @@ export default defineNuxtConfig({
     }
   },
 
+
   hooks: {
     'pages:extend'(pages) {
       const removePages = (pagesArr: any[]) => {
         for (let i = pagesArr.length - 1; i >= 0; i--) {
           const page = pagesArr[i]
+          const normalizedPath = (page.file || '').replace(/\\/g, '/')
           if (
-            page.file && (
-              page.file.includes('/components/') ||
-              page.file.includes('/types/') ||
-              page.file.includes('/hooks/') ||
-              page.file.includes('/api/')
+            normalizedPath && (
+              normalizedPath.includes('/components/') ||
+              normalizedPath.includes('/types/') ||
+              normalizedPath.includes('/hooks/') ||
+              normalizedPath.includes('/api/')
             )
           ) {
             pagesArr.splice(i, 1)

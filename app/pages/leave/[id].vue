@@ -16,9 +16,9 @@
         variant="secondary"
         class="text-sm font-semibold px-4 py-1.5 rounded-3xl border-none"
         :class="{
-          'bg-emerald-500/10 text-emerald-600': leave.status === 'approved',
-          'bg-slate-100 text-slate-500': leave.status === 'pending',
-          'bg-rose-500/10 text-rose-600': leave.status === 'rejected'
+          'bg-emerald-500/10 text-emerald-600': leave.status?.toLowerCase() === 'approved',
+          'bg-slate-100 text-slate-500': leave.status?.toLowerCase() === 'pending',
+          'bg-rose-500/10 text-rose-600': leave.status?.toLowerCase() === 'rejected'
         }"
       >
         {{ getStatusLabel(leave.status) }}
@@ -189,13 +189,15 @@ const getLeaveTypeLabel = (type: string) => {
   return labels[type] || type
 }
 
-const getStatusLabel = (status: string) => {
+const getStatusLabel = (status: string | undefined | null) => {
+  if (!status) return '-'
+  const s = status.toLowerCase()
   const labels: Record<string, string> = {
-    pending: "Pending Approval",
-    approved: "Telah Disetujui",
-    rejected: "Pengajuan Ditolak",
+    pending: "Menunggu",
+    approved: "Disetujui",
+    rejected: "Ditolak",
   }
-  return labels[status] || status
+  return labels[s] || (status.charAt(0).toUpperCase() + status.slice(1).toLowerCase())
 }
 
 const getStatusVariant = (status: string) => {

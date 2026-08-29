@@ -72,13 +72,15 @@ export const useLeave = () => {
     return labels[type] || type
   }
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: string | undefined | null) => {
+    if (!status) return '-'
+    const s = status.toLowerCase()
     const labels: Record<string, string> = {
-      pending: "Pending",
+      pending: "Menunggu",
       approved: "Disetujui",
       rejected: "Ditolak",
     }
-    return labels[status] || status
+    return labels[s] || (status.charAt(0).toUpperCase() + status.slice(1).toLowerCase())
   }
 
   const formatDate = (dateString: string) => {
