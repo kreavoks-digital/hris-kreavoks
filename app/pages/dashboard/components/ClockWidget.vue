@@ -19,7 +19,17 @@
         <h2 class="text-2xl font-bold text-foreground tabular-nums">
           {{ attendanceState === 'clocked_out' ? clockRangeText : currentTime }}
         </h2>
-        <p class="text-xs text-muted-foreground mt-2" v-html="statusText"></p>
+        <p class="text-xs text-muted-foreground mt-2">
+          <template v-if="attendanceState === 'clocked_out'">
+            Anda sudah pulang <span class="font-semibold text-kv-primary">pukul {{ clockOutTime }} WIB</span>
+          </template>
+          <template v-else-if="attendanceState === 'clocked_in'">
+            Anda sudah masuk <span class="font-semibold text-kv-primary">pukul {{ clockInTime }} WIB</span>
+          </template>
+          <template v-else>
+            Silakan melakukan Clock In hari ini
+          </template>
+        </p>
       </div>
     </div>
 
@@ -87,7 +97,8 @@ const {
   attendanceState,
   currentTime,
   clockRangeText,
-  attendanceStatus: statusText,
+  clockInTime,
+  clockOutTime,
   handleClockIn,
   isSubmitting
 } = context

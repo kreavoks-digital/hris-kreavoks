@@ -36,7 +36,7 @@
               </div>
             </div>
           </TableCell>
-          <TableCell class="text-sm text-muted-foreground">{{ (emp as any).institution || '-' }}</TableCell>
+          <TableCell class="text-sm text-muted-foreground">{{ emp.institution || '-' }}</TableCell>
           <TableCell>
             <Badge variant="outline" class="font-medium bg-accent text-accent-foreground border-border whitespace-nowrap">
               {{ emp.department }}
@@ -180,7 +180,6 @@
   </Table>
 </template>
 
-<script setup lang="ts">
 import { 
   Table, 
   TableBody, 
@@ -196,22 +195,23 @@ import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
 import { Edit2, Trash2, CheckCircle2, X, Loader2, Users } from 'lucide-vue-next'
 import { format, differenceInBusinessDays } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
+import type { Employee } from '~/types'
 
 const props = defineProps<{
-  employees: any[]
+  employees: Employee[]
   activeTab: 'all' | 'pending' | 'mentor'
   verifyingId: string | number | null
   loading: boolean
 }>()
 
 defineEmits<{
-  (e: 'verify', emp: any): void
-  (e: 'edit', emp: any): void
-  (e: 'delete', emp: any): void
+  (e: 'verify', emp: Employee): void
+  (e: 'edit', emp: Employee): void
+  (e: 'delete', emp: Employee): void
   (e: 'reset-filters'): void
 }>()
 
-const getRemainingDays = (emp: any) => {
+const getRemainingDays = (emp: Employee) => {
   if (typeof emp.remainingDays === 'number') return emp.remainingDays
   if (!emp.startDate || !emp.endDate) return 0
   const totalBusinessDays = differenceInBusinessDays(new Date(emp.endDate), new Date(emp.startDate)) + 1
@@ -220,7 +220,7 @@ const getRemainingDays = (emp: any) => {
   return remaining > 0 ? remaining : 0
 }
 
-const getRemainingDaysClass = (emp: any) => {
+const getRemainingDaysClass = (emp: Employee) => {
   const days = getRemainingDays(emp)
   if (days <= 0) return 'text-rose-600 dark:text-rose-400'
   if (days <= 30) return 'text-amber-600 dark:text-amber-400'

@@ -20,8 +20,6 @@ export const useEmployee = () => {
     loading.value = true
     error.value = null
     try {
-
-      
       const response = await employeeApi.getEmployees(
         page.value,
         limit.value,
@@ -44,20 +42,27 @@ export const useEmployee = () => {
     }
   }
 
-  // Refetch when page, department, or pendingVerification changes
-  watch([page, filterDepartment, pendingVerification], () => {
+  // { immediate: false } — jangan fire saat init, biar onMounted yang handle initial fetch
+  // Sehingga tidak terjadi double request saat komponen pertama kali mount
+  watch([filterDepartment, pendingVerification], () => {
+    page.value = 1
     fetchEmployees()
-  })
+  }, { immediate: false })
 
-  // Watch search query with debounce
-  let debounceTimeout: any
-  watch(searchQuery, () => {
-    clearTimeout(debounceTimeout)
+  watch(page, () => {
+    fetchEmployees()
+  }, { immediate: false })
+
+  // Search query dengan debounce — reset ke halaman 1 dulu
+  let debounceTimeout: ReturnType<typeof setTimeout> | null = null
+  watch(searchQuery, (newVal, oldVal) => {
+    if (newVal === oldVal) return
+    if (debounceTimeout) clearTimeout(debounceTimeout)
     debounceTimeout = setTimeout(() => {
-      page.value = 1 // reset to first page
+      page.value = 1
       fetchEmployees()
-    }, 300)
-  })
+    }, 400)
+  }, { immediate: false })
 
   const resetFilters = () => {
     searchQuery.value = ""

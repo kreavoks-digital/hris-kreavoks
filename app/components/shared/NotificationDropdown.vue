@@ -57,7 +57,7 @@
             </span>
             <div
               class="text-sm text-muted-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none break-words overflow-x-hidden [&_img]:w-full [&_img]:aspect-video [&_img]:object-cover [&_img]:rounded-xl [&_img]:shadow-sm [&_img]:my-3"
-              v-html="selectedNotif.body.replace(/&nbsp;/g, ' ')"
+              v-html="sanitizeHtml(selectedNotif.body.replace(/&nbsp;/g, ' '))"
             />
             <div v-if="selectedNotif.actionUrl" class="mt-6 pt-4 border-t border-border">
               <button
@@ -196,6 +196,7 @@
 import { Bell, ChevronLeft, Check, ArrowUp } from 'lucide-vue-next'
 import { formatDistanceStrict } from 'date-fns'
 import type { AppNotification } from '~/types/notification'
+import { sanitizeHtml } from '~/lib/sanitize'
 
 // ─── State ────────────────────────────────────────────────────────────────────
 const isOpen = ref(false)

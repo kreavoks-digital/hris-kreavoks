@@ -1,4 +1,5 @@
 import { toast } from 'vue-sonner'
+import { leaveSchema } from '~/schemas/leave.schema'
 
 /** Ambil tanggal hari ini dalam format YYYY-MM-DD sesuai WIB (UTC+7) */
 const getTodayWib = (): string => {
@@ -43,34 +44,16 @@ export const useDashboardLeaves = () => {
       leaveForm.value.endDate = leaveForm.value.startDate
     }
 
-    if (!leaveForm.value.type) {
-      toast.error('Data Belum Lengkap', { description: 'Harap pilih Tipe Pengajuan (Sakit, Izin Pribadi, atau Keperluan Darurat).' })
-      return
-    }
-
-    if (!leaveForm.value.startDate) {
-      toast.error('Data Belum Lengkap', { description: 'Harap pilih Tanggal Mulai pengajuan.' })
-      return
-    }
-
-    if (!leaveForm.value.endDate) {
-      toast.error('Data Belum Lengkap', { description: 'Harap pilih Tanggal Selesai pengajuan.' })
+    const validation = leaveSchema.safeParse(leaveForm.value)
+    if (!validation.success) {
+      const firstError = validation.error.issues[0]?.message || 'Data belum lengkap'
+      toast.error('Validasi Gagal', { description: firstError })
       return
     }
 
     const todayStr = getTodayWib()
     if (String(leaveForm.value.startDate) < todayStr) {
       toast.error('Tanggal Tidak Valid', { description: 'Tanggal mulai izin tidak boleh tanggal yang sudah lewat. Minimal mulai hari ini.' })
-      return
-    }
-
-    if (new Date(leaveForm.value.endDate) < new Date(leaveForm.value.startDate)) {
-      toast.error('Tanggal Tidak Valid', { description: 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.' })
-      return
-    }
-
-    if (!leaveForm.value.reason || !leaveForm.value.reason.trim()) {
-      toast.error('Data Belum Lengkap', { description: 'Harap isi Keterangan / alasan pengajuan secara detail.' })
       return
     }
 
