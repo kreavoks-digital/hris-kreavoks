@@ -81,8 +81,10 @@ export const useCertificateGenerator = () => {
     resetStatement()
   }
 
-  const onSelectIntern = (id: string) => {
-    const intern = interns.value.find(i => i.id === id)
+  const onSelectIntern = (val: any) => {
+    if (!val) return
+    const id = String(val)
+    const intern = interns.value.find(i => String(i.id) === id)
     if (!intern) return
 
     form.value.recipientName = intern.name
@@ -116,6 +118,11 @@ export const useCertificateGenerator = () => {
     resetStatement()
     toast.success('Data Intern Berhasil Dimuat', { description: `Form telah diisi untuk ${intern.name}` })
   }
+
+  // Auto-sync when selectedInternId changes
+  watch(selectedInternId, (newId) => {
+    if (newId) onSelectIntern(newId)
+  })
 
   const fetchInterns = async () => {
     try {

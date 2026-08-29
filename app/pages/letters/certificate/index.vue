@@ -58,7 +58,7 @@
           <CardContent class="p-6 space-y-4">
             <div class="space-y-2">
               <Label class="text-xs font-semibold text-foreground">Pilih Karyawan Magang</Label>
-              <Select v-model="selectedInternId" @update:model-value="onSelectIntern">
+              <Select v-model="selectedInternId">
                 <SelectTrigger class="rounded-3xl h-11 border-border bg-background focus:ring-kv-primary">
                   <SelectValue placeholder="-- Pilih Intern untuk Auto-Fill --" />
                 </SelectTrigger>
