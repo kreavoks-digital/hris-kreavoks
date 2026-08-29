@@ -378,7 +378,8 @@ const navigation = [
     permission: 'manage_letters',
     children: [
       { name: 'Manajemen Surat', to: '/letters' },
-      { name: 'Template Surat', to: '/letters/template' }
+      { name: 'Template Surat', to: '/letters/template' },
+      { name: 'Certificate Generator', to: '/letters/certificate' }
     ]
   },
   { name: 'RBAC', to: '/rbac', icon: Shield, permission: 'manage_roles' },
