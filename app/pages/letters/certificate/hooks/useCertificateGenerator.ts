@@ -2,6 +2,7 @@ import { format } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
 import { toast } from 'vue-sonner'
 import { employeeApi } from '~/pages/employee/api/employee.api'
+import { certificateApi } from '../api'
 import type { Employee } from '~/types'
 import type { CertificateFormData } from '../types'
 import { generateCertificatePdf, generateCertificateImage } from '~/lib/pdf/generateCertificate'
@@ -10,38 +11,35 @@ export const useCertificateGenerator = () => {
   const interns = ref<Employee[]>([])
   const selectedInternId = ref<string>('')
   const isGenerating = ref(false)
+  const isFetchingRecap = ref(false)
   const previewScale = ref(0.85)
 
-  const generateSerialString = () => {
-    const dateStr = format(new Date(), 'ddMMyy')
-    const randomNum = Math.floor(100 + Math.random() * 900)
-    return `KWS-INTRN-${dateStr}-${randomNum}`
-  }
-
   const form = ref<CertificateFormData>({
-    serialNumber: 'KWS-INTRN-011125-004',
-    dateOfCompletion: '26 November 2025',
-    recipientName: 'Wisnu Adi Pratama',
-    position: 'UI/UX Designer',
-    durationMonths: '3',
+    serialNumber: '',
+    dateOfCompletion: '',
+    recipientName: '',
+    position: '',
+    durationMonths: '',
     statementText: '',
     signatoryName: 'Setiady Ibrahim Anwar',
     signatoryRole: 'Founder of Kreavoks digital agency',
     scores: {
-      attendance: 95,
-      workPerformance: 80,
-      teamWork: 85,
-      communication: 92
+      attendance: 0,
+      workPerformance: 0,
+      teamWork: 0,
+      communication: 0
     },
     customGrade: ''
   })
 
   const selectedIntern = computed(() => {
-    return interns.value.find(i => i.id === selectedInternId.value)
+    return interns.value.find(i => String(i.id) === selectedInternId.value)
   })
 
   const autoFinalGrade = computed(() => {
-    const avg = (form.value.scores.attendance + form.value.scores.workPerformance + form.value.scores.teamWork + form.value.scores.communication) / 4
+    const sum = form.value.scores.attendance + form.value.scores.workPerformance + form.value.scores.teamWork + form.value.scores.communication
+    if (sum === 0) return '-'
+    const avg = sum / 4
     if (avg >= 85) return 'A'
     if (avg >= 78) return 'AB'
     if (avg >= 70) return 'B'
@@ -50,45 +48,81 @@ export const useCertificateGenerator = () => {
     return 'D'
   })
 
+  const buildStatement = (pos?: string, dur?: string | number) => {
+    const durStr = dur ? `${dur}-month ` : ''
+    const posStr = pos ? ` as a ${pos}` : ''
+    return `Successfully completed a ${durStr}internship${posStr} at Kreavoks Digital Agency & Edutech. With following work and skill scores:`
+  }
+
+  const updateScore = (field: 'attendance' | 'workPerformance' | 'teamWork' | 'communication', val: any) => {
+    const cleanStr = String(val ?? '').replace(/[^0-9]/g, '')
+    if (!cleanStr) {
+      form.value.scores[field] = 0
+      return
+    }
+    const num = parseInt(cleanStr, 10)
+    form.value.scores[field] = Math.max(0, Math.min(100, num))
+  }
+
   const resetStatement = () => {
-    form.value.statementText = `Successfully completed a ${form.value.durationMonths || 3}-month internship as a ${form.value.position || 'UI/UX Designer'} at Kreavoks Digital Agency & Edutech. With following work and skill scores:`
+    form.value.statementText = buildStatement(form.value.position, form.value.durationMonths)
   }
 
-  const regenerateSerial = () => {
-    form.value.serialNumber = generateSerialString()
-    toast.success('Nomor Seri Baru Dibuat', { description: form.value.serialNumber })
+  // Auto-sinkron kalimat deskripsi saat Posisi/Role atau Durasi berubah
+  watch(
+    () => [form.value.position, form.value.durationMonths],
+    ([newPos, newDur]) => {
+      form.value.statementText = buildStatement(newPos, newDur)
+    }
+  )
+
+  const regenerateSerial = async (userId?: number | string | any) => {
+    try {
+      const validUserId = (typeof userId === 'number' || (typeof userId === 'string' && !isNaN(Number(userId))))
+        ? userId
+        : (selectedIntern.value?.id ? selectedIntern.value.id : undefined)
+      const nextSerial = await certificateApi.getNextSerial('INTERN', validUserId)
+      if (nextSerial) {
+        form.value.serialNumber = nextSerial
+      }
+    } catch {
+      // Clean fallback format if server is unreachable
+      const dateStr = format(new Date(), 'ddMMyy')
+      form.value.serialNumber = `KWS-INTRN-${dateStr}-001`
+    }
   }
 
-  const resetFormToSample = () => {
+  const resetFormToSample = async () => {
     selectedInternId.value = ''
     form.value = {
-      serialNumber: generateSerialString(),
+      serialNumber: '',
       dateOfCompletion: format(new Date(), 'dd MMMM yyyy', { locale: idLocale }),
-      recipientName: 'Wisnu Adi Pratama',
-      position: 'UI/UX Designer',
-      durationMonths: '3',
+      recipientName: '',
+      position: '',
+      durationMonths: '',
       statementText: '',
       signatoryName: 'Setiady Ibrahim Anwar',
       signatoryRole: 'Founder of Kreavoks digital agency',
       scores: {
-        attendance: 95,
-        workPerformance: 80,
-        teamWork: 85,
-        communication: 92
+        attendance: 0,
+        workPerformance: 0,
+        teamWork: 0,
+        communication: 0
       },
       customGrade: ''
     }
     resetStatement()
+    await regenerateSerial()
   }
 
-  const onSelectIntern = (val: any) => {
+  const onSelectIntern = async (val: any) => {
     if (!val) return
     const id = String(val)
     const intern = interns.value.find(i => String(i.id) === id)
     if (!intern) return
 
     form.value.recipientName = intern.name
-    form.value.position = intern.position || intern.department || 'UI/UX Designer'
+    form.value.position = intern.position || intern.department || ''
 
     if (intern.endDate) {
       try {
@@ -96,6 +130,8 @@ export const useCertificateGenerator = () => {
       } catch {
         form.value.dateOfCompletion = format(new Date(), 'dd MMMM yyyy', { locale: idLocale })
       }
+    } else {
+      form.value.dateOfCompletion = format(new Date(), 'dd MMMM yyyy', { locale: idLocale })
     }
 
     if (intern.startDate && intern.endDate) {
@@ -105,18 +141,30 @@ export const useCertificateGenerator = () => {
         const months = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30)))
         form.value.durationMonths = String(months)
       } catch {
-        form.value.durationMonths = '3'
+        form.value.durationMonths = ''
       }
     }
 
-    if (intern.totalWorkingDays && intern.presentCount !== undefined) {
-      const attendancePct = Math.min(100, Math.round((intern.presentCount / intern.totalWorkingDays) * 100))
-      form.value.scores.attendance = attendancePct > 0 ? attendancePct : 90
+    // ─── REKAP PRESENSI OTOMATIS DARI BACKEND DATABASE ───
+    isFetchingRecap.value = true
+    try {
+      const recap = await certificateApi.getAttendanceRecap(intern.id)
+      if (recap) {
+        form.value.scores.attendance = recap.attendanceScore
+        toast.success(`Data Intern Dimuat: ${intern.name}`, {
+          description: `Nilai kehadiran terhitung ${recap.attendanceScore}% (${recap.presentCount}/${recap.totalWorkingDays} kehadiran)`
+        })
+      } else {
+        toast.success(`Data Intern Dimuat: ${intern.name}`)
+      }
+    } catch {
+      toast.success(`Data Intern Dimuat: ${intern.name}`)
+    } finally {
+      isFetchingRecap.value = false
     }
 
-    form.value.serialNumber = generateSerialString()
     resetStatement()
-    toast.success('Data Intern Berhasil Dimuat', { description: `Form telah diisi untuk ${intern.name}` })
+    await regenerateSerial()
   }
 
   // Auto-sync when selectedInternId changes
@@ -137,16 +185,43 @@ export const useCertificateGenerator = () => {
     }
   }
 
+  const saveCertificateRecord = async () => {
+    try {
+      await certificateApi.saveCertificate({
+        serialNumber: form.value.serialNumber,
+        type: 'INTERN',
+        userId: selectedIntern.value?.id ? Number(selectedIntern.value.id) : undefined,
+        recipientName: form.value.recipientName,
+        position: form.value.position,
+        durationMonths: form.value.durationMonths,
+        dateOfCompletion: form.value.dateOfCompletion,
+        statementText: form.value.statementText,
+        signatoryName: form.value.signatoryName,
+        signatoryRole: form.value.signatoryRole,
+        attendanceScore: form.value.scores.attendance,
+        workPerformanceScore: form.value.scores.workPerformance,
+        teamWorkScore: form.value.scores.teamWork,
+        communicationScore: form.value.scores.communication,
+        finalGrade: form.value.customGrade || autoFinalGrade.value
+      })
+    } catch (err) {
+      console.error('Error saving certificate record to database:', err)
+    }
+  }
+
   const handleDownloadPdf = async () => {
     isGenerating.value = true
-    const toastId = toast.loading('Memproses dokumen PDF sertifikat...')
+    const toastId = toast.loading('Memproses & mencatat sertifikat ke sistem...')
     try {
+      // Auto-record to database
+      await saveCertificateRecord()
+
       const safeName = form.value.recipientName.replace(/[^a-zA-Z0-9]/g, '_')
       const fileName = `Sertifikat_${safeName}_${form.value.serialNumber}.pdf`
       const result = await generateCertificatePdf('live-intern-certificate', fileName)
 
       if (result.success) {
-        toast.success('Sertifikat Berhasil Diunduh!', { id: toastId, description: fileName })
+        toast.success('Sertifikat Berhasil Diunduh & Dicatat!', { id: toastId, description: fileName })
       } else {
         toast.error('Gagal Mengunduh Sertifikat', { id: toastId, description: result.error })
       }
@@ -161,6 +236,8 @@ export const useCertificateGenerator = () => {
     isGenerating.value = true
     const toastId = toast.loading('Menyiapkan gambar sertifikat...')
     try {
+      await saveCertificateRecord()
+
       const safeName = form.value.recipientName.replace(/[^a-zA-Z0-9]/g, '_')
       const fileName = `Sertifikat_${safeName}_${form.value.serialNumber}.png`
       const result = await generateCertificateImage('live-intern-certificate', fileName)
@@ -177,11 +254,23 @@ export const useCertificateGenerator = () => {
     }
   }
 
+  onMounted(async () => {
+    await fetchInterns()
+    if (!form.value.serialNumber) {
+      await regenerateSerial()
+    }
+    if (!form.value.dateOfCompletion) {
+      form.value.dateOfCompletion = format(new Date(), 'dd MMMM yyyy', { locale: idLocale })
+    }
+    resetStatement()
+  })
+
   return {
     interns,
     selectedInternId,
     selectedIntern,
     isGenerating,
+    isFetchingRecap,
     previewScale,
     form,
     autoFinalGrade,
@@ -191,6 +280,8 @@ export const useCertificateGenerator = () => {
     onSelectIntern,
     fetchInterns,
     handleDownloadPdf,
-    handleDownloadImage
+    handleDownloadImage,
+    saveCertificateRecord,
+    updateScore
   }
 }

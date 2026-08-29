@@ -47,7 +47,7 @@
           <CardHeader class="bg-muted/40 border-b border-border py-4 px-6">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-2">
-                <Sparkles class="h-4 w-4 text-kv-primary" />
+                <UserCheck class="h-4 w-4 text-kv-primary" />
                 <CardTitle class="text-sm font-bold text-foreground">Auto-Fill dari Data Intern</CardTitle>
               </div>
               <Badge variant="outline" class="text-xs font-medium border-border rounded-3xl">
@@ -59,10 +59,10 @@
             <div class="space-y-2">
               <Label class="text-xs font-semibold text-foreground">Pilih Karyawan Magang</Label>
               <Select v-model="selectedInternId">
-                <SelectTrigger class="rounded-3xl h-11 border-border bg-background focus:ring-kv-primary">
-                  <SelectValue placeholder="-- Pilih Intern untuk Auto-Fill --" />
+                <SelectTrigger class="rounded-2xl h-11 border-border bg-background focus:ring-kv-primary">
+                  <SelectValue placeholder="Pilih Intern untuk Auto-Fill" />
                 </SelectTrigger>
-                <SelectContent class="rounded-3xl border-border bg-popover max-h-64">
+                <SelectContent class="rounded-2xl border-border bg-popover max-h-64">
                   <SelectItem v-for="intern in interns" :key="intern.id" :value="intern.id">
                     <div class="flex items-center gap-2 py-0.5">
                       <span class="font-medium text-foreground">{{ intern.name }}</span>
@@ -89,7 +89,7 @@
         <Card class="border border-border bg-card rounded-3xl overflow-hidden">
           <CardHeader class="bg-muted/40 border-b border-border py-4 px-6">
             <div class="flex items-center gap-2">
-              <FileEdit class="h-4 w-4 text-kv-primary" />
+              <FileBadge class="h-4 w-4 text-kv-primary" />
               <CardTitle class="text-sm font-bold text-foreground">Detail Sertifikat</CardTitle>
             </div>
           </CardHeader>
@@ -98,35 +98,33 @@
             <!-- Serial Number & Date -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="space-y-1.5">
-                <Label class="text-xs font-semibold text-foreground flex items-center justify-between">
-                  Nomor Sertifikat
-                  <button type="button" @click="regenerateSerial" class="text-xs text-kv-primary hover:underline font-normal">
-                    Generate Baru
-                  </button>
-                </Label>
-                <Input v-model="form.serialNumber" class="rounded-3xl h-10 border-border bg-background text-xs font-mono" placeholder="KWS-INTRN-011125-004" />
+                <div class="flex items-center justify-between">
+                  <Label class="text-xs font-semibold text-foreground">Nomor Sertifikat</Label>
+                  <span class="text-xs text-muted-foreground">Otomatis</span>
+                </div>
+                <Input :model-value="form.serialNumber" disabled readonly class="rounded-2xl h-10 border-border bg-muted/50 text-muted-foreground text-xs cursor-not-allowed font-semibold" placeholder="KWS-INTRN-011125-001" />
               </div>
               <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Date of Completion</Label>
-                <Input v-model="form.dateOfCompletion" class="rounded-3xl h-10 border-border bg-background text-xs" placeholder="26 November 2025" />
+                <Input v-model="form.dateOfCompletion" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="26 November 2025" />
               </div>
             </div>
 
             <!-- Recipient Name -->
             <div class="space-y-1.5">
               <Label class="text-xs font-semibold text-foreground">Nama Penerima (Calligraphy)</Label>
-              <Input v-model="form.recipientName" class="rounded-3xl h-10 border-border bg-background text-sm font-medium" placeholder="Nama lengkap penerima" />
+              <Input v-model="form.recipientName" class="rounded-2xl h-10 border-border bg-background text-sm font-medium" placeholder="Nama lengkap penerima" />
             </div>
 
             <!-- Position & Duration -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="sm:col-span-2 space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Posisi / Role Magang</Label>
-                <Input v-model="form.position" class="rounded-3xl h-10 border-border bg-background text-xs" placeholder="UI/UX Designer" />
+                <Input v-model="form.position" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="UI/UX Designer" />
               </div>
               <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Durasi (Bulan)</Label>
-                <Input v-model="form.durationMonths" type="number" min="1" max="24" class="rounded-3xl h-10 border-border bg-background text-xs" placeholder="3" />
+                <Input v-model="form.durationMonths" type="number" min="1" max="24" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="3" />
               </div>
             </div>
 
@@ -141,7 +139,7 @@
               <Textarea
                 v-model="form.statementText"
                 rows="3"
-                class="rounded-3xl border-border bg-background text-xs leading-relaxed resize-none"
+                class="rounded-2xl border-border bg-background text-xs leading-relaxed resize-none"
                 placeholder="Successfully completed a 3-month internship as..."
               />
             </div>
@@ -158,41 +156,99 @@
               </div>
 
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div class="space-y-1 bg-muted/30 p-3 rounded-3xl border border-border">
-                  <Label class="text-xs font-medium text-muted-foreground block truncate">Attendance</Label>
-                  <Input v-model.number="form.scores.attendance" type="number" min="0" max="100" class="h-9 text-center text-xs font-bold bg-background rounded-3xl border-border" />
+                <!-- Attendance -->
+                <div class="space-y-1 bg-muted/30 p-2.5 rounded-2xl border border-border">
+                  <div class="flex items-center justify-between px-1">
+                    <Label class="text-xs font-semibold text-muted-foreground truncate">Attendance</Label>
+                    <span v-if="isFetchingRecap" class="text-xs text-kv-primary animate-pulse">Menghitung...</span>
+                    <span v-else-if="selectedIntern" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">Auto</span>
+                  </div>
+                  <Input
+                    :model-value="form.scores.attendance"
+                    @input="(e: any) => updateScore('attendance', e.target.value)"
+                    type="text"
+                    inputmode="numeric"
+                    min="0"
+                    max="100"
+                    placeholder="0"
+                    class="h-9 text-center text-xs font-bold bg-background rounded-2xl border-border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
                 </div>
-                <div class="space-y-1 bg-muted/30 p-3 rounded-3xl border border-border">
-                  <Label class="text-xs font-medium text-muted-foreground block truncate">Performance</Label>
-                  <Input v-model.number="form.scores.workPerformance" type="number" min="0" max="100" class="h-9 text-center text-xs font-bold bg-background rounded-3xl border-border" />
+
+                <!-- Performance -->
+                <div class="space-y-1 bg-muted/30 p-2.5 rounded-2xl border border-border">
+                  <div class="flex items-center justify-between px-1">
+                    <Label class="text-xs font-semibold text-muted-foreground truncate">Performance</Label>
+                  </div>
+                  <Input
+                    :model-value="form.scores.workPerformance"
+                    @input="(e: any) => updateScore('workPerformance', e.target.value)"
+                    type="text"
+                    inputmode="numeric"
+                    min="0"
+                    max="100"
+                    placeholder="0"
+                    class="h-9 text-center text-xs font-bold bg-background rounded-2xl border-border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
                 </div>
-                <div class="space-y-1 bg-muted/30 p-3 rounded-3xl border border-border">
-                  <Label class="text-xs font-medium text-muted-foreground block truncate">Team Work</Label>
-                  <Input v-model.number="form.scores.teamWork" type="number" min="0" max="100" class="h-9 text-center text-xs font-bold bg-background rounded-3xl border-border" />
+
+                <!-- Team Work -->
+                <div class="space-y-1 bg-muted/30 p-2.5 rounded-2xl border border-border">
+                  <div class="flex items-center justify-between px-1">
+                    <Label class="text-xs font-semibold text-muted-foreground truncate">Team Work</Label>
+                  </div>
+                  <Input
+                    :model-value="form.scores.teamWork"
+                    @input="(e: any) => updateScore('teamWork', e.target.value)"
+                    type="text"
+                    inputmode="numeric"
+                    min="0"
+                    max="100"
+                    placeholder="0"
+                    class="h-9 text-center text-xs font-bold bg-background rounded-2xl border-border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
                 </div>
-                <div class="space-y-1 bg-muted/30 p-3 rounded-3xl border border-border">
-                  <Label class="text-xs font-medium text-muted-foreground block truncate">Communication</Label>
-                  <Input v-model.number="form.scores.communication" type="number" min="0" max="100" class="h-9 text-center text-xs font-bold bg-background rounded-3xl border-border" />
+
+                <!-- Communication -->
+                <div class="space-y-1 bg-muted/30 p-2.5 rounded-2xl border border-border">
+                  <div class="flex items-center justify-between px-1">
+                    <Label class="text-xs font-semibold text-muted-foreground truncate">Communication</Label>
+                  </div>
+                  <Input
+                    :model-value="form.scores.communication"
+                    @input="(e: any) => updateScore('communication', e.target.value)"
+                    type="text"
+                    inputmode="numeric"
+                    min="0"
+                    max="100"
+                    placeholder="0"
+                    class="h-9 text-center text-xs font-bold bg-background rounded-2xl border-border [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
                 </div>
               </div>
 
-              <div class="flex items-center gap-3 pt-1">
-                <Label class="text-xs font-medium text-muted-foreground">Override Huruf Mutu Manual (Opsional):</Label>
-                <Input v-model="form.customGrade" placeholder="Auto" class="w-20 h-8 text-center font-bold text-xs rounded-3xl border-border bg-background" />
-              </div>
-            </div>
-
-            <hr class="border-border" />
-
-            <!-- Signatory Details -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="space-y-1.5">
-                <Label class="text-xs font-semibold text-foreground">Nama Penandatangan</Label>
-                <Input v-model="form.signatoryName" class="rounded-3xl h-10 border-border bg-background text-xs" />
-              </div>
-              <div class="space-y-1.5">
-                <Label class="text-xs font-semibold text-foreground">Jabatan Penandatangan</Label>
-                <Input v-model="form.signatoryRole" class="rounded-3xl h-10 border-border bg-background text-xs" />
+              <!-- Single Line Override Huruf Mutu & Auto Rentang -->
+              <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
+                <div class="space-y-1.5">
+                  <div class="flex items-center gap-2">
+                    <Label class="text-xs font-semibold text-foreground">Override Huruf Mutu</Label>
+                    <span class="text-xs text-muted-foreground">(Opsional)</span>
+                  </div>
+                  <!-- Clean Badge Chips tanpa Bullet Dots -->
+                  <div class="flex flex-wrap items-center gap-1 text-xs">
+                    <span class="px-2 py-0.5 rounded-lg bg-muted/60 text-muted-foreground font-medium"><strong class="text-kv-primary font-bold">A</strong> &ge; 85</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-muted/60 text-muted-foreground font-medium"><strong class="text-kv-primary font-bold">AB</strong> 78–84</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-muted/60 text-muted-foreground font-medium"><strong class="text-kv-primary font-bold">B</strong> 70–77</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-muted/60 text-muted-foreground font-medium"><strong class="text-kv-primary font-bold">BC</strong> 63–69</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-muted/60 text-muted-foreground font-medium"><strong class="text-kv-primary font-bold">C</strong> 55–62</span>
+                    <span class="px-2 py-0.5 rounded-lg bg-muted/60 text-muted-foreground font-medium"><strong class="text-rose-500 font-bold">D</strong> &lt; 55</span>
+                  </div>
+                </div>
+                <Input
+                  v-model="form.customGrade"
+                  placeholder="Auto"
+                  class="w-20 h-9 text-center font-bold text-xs rounded-2xl border-border bg-background"
+                />
               </div>
             </div>
 
@@ -207,9 +263,8 @@
         <!-- Preview Action Bar -->
         <div class="flex items-center justify-between bg-card border border-border rounded-3xl p-3 px-5">
           <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span class="text-xs font-bold text-foreground">Live WYSIWYG Preview</span>
-            <span class="text-xs text-muted-foreground">(A4 Landscape &bull; 842 &times; 595 pt)</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span>
+            <span class="text-xs font-bold text-foreground">Live Preview</span>
           </div>
 
           <!-- Zoom Controls -->
@@ -272,8 +327,8 @@
 
 <script setup lang="ts">
 import { 
-  Sparkles, 
-  FileEdit, 
+  UserCheck, 
+  FileBadge, 
   Download, 
   Image as ImageIcon, 
   Loader2, 
@@ -306,6 +361,7 @@ const {
   selectedInternId,
   selectedIntern,
   isGenerating,
+  isFetchingRecap,
   previewScale,
   form,
   autoFinalGrade,
@@ -315,7 +371,8 @@ const {
   onSelectIntern,
   fetchInterns,
   handleDownloadPdf,
-  handleDownloadImage
+  handleDownloadImage,
+  updateScore
 } = useCertificateGenerator()
 
 onMounted(() => {

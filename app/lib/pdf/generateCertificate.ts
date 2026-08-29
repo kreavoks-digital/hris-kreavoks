@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf'
-import html2canvas from 'html2canvas'
+import { toPng } from 'html-to-image'
 
 export interface GeneratePdfResult {
   success: boolean
@@ -11,8 +11,8 @@ export const generateCertificatePdf = async (
   elementId: string,
   fileName: string = 'Sertifikat.pdf'
 ): Promise<GeneratePdfResult> => {
-  const input = document.getElementById(elementId)
-  if (!input) {
+  const node = document.getElementById(elementId)
+  if (!node) {
     return { success: false, imgData: null, error: 'Element template sertifikat tidak ditemukan.' }
   }
 
@@ -21,25 +21,25 @@ export const generateCertificatePdf = async (
       await document.fonts.ready
     }
 
-    const canvas = await html2canvas(input, {
-      scale: 2, // High resolution crisp export
-      useCORS: true,
-      allowTaint: false,
-      logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 842.25,
-      windowHeight: 595.5,
-      imageTimeout: 0
+    // Capture using html-to-image (Native SVG foreignObject engine, 100% exact typography & spacing)
+    const imgData = await toPng(node, {
+      pixelRatio: 3,
+      quality: 1,
+      cacheBust: true,
+      backgroundColor: '#ffffff'
     })
 
-    const imgData = canvas.toDataURL('image/png')
-
     // A4 Landscape dimension: 297 x 210 mm
-    const pdf = new jsPDF('l', 'mm', 'a4')
+    const pdf = new jsPDF({
+      orientation: 'landscape',
+      unit: 'mm',
+      format: 'a4',
+      compress: true
+    })
     const pdfWidth = pdf.internal.pageSize.getWidth()
     const pdfHeight = pdf.internal.pageSize.getHeight()
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST')
     pdf.save(fileName)
 
     return { success: true, imgData }
@@ -53,8 +53,8 @@ export const generateCertificateImage = async (
   elementId: string,
   fileName: string = 'Sertifikat.png'
 ): Promise<GeneratePdfResult> => {
-  const input = document.getElementById(elementId)
-  if (!input) {
+  const node = document.getElementById(elementId)
+  if (!node) {
     return { success: false, imgData: null, error: 'Element template sertifikat tidak ditemukan.' }
   }
 
@@ -63,18 +63,13 @@ export const generateCertificateImage = async (
       await document.fonts.ready
     }
 
-    const canvas = await html2canvas(input, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: false,
-      logging: false,
-      backgroundColor: '#ffffff',
-      windowWidth: 842.25,
-      windowHeight: 595.5,
-      imageTimeout: 0
+    const imgData = await toPng(node, {
+      pixelRatio: 3,
+      quality: 1,
+      cacheBust: true,
+      backgroundColor: '#ffffff'
     })
 
-    const imgData = canvas.toDataURL('image/png')
     const link = document.createElement('a')
     link.href = imgData
     link.download = fileName

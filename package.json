@@ -19,6 +19,7 @@
     "date-fns": "^4.4.0",
     "date-holidays": "^3.33.0",
     "firebase": "^12.16.0",
+    "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.2.1",
     "nuxt": "^4.2.1",

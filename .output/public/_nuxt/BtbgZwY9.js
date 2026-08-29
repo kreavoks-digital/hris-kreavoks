@@ -1,1 +1,0 @@
-import{ak as r,h,al as c,n as u}from"./PNZSDwCz.js";const l=r(async n=>{let t,a;const{accessToken:e,loadAuth:i}=h();e.value||([t,a]=c(()=>i()),await t,a());const s=n.path.startsWith("/auth/"),o=!!e.value;if(o&&s)return u("/dashboard");if(!o&&!s)return u("/auth/login")});export{l as default};

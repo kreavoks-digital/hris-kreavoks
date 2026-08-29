@@ -17,6 +17,15 @@ export default defineNuxtConfig({
     }
   },
 
+  vite: {
+    server: {
+      watch: {
+        usePolling: true,
+        interval: 300
+      }
+    }
+  },
+
 
   hooks: {
     'pages:extend'(pages) {
@@ -62,6 +71,7 @@ export default defineNuxtConfig({
     families: {
       "Plus Jakarta Sans": [300, 400, 500, 600, 700, 800],
       "Alex Brush": [400],
+      "Great Vibes": [400],
       "Montserrat": [400, 500, 600, 700, 800]
     },
     display: 'swap'

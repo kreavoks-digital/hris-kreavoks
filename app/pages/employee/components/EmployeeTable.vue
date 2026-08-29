@@ -180,6 +180,7 @@
   </Table>
 </template>
 
+<script setup lang="ts">
 import { 
   Table, 
   TableBody, 
