@@ -331,47 +331,52 @@ watch(() => formData.value.department, (newVal, oldVal) => {
   }
 });
 
-onMounted(async () => {
+let isFetching = false;
+const fetchEmployeeData = async () => {
   const id = route.params.id as string;
-  if (id) {
-    loading.value = true;
-    try {
-      const response = await employeeApi.getEmployeeById(id);
-      if (response.success) {
-        const emp = response.data;
-        if (emp) {
-          formData.value = {
-            npk: emp.npk || "",
-            fullName: emp.name || "",
-            email: emp.email || "",
-            phone: emp.phone !== "-" ? emp.phone : "",
-            department: emp.department || "-",
-            position: emp.position || "",
-            status: emp.status || "ACTIVE",
-            role: emp.role || "MENTOR",
-            startDate: emp.startDate || "",
-            endDate: emp.endDate || "",
-            certificateStatus: emp.certificateStatus || "NONE",
-            agreementLink: emp.agreementLink || "",
-          };
-          
-          isLifetime.value = !emp.startDate || emp.startDate.startsWith("9999");
-          if (isLifetime.value) {
-            formData.value.startDate = "9999-12-31";
-            formData.value.endDate = "9999-12-31";
-            formData.value.certificateStatus = "NONE";
-          }
-        } else {
-          toast.error("Karyawan tidak ditemukan");
-          navigateTo("/employee");
-        }
+  if (!id || isFetching) return;
+  
+  isFetching = true;
+  loading.value = true;
+  try {
+    const response = await employeeApi.getEmployeeById(id);
+    if (response.success && response.data) {
+      const emp = response.data;
+      formData.value = {
+        npk: emp.npk || "",
+        fullName: emp.name || "",
+        email: emp.email || "",
+        phone: emp.phone !== "-" ? emp.phone : "",
+        department: emp.department || "-",
+        position: emp.position || "",
+        status: emp.status || "ACTIVE",
+        role: emp.role || "MENTOR",
+        startDate: emp.startDate || "",
+        endDate: emp.endDate || "",
+        certificateStatus: emp.certificateStatus || "NONE",
+        agreementLink: emp.agreementLink || "",
+      };
+      
+      isLifetime.value = !emp.startDate || emp.startDate.startsWith("9999");
+      if (isLifetime.value) {
+        formData.value.startDate = "9999-12-31";
+        formData.value.endDate = "9999-12-31";
+        formData.value.certificateStatus = "NONE";
       }
-    } catch (error) {
-      console.error("Error fetching employee:", error);
-    } finally {
-      loading.value = false;
+    } else {
+      toast.error("Karyawan tidak ditemukan");
+      navigateTo("/employee");
     }
+  } catch (error) {
+    console.error("Error fetching employee:", error);
+  } finally {
+    loading.value = false;
+    isFetching = false;
   }
+};
+
+onMounted(() => {
+  fetchEmployeeData();
 });
 
 const submitForm = async () => {
