@@ -69,6 +69,33 @@ export const certificateApi = {
     }
   },
 
+  async updateCertificate(id: number, payload: any): Promise<any> {
+    const api = useApi()
+    try {
+      const res: any = await api(`/certificates/${id}`, {
+        method: 'PUT',
+        body: payload
+      })
+      return res?.data || res
+    } catch (error: any) {
+      console.error('Error updating certificate:', error)
+      throw error
+    }
+  },
+
+  async deleteCertificate(id: number): Promise<boolean> {
+    const api = useApi()
+    try {
+      await api(`/certificates/${id}`, {
+        method: 'DELETE'
+      })
+      return true
+    } catch (error: any) {
+      console.error('Error deleting certificate:', error)
+      return false
+    }
+  },
+
   async sendCertificateEmail(certificateId: number, email?: string): Promise<{ success: boolean; message: string; data?: any }> {
     const api = useApi()
     try {
