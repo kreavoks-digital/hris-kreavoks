@@ -5,9 +5,6 @@
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-2xl font-bold text-foreground">Certificate Generator</h1>
-          <Badge variant="secondary" class="bg-kv-primary/10 text-kv-primary font-semibold border-none rounded-3xl">
-            E-Certificate Studio
-          </Badge>
         </div>
         <p class="text-muted-foreground mt-1 text-sm">
           Buat, sesuaikan nilai, dan unduh sertifikat magang atau apresiasi secara instan dengan live preview.
@@ -17,15 +14,14 @@
       <div class="flex items-center gap-3">
         <Button
           variant="outline"
-          class="gap-2 border-border rounded-3xl h-10 hover:bg-muted"
           @click="handleDownloadImage"
           :disabled="isGenerating"
         >
-          <ImageIcon class="h-4 w-4 text-muted-foreground" />
+          <ImageIcon class="h-4 w-4" />
           Download PNG
         </Button>
         <Button
-          class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white rounded-3xl h-10 border-none"
+          variant="default"
           @click="handleDownloadPdf"
           :disabled="isGenerating"
         >
@@ -78,7 +74,7 @@
                 <p class="font-semibold text-foreground">{{ selectedIntern.name }}</p>
                 <p class="text-muted-foreground">{{ selectedIntern.department }} &bull; {{ selectedIntern.institution || 'Kreavoks Intern' }}</p>
               </div>
-              <Button size="sm" variant="ghost" class="h-8 text-xs text-kv-primary hover:bg-kv-primary/10 rounded-3xl" @click="resetFormToSample">
+              <Button size="sm" variant="ghost" @click="resetFormToSample">
                 Reset ke Default
               </Button>
             </div>
@@ -267,15 +263,15 @@
             <span class="text-xs font-bold text-foreground">Live Preview</span>
           </div>
 
-          <!-- Zoom Controls -->
-          <div class="flex items-center gap-1.5 bg-muted p-1 rounded-3xl">
+          <!-- Zoom Controls (Termasuk opsi 35% dan 50% untuk layar Mobile) -->
+          <div class="flex items-center gap-1 bg-muted p-1 rounded-2xl overflow-x-auto max-w-full">
             <button
-              v-for="scale in [0.7, 0.85, 1.0]"
+              v-for="scale in [0.35, 0.5, 0.75, 1.0]"
               :key="scale"
               @click="previewScale = scale"
               :class="[
-                'px-3 py-1 text-xs font-semibold rounded-3xl transition-colors',
-                previewScale === scale
+                'px-2.5 py-1 text-xs font-semibold rounded-2xl transition-colors whitespace-nowrap',
+                Math.abs(previewScale - scale) < 0.05
                   ? 'bg-background text-foreground'
                   : 'text-muted-foreground hover:text-foreground'
               ]"
@@ -286,7 +282,7 @@
         </div>
 
         <!-- Certificate Rendering Canvas Wrapper -->
-        <div class="border border-border rounded-3xl bg-muted/20 p-4 md:p-8 flex justify-center items-center overflow-x-auto min-h-[500px]">
+        <div class="border border-border rounded-3xl bg-muted/20 p-2 sm:p-4 md:p-8 flex justify-center items-center overflow-x-auto min-h-[260px] sm:min-h-[450px]">
           <div
             class="transition-transform duration-300 origin-top rounded-sm"
             :style="{
@@ -322,6 +318,12 @@
       </div>
 
     </div>
+
+    <!-- ─── RIWAYAT SERTIFIKAT YANG SUDAH PERNAH DIBUAT ─── -->
+    <CertificateHistoryTable
+      ref="historyTableRef"
+      @load-certificate="handleLoadCertificate"
+    />
   </div>
 </template>
 
@@ -334,6 +336,9 @@ import {
   Loader2, 
   Info 
 } from 'lucide-vue-next'
+import { format } from 'date-fns'
+import { id as idLocale } from 'date-fns/locale'
+import { toast } from 'vue-sonner'
 import { Card, CardHeader, CardTitle, CardContent } from '~/components/ui/card'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -349,12 +354,15 @@ import {
 } from '~/components/ui/select'
 import { useCertificateGenerator } from './hooks/useCertificateGenerator'
 import InternCertificatePreview from './components/InternCertificatePreview.vue'
+import CertificateHistoryTable from './components/CertificateHistoryTable.vue'
 
 definePageMeta({
   layout: 'default',
   middleware: ['auth', 'admin'],
   title: 'Certificate Generator'
 })
+
+const historyTableRef = ref<InstanceType<typeof CertificateHistoryTable> | null>(null)
 
 const {
   interns,
@@ -370,10 +378,48 @@ const {
   resetFormToSample,
   onSelectIntern,
   fetchInterns,
-  handleDownloadPdf,
-  handleDownloadImage,
+  handleDownloadPdf: downloadPdfRaw,
+  handleDownloadImage: downloadImageRaw,
   updateScore
 } = useCertificateGenerator()
+
+const handleDownloadPdf = async () => {
+  await downloadPdfRaw()
+  historyTableRef.value?.fetchCertificates()
+}
+
+const handleDownloadImage = async () => {
+  await downloadImageRaw()
+  historyTableRef.value?.fetchCertificates()
+}
+
+const handleLoadCertificate = (cert: any) => {
+  if (cert.userId) {
+    selectedInternId.value = String(cert.userId)
+  }
+  form.value.serialNumber = cert.serialNumber
+  form.value.recipientName = cert.recipientName
+  form.value.position = cert.position || ''
+  form.value.durationMonths = cert.durationMonths || ''
+  if (cert.dateOfCompletion) {
+    try {
+      form.value.dateOfCompletion = format(new Date(cert.dateOfCompletion), 'dd MMMM yyyy', { locale: idLocale })
+    } catch {
+      form.value.dateOfCompletion = ''
+    }
+  }
+  if (cert.statementText) {
+    form.value.statementText = cert.statementText
+  }
+  form.value.scores.attendance = cert.attendanceScore ?? 0
+  form.value.scores.workPerformance = cert.workPerformanceScore ?? 0
+  form.value.scores.teamWork = cert.teamWorkScore ?? 0
+  form.value.scores.communication = cert.communicationScore ?? 0
+  form.value.customGrade = cert.finalGrade || ''
+
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+  toast.success('Data Sertifikat Dimuat ke Studio', { description: cert.serialNumber })
+}
 
 onMounted(() => {
   resetStatement()

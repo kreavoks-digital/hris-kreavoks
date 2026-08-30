@@ -6,6 +6,7 @@ export interface AttendanceRecapData {
   absentCount: number
   lateCount: number
   attendanceScore: number
+  actualCompletionDate?: string | null
 }
 
 export const certificateApi = {
@@ -65,6 +66,22 @@ export const certificateApi = {
       return res?.data || res
     } catch {
       return null
+    }
+  },
+
+  async sendCertificateEmail(certificateId: number, email?: string): Promise<{ success: boolean; message: string; data?: any }> {
+    const api = useApi()
+    try {
+      const res: any = await api(`/certificates/${certificateId}/send-email`, {
+        method: 'POST',
+        body: { email }
+      })
+      return res || { success: true, message: 'Email berhasil dikirim' }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error?.data?.message || error?.message || 'Gagal mengirim email sertifikat'
+      }
     }
   }
 }

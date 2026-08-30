@@ -71,8 +71,8 @@ export const useCertificateGenerator = () => {
   // Auto-sinkron kalimat deskripsi saat Posisi/Role atau Durasi berubah
   watch(
     () => [form.value.position, form.value.durationMonths],
-    ([newPos, newDur]) => {
-      form.value.statementText = buildStatement(newPos, newDur)
+    () => {
+      resetStatement()
     }
   )
 
@@ -151,8 +151,15 @@ export const useCertificateGenerator = () => {
       const recap = await certificateApi.getAttendanceRecap(intern.id)
       if (recap) {
         form.value.scores.attendance = recap.attendanceScore
+        if (recap.actualCompletionDate) {
+          try {
+            form.value.dateOfCompletion = format(new Date(recap.actualCompletionDate), 'dd MMMM yyyy', { locale: idLocale })
+          } catch {
+            // retain fallback
+          }
+        }
         toast.success(`Data Intern Dimuat: ${intern.name}`, {
-          description: `Nilai kehadiran terhitung ${recap.attendanceScore}% (${recap.presentCount}/${recap.totalWorkingDays} kehadiran)`
+          description: `Nilai kehadiran: ${recap.attendanceScore}% (${recap.presentCount}/${recap.totalWorkingDays} hari) • Selesai: ${form.value.dateOfCompletion}`
         })
       } else {
         toast.success(`Data Intern Dimuat: ${intern.name}`)
@@ -255,6 +262,16 @@ export const useCertificateGenerator = () => {
   }
 
   onMounted(async () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) {
+        previewScale.value = 0.35
+      } else if (window.innerWidth < 1024) {
+        previewScale.value = 0.5
+      } else {
+        previewScale.value = 0.75
+      }
+    }
+
     await fetchInterns()
     if (!form.value.serialNumber) {
       await regenerateSerial()
