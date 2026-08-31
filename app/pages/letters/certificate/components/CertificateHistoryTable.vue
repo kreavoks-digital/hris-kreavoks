@@ -785,7 +785,8 @@ const submitCertForm = async () => {
     isFormModalOpen.value = false
     await fetchCertificates()
   } catch (error: any) {
-    toast.error(error?.data?.message || 'Gagal memproses data sertifikat', { id: toastId })
+    console.error('Error submitting certificate form:', error)
+    toast.error(error?.data?.message || error?.message || 'Gagal memproses data sertifikat', { id: toastId })
   } finally {
     isSubmittingForm.value = false
   }

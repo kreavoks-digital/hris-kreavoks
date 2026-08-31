@@ -39,9 +39,9 @@ export const certificateApi = {
         body: payload
       })
       return res?.data || res
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving certificate:', error)
-      return null
+      throw error
     }
   },
 
