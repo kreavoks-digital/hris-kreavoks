@@ -261,19 +261,82 @@
             />
           </div>
 
-          <!-- Auto-fill dari Karyawan Magang (Jika Baru) -->
+          <!-- Auto-fill dari Karyawan Magang dengan Search (Jika Baru) -->
           <div v-if="!isEditing && interns.length > 0" class="space-y-1.5">
-            <Label class="text-xs font-semibold text-muted-foreground">Pilih Dari Karyawan Magang (Opsional)</Label>
-            <Select @update:model-value="onSelectInternInModal">
-              <SelectTrigger class="rounded-2xl h-10 border-border bg-background text-xs">
-                <SelectValue placeholder="Pilih intern untuk isi otomatis data..." />
-              </SelectTrigger>
-              <SelectContent class="rounded-2xl">
-                <SelectItem v-for="intern in interns" :key="intern.id" :value="String(intern.id)">
-                  {{ intern.name }} ({{ intern.department || 'Intern' }})
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <div class="flex items-center justify-between">
+              <Label class="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                <UserCheck class="h-3.5 w-3.5 text-kv-primary" />
+                Pilih Dari Karyawan Magang (Cari Nama)
+              </Label>
+              <button
+                v-if="modalForm.userId"
+                type="button"
+                class="text-[11px] text-muted-foreground hover:text-rose-500 flex items-center gap-0.5"
+                @click="resetModalInternSelection"
+              >
+                <X class="h-3 w-3" />
+                Reset Pilihan
+              </button>
+            </div>
+
+            <Popover v-model:open="isInternDropdownOpen">
+              <PopoverTrigger as-child>
+                <Button
+                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  :aria-expanded="isInternDropdownOpen"
+                  class="w-full justify-between rounded-2xl h-10 border-border bg-background text-xs px-3 font-normal"
+                >
+                  <span v-if="selectedInternModalInfo" class="font-semibold text-foreground truncate">
+                    {{ selectedInternModalInfo.name }} <span class="text-muted-foreground font-normal">({{ selectedInternModalInfo.department || 'Intern' }})</span>
+                  </span>
+                  <span v-else class="text-muted-foreground">
+                    Cari &amp; pilih karyawan magang terdaftar...
+                  </span>
+                  <ChevronsUpDown class="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+
+              <PopoverContent class="w-[--radix-popover-trigger-width] p-2 rounded-2xl border-border bg-popover shadow-lg" align="start">
+                <!-- Search Input -->
+                <div class="relative mb-2">
+                  <Search class="h-3.5 w-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    v-model="internSearchQuery"
+                    placeholder="Ketik nama, posisi, divisi..."
+                    class="h-8 pl-8 text-xs rounded-xl bg-muted/40 border-border"
+                    auto-focus
+                  />
+                </div>
+
+                <!-- Intern List -->
+                <div class="max-h-48 overflow-y-auto space-y-1 pr-1">
+                  <div
+                    v-for="intern in filteredModalInterns"
+                    :key="intern.id"
+                    class="flex items-center justify-between p-2 rounded-xl text-xs hover:bg-muted/60 cursor-pointer transition-colors"
+                    :class="modalForm.userId === intern.id ? 'bg-kv-primary/10 text-kv-primary font-semibold' : 'text-foreground'"
+                    @click="selectInternInModal(intern)"
+                  >
+                    <div class="min-w-0 flex-1">
+                      <div class="font-medium truncate">{{ intern.name }}</div>
+                      <div class="text-[11px] text-muted-foreground truncate">
+                        {{ intern.department || intern.position || 'Intern' }} &bull; {{ intern.institution || intern.email }}
+                      </div>
+                    </div>
+                    <Check
+                      v-if="modalForm.userId === intern.id"
+                      class="h-3.5 w-3.5 text-kv-primary shrink-0 ml-2"
+                    />
+                  </div>
+
+                  <div v-if="filteredModalInterns.length === 0" class="py-4 text-center text-xs text-muted-foreground">
+                    Tidak ditemukan karyawan bernama "{{ internSearchQuery }}"
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -534,7 +597,11 @@ import {
   FileBadge,
   Sparkles,
   MoreHorizontal,
-  Loader2 
+  Loader2,
+  Check,
+  ChevronsUpDown,
+  UserCheck,
+  X
 } from 'lucide-vue-next'
 import { format } from 'date-fns'
 import { id as idLocale } from 'date-fns/locale'
@@ -558,6 +625,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '~/components/ui/dialog'
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from '~/components/ui/popover'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -736,17 +808,28 @@ const openEditModal = (cert: any) => {
   isFormModalOpen.value = true
 }
 
-const autoGenerateModalSerial = async () => {
-  const nextSerial = await certificateApi.getNextSerial('INTERN', modalForm.value.userId)
-  if (nextSerial) {
-    modalForm.value.serialNumber = nextSerial
-    toast.success('Nomor seri otomatis dibuat!', { description: nextSerial })
-  }
-}
+// Searchable Intern Dropdown State in Modal
+const isInternDropdownOpen = ref(false)
+const internSearchQuery = ref('')
 
-const onSelectInternInModal = (idStr: any) => {
-  const intern = interns.value.find(i => String(i.id) === String(idStr))
-  if (!intern) return
+const filteredModalInterns = computed(() => {
+  if (!internSearchQuery.value.trim()) return interns.value
+  const q = internSearchQuery.value.toLowerCase()
+  return interns.value.filter(i => 
+    i.name?.toLowerCase().includes(q) ||
+    i.department?.toLowerCase().includes(q) ||
+    i.position?.toLowerCase().includes(q) ||
+    i.institution?.toLowerCase().includes(q) ||
+    i.email?.toLowerCase().includes(q)
+  )
+})
+
+const selectedInternModalInfo = computed(() => {
+  if (!modalForm.value.userId) return null
+  return interns.value.find(i => i.id === modalForm.value.userId) || null
+})
+
+const selectInternInModal = (intern: any) => {
   modalForm.value.userId = intern.id
   modalForm.value.recipientName = intern.name
   modalForm.value.position = intern.position || intern.department || ''
@@ -756,6 +839,22 @@ const onSelectInternInModal = (idStr: any) => {
     } catch {
       modalForm.value.dateOfCompletion = format(new Date(), 'yyyy-MM-dd')
     }
+  }
+  isInternDropdownOpen.value = false
+  internSearchQuery.value = ''
+  toast.info(`Data ${intern.name} berhasil diisikan ke form`)
+}
+
+const resetModalInternSelection = () => {
+  modalForm.value.userId = undefined
+  internSearchQuery.value = ''
+}
+
+const autoGenerateModalSerial = async () => {
+  const nextSerial = await certificateApi.getNextSerial('INTERN', modalForm.value.userId)
+  if (nextSerial) {
+    modalForm.value.serialNumber = nextSerial
+    toast.success('Nomor seri otomatis dibuat!', { description: nextSerial })
   }
 }
 
