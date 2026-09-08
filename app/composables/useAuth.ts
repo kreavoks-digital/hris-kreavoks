@@ -95,8 +95,12 @@ export const useAuth = () => {
       } catch {}
     }
 
-    // Jika sudah ada token di memory, tidak perlu refresh
-    if (accessToken.value) return
+    // Jika sudah ada token di memory, tetap sync user data terbaru dari server
+    // agar permission yang baru di-assign langsung aktif tanpa perlu logout
+    if (accessToken.value) {
+      await fetchUser()
+      return
+    }
 
     // Hanya coba refresh jika user PERNAH login (flag aktif).
     // Pakai localStorage agar flag ini terbaca dari tab manapun.
