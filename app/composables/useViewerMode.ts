@@ -20,7 +20,8 @@ export const useViewerMode = () => {
     if (!user.value) return false
     if (user.value.role === 'ADMIN') return false
 
-    const permissions: string[] = user.value.permissions ?? []
+    const rawPermissions = user.value.permissions ?? []
+    const permissions: string[] = rawPermissions.map((p: any) => typeof p === 'string' ? p : p?.name).filter(Boolean)
 
     // Jika punya hak kelola spesifik → bukan viewer murni
     const hasManagePermission = permissions.some((p) =>
@@ -48,7 +49,8 @@ export const useViewerMode = () => {
     if (!user.value) return false
     if (user.value.role === 'ADMIN') return true
 
-    const permissions: string[] = user.value.permissions ?? []
+    const rawPermissions = user.value.permissions ?? []
+    const permissions: string[] = rawPermissions.map((p: any) => typeof p === 'string' ? p : p?.name).filter(Boolean)
     return permissions.some((p) =>
       ['manage_users', 'manage_letters', 'manage_roles', 'view_all_features'].includes(p)
     )

@@ -4,7 +4,8 @@ export default defineNuxtRouteMiddleware((to) => {
   const { user } = useAuth();
 
   const isAdmin = user.value?.role === 'ADMIN'
-  const permissions: string[] = user.value?.permissions ?? []
+  const rawPermissions = user.value?.permissions ?? []
+  const permissions: string[] = rawPermissions.map((p: any) => typeof p === 'string' ? p : p?.name).filter(Boolean)
 
   // Izinkan ADMIN
   if (isAdmin) return

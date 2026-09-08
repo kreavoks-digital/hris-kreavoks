@@ -307,7 +307,7 @@ import NotificationToast from '~/components/shared/NotificationToast.vue'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
-const { user, logoutAndRedirect } = useAuth()
+const { user, logoutAndRedirect, fetchUser, accessToken } = useAuth()
 const searchQuery = useState('dashboard_search_query', () => '')
 const { fetchNotifications, setupFcmListener, destroyFcmListener } = useNotifications()
 
@@ -334,6 +334,11 @@ onMounted(async () => {
   }
   window.addEventListener('resize', onResize)
   onUnmounted(() => window.removeEventListener('resize', onResize))
+
+  // Sinkronisasi data user & permission terbaru dari server
+  if (accessToken.value) {
+    await fetchUser()
+  }
 
   // Fetch notifikasi awal & setup FCM foreground listener
   await fetchNotifications()
@@ -390,7 +395,8 @@ const filteredNavigation = computed(() => {
     // ADMIN → selalu tampil semua
     if (user.value?.role === 'ADMIN') return true;
 
-    const permissions: string[] = user.value?.permissions ?? []
+    const rawPermissions = user.value?.permissions ?? []
+    const permissions: string[] = rawPermissions.map((p: any) => typeof p === 'string' ? p : p?.name).filter(Boolean)
 
     // Documentation viewer (view_all_features) → tampilkan semua menu, tapi aksi di-block di halaman masing-masing
     // Permission ini MANUAL per-individu via RBAC, tidak otomatis ke semua INTERN
