@@ -63,17 +63,17 @@
               </TableCell>
               <TableCell class="text-right">
                 <div v-if="isAdmin && canPerformActions && leave.status?.toLowerCase() === 'pending'" class="flex justify-end gap-2">
-                  <Button size="sm" class="bg-emerald-600 hover:bg-emerald-700 text-white h-8 rounded-xl px-3" @click="$emit('approve', leave.id)">
+                  <Button size="sm" class="bg-emerald-600 hover:bg-emerald-700 text-white h-8 rounded-3xl px-3" @click="$emit('approve', leave.id)">
                     Setujui
                   </Button>
-                  <Button size="sm" variant="destructive" class="h-8 rounded-xl px-3" @click="$emit('reject', leave.id)">
+                  <Button size="sm" variant="destructive" class="h-8 rounded-3xl px-3" @click="$emit('reject', leave.id)">
                     Tolak
                   </Button>
                 </div>
                 <!-- Viewer mode: lihat data tapi tidak bisa approve/reject -->
                 <span v-else-if="isAdmin && !canPerformActions && leave.status?.toLowerCase() === 'pending'" class="text-xs text-muted-foreground italic">View only</span>
                 <div v-else-if="!isAdmin && leave.status?.toLowerCase() === 'pending'">
-                  <Button size="sm" variant="outline" class="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 border-rose-200 hover:border-rose-300 h-8 rounded-xl px-3" @click="$emit('cancel', leave.id)">
+                  <Button size="sm" variant="outline" class="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 border-rose-200 hover:border-rose-300 h-8 rounded-3xl px-3" @click="$emit('cancel', leave.id)">
                     Batalkan
                   </Button>
                 </div>

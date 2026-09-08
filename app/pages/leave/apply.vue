@@ -19,7 +19,7 @@
           </div>
           <div>
             <CardTitle class="text-lg font-semibold text-kv-black">Formulir Pengajuan</CardTitle>
-            <CardDescription class="text-sm">Sisa jatah cuti tahunan: <span class="font-semibold text-kv-primary">{{ leaveBalance.annual }} Hari</span></CardDescription>
+            <CardDescription class="text-sm">Isi tanggal dan alasan pengajuan cuti secara lengkap</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -135,10 +135,6 @@ definePageMeta({
 });
 
 const loading = ref(false)
-const leaveBalance = ref({
-  annual: 12,
-  used: 3
-})
 
 const form = ref({
   type: 'annual',
@@ -146,17 +142,6 @@ const form = ref({
   endDate: '',
   reason: ''
 })
-
-const fetchBalance = async () => {
-  try {
-    const response = await leaveApi.getLeaves()
-    if (response.success) {
-      leaveBalance.value = response.data.balance
-    }
-  } catch (err) {
-    console.error('Error fetching balance:', err)
-  }
-}
 
 const handleSubmit = async () => {
   loading.value = true
@@ -175,8 +160,4 @@ const handleSubmit = async () => {
     loading.value = false
   }
 }
-
-onMounted(() => {
-  fetchBalance()
-})
 </script>

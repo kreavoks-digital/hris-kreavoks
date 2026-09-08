@@ -8,11 +8,6 @@ export const useLeave = () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  const leaveBalance = ref({
-    annual: 12,
-    used: 3,
-  })
-
   const filteredLeaves = computed(() => {
     let result = leaves.value
 
@@ -37,7 +32,6 @@ export const useLeave = () => {
       const response = await leaveApi.getLeaves()
       if (response.success) {
         leaves.value = response.data.leaves
-        leaveBalance.value = response.data.balance
       }
     } catch (err: any) {
       console.error("Error fetching leaves:", err)
@@ -104,7 +98,7 @@ export const useLeave = () => {
   return {
     filterStatus,
     filterType,
-    leaveBalance,
+    leaves,
     filteredLeaves,
     loading,
     error,

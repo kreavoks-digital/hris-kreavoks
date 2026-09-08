@@ -12,8 +12,8 @@
       </div>
     </div>
 
-    <!-- Summary Grid (Non-Admin balance or Admin overview) -->
-    <LeaveSummary v-if="!isAdmin" :balance="leaveBalance" />
+    <!-- Summary Stats & Frequency Insights Grid -->
+    <LeaveSummary :leaves="leaves" :is-admin="isAdmin" />
 
     <!-- Filters Section -->
     <div class="flex flex-col sm:flex-row gap-4">
@@ -60,7 +60,7 @@ const { isViewerMode, canPerformActions } = useViewerMode()
 
 const {
   filterStatus,
-  leaveBalance,
+  leaves,
   filteredLeaves,
   loading,
   fetchLeaves,
