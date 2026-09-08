@@ -23,6 +23,7 @@
 
           <!-- Tambah Manual Button -->
           <Button
+            v-if="canPerformActions"
             size="sm"
             variant="default"
             class="h-9 gap-1.5 text-xs font-bold rounded-2xl shrink-0"
@@ -61,7 +62,7 @@
         <p class="text-xs text-muted-foreground max-w-sm mx-auto">
           Sertifikat yang diunduh dari studio akan otomatis tercatat, atau Anda dapat menambahkan sertifikat manual/lama dengan tombol di atas.
         </p>
-        <Button size="sm" variant="outline" class="rounded-2xl text-xs gap-1.5 font-bold" @click="openAddModal">
+        <Button v-if="canPerformActions" size="sm" variant="outline" class="rounded-2xl text-xs gap-1.5 font-bold" @click="openAddModal">
           <Plus class="h-3.5 w-3.5" />
           Tambah Sertifikat Baru
         </Button>
@@ -156,6 +157,7 @@
                 <div class="inline-flex items-center justify-end gap-1.5">
                   <!-- Kirim Email Button -->
                   <Button
+                    v-if="canPerformActions"
                     size="sm"
                     variant="outline"
                     class="h-7 text-xs px-2.5 gap-1 font-semibold rounded-xl border-border"
@@ -190,6 +192,7 @@
                       </DropdownMenuItem>
 
                       <DropdownMenuItem
+                        v-if="canPerformActions"
                         class="cursor-pointer gap-2 text-xs py-2 rounded-xl"
                         @click="openEditModal(cert)"
                       >
@@ -205,9 +208,10 @@
                         <span>Salin No. Seri</span>
                       </DropdownMenuItem>
 
-                      <DropdownMenuSeparator class="my-1" />
+                      <DropdownMenuSeparator v-if="canPerformActions" class="my-1" />
 
                       <DropdownMenuItem
+                        v-if="canPerformActions"
                         class="cursor-pointer gap-2 text-xs py-2 rounded-xl text-rose-500 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30"
                         @click="confirmDeleteCert(cert)"
                       >
@@ -642,6 +646,8 @@ import { certificateApi } from '../api'
 const emit = defineEmits<{
   (e: 'load-certificate', cert: any): void
 }>()
+
+const { canPerformActions } = useViewerMode()
 
 const certificates = ref<any[]>([])
 const interns = ref<any[]>([])
