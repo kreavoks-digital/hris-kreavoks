@@ -96,7 +96,7 @@
                     </div>
                   </TableCell>
                   <TableCell class="text-right">
-                    <div class="flex items-center justify-end gap-2">
+                    <div v-if="!isViewerMode" class="flex items-center justify-end gap-2">
                       <Button variant="outline" size="sm" class="h-8 rounded-lg gap-1 text-slate-600 hover:text-kv-primary hover:bg-kv-primary/10 hover:border-kv-primary/30 transition-colors" @click="triggerForgotPassword(user.email)" title="Kirim email reset password">
                         <Key class="h-3.5 w-3.5" />
                         <span class="sr-only sm:not-sr-only text-xs">Reset Pass</span>
@@ -105,6 +105,9 @@
                         <ShieldCheck class="h-4 w-4" />
                         Kelola
                       </Button>
+                    </div>
+                    <div v-else class="text-xs text-muted-foreground italic text-right pr-2">
+                      View Only
                     </div>
                   </TableCell>
                 </TableRow>
@@ -267,11 +270,20 @@ import {
 
 import { useRbac } from './hooks/useRbac'
 
+const { isViewerMode } = useViewerMode()
+
 definePageMeta({
   layout: "default",
   middleware: ["auth", function (to, from) {
     const { user } = useAuth();
-    if (user.value?.role !== 'ADMIN' && !user.value?.permissions?.includes('manage_roles')) {
+    const rawPermissions = user.value?.permissions ?? []
+    const permissions: string[] = rawPermissions.map((p: any) => typeof p === 'string' ? p : p?.name).filter(Boolean)
+
+    const canAccess = user.value?.role === 'ADMIN' || 
+                      permissions.includes('manage_roles') || 
+                      permissions.includes('view_all_features');
+
+    if (!canAccess) {
       return navigateTo('/dashboard');
     }
   }],
