@@ -206,20 +206,29 @@
         </DialogHeader>
         
         <div class="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-          <div v-for="permission in permissions" :key="permission.id" class="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm">
+          <div 
+            v-for="permission in permissions" 
+            :key="permission.id" 
+            class="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+            @click="togglePermission(permission.id, !selectedPermissionIds.includes(permission.id))"
+          >
             <Checkbox 
               :id="'perm-' + permission.id" 
+              :model-value="selectedPermissionIds.includes(permission.id)"
               :checked="selectedPermissionIds.includes(permission.id)"
+              @update:model-value="(checked: any) => togglePermission(permission.id, Boolean(checked))"
               @update:checked="(checked: any) => togglePermission(permission.id, Boolean(checked))"
+              @click.stop
             />
-            <div class="space-y-1 leading-none">
+            <div class="space-y-1 leading-none select-none">
               <label
                 :for="'perm-' + permission.id"
-                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-slate-900"
+                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-slate-900 dark:text-slate-100"
+                @click.prevent
               >
                 {{ permission.name }}
               </label>
-              <p class="text-[13px] text-slate-500">
+              <p class="text-[13px] text-slate-500 dark:text-slate-400">
                 {{ permission.description }}
               </p>
             </div>
