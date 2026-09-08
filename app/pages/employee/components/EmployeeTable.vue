@@ -16,7 +16,7 @@
           <TableHead>No. Telepon</TableHead>
           <TableHead>Status</TableHead>
         </template>
-        <TableHead class="text-right">Aksi</TableHead>
+        <TableHead v-if="!readonly" class="text-right">Aksi</TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>
@@ -119,7 +119,7 @@
           </TableCell>
 
           <!-- Actions -->
-          <TableCell class="text-right">
+          <TableCell v-if="!readonly" class="text-right">
             <div class="flex justify-end gap-2">
               <!-- Verifikasi button (pending tab only) -->
               <Button
@@ -203,6 +203,7 @@ const props = defineProps<{
   activeTab: 'all' | 'pending' | 'mentor'
   verifyingId: string | number | null
   loading: boolean
+  readonly?: boolean
 }>()
 
 defineEmits<{

@@ -43,6 +43,7 @@
         :applications="mentorApplications"
         :verifying-id="verifyingId"
         :loading="loading"
+        :readonly="isViewerMode"
         @review="reviewMentor"
         @delete="confirmDeleteMentor"
       />
@@ -85,6 +86,8 @@ definePageMeta({
   middleware: ["auth", "admin"],
   title: "Pendaftaran Mentor"
 });
+
+const { isViewerMode } = useViewerMode()
 
 const loading = ref(false)
 const page = ref(1)

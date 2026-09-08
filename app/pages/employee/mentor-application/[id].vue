@@ -36,8 +36,13 @@
       <MentorBankCard :application="formData" />
 
       <!-- Review Actions -->
+      <!-- Viewer mode: tidak ada aksi -->
+      <div v-if="isViewerMode" class="flex items-center gap-2.5 px-4 py-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-700 dark:text-amber-400 text-sm">
+        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+        <span>Mode <strong>View Only</strong> — Anda hanya dapat melihat data pendaftaran ini.</span>
+      </div>
       <!-- APPROVED: locked, show back only -->
-      <div v-if="formData.status === 'APPROVED'" class="flex justify-end p-4">
+      <div v-else-if="formData.status === 'APPROVED'" class="flex justify-end p-4">
         <Button variant="ghost" class="px-6" @click="handleBack">Kembali</Button>
       </div>
 
@@ -99,6 +104,8 @@ definePageMeta({
   middleware: ["auth", "admin"],
   title: "Review Pendaftaran Mentor"
 });
+
+const { isViewerMode } = useViewerMode()
 
 const route = useRoute();
 const loading = ref(false);

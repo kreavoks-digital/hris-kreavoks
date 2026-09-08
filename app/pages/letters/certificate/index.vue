@@ -12,23 +12,28 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <Button
-          variant="outline"
-          @click="handleDownloadImage"
-          :disabled="isGenerating"
-        >
-          <ImageIcon class="h-4 w-4" />
-          Download PNG
-        </Button>
-        <Button
-          variant="default"
-          @click="handleDownloadPdf"
-          :disabled="isGenerating"
-        >
-          <Download v-if="!isGenerating" class="h-4 w-4" />
-          <Loader2 v-else class="h-4 w-4 animate-spin" />
-          {{ isGenerating ? 'Menyiapkan Dokumen...' : 'Download PDF' }}
-        </Button>
+        <template v-if="canPerformActions">
+          <Button
+            variant="outline"
+            @click="handleDownloadImage"
+            :disabled="isGenerating"
+          >
+            <ImageIcon class="h-4 w-4" />
+            Download PNG
+          </Button>
+          <Button
+            variant="default"
+            @click="handleDownloadPdf"
+            :disabled="isGenerating"
+          >
+            <Download v-if="!isGenerating" class="h-4 w-4" />
+            <Loader2 v-else class="h-4 w-4 animate-spin" />
+            {{ isGenerating ? 'Menyiapkan Dokumen...' : 'Download PDF' }}
+          </Button>
+        </template>
+        <span v-else class="text-xs text-muted-foreground italic px-3 py-2 border border-border rounded-xl bg-muted/30">
+          View only — tidak dapat men-download
+        </span>
       </div>
     </div>
 
@@ -361,6 +366,8 @@ definePageMeta({
   middleware: ['auth', 'admin'],
   title: 'Certificate Generator'
 })
+
+const { canPerformActions } = useViewerMode()
 
 const historyTableRef = ref<InstanceType<typeof CertificateHistoryTable> | null>(null)
 

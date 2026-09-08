@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-semibold text-foreground">Template Surat</h1>
         <p class="text-muted-foreground mt-1 text-sm">Kelola template surat resmi perusahaan.</p>
       </div>
-      <Button @click="openAdd" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
+      <Button v-if="canPerformActions" @click="openAdd" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
         <FileText class="h-4 w-4" />
         Buat Template
       </Button>
@@ -67,12 +67,15 @@
                 {{ new Date(letter.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) }}
               </TableCell>
               <TableCell class="text-right flex items-center justify-end gap-1">
-                <Button variant="ghost" size="icon" class="text-blue-500 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-500/20" @click="openEdit(letter)">
-                  <Edit class="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" class="text-rose-500 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-500/20" @click="confirmDelete(letter)">
-                  <Trash2 class="h-4 w-4" />
-                </Button>
+                <template v-if="canPerformActions">
+                  <Button variant="ghost" size="icon" class="text-blue-500 hover:text-blue-600 hover:bg-blue-100 dark:hover:bg-blue-500/20" @click="openEdit(letter)">
+                    <Edit class="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" class="text-rose-500 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-500/20" @click="confirmDelete(letter)">
+                    <Trash2 class="h-4 w-4" />
+                  </Button>
+                </template>
+                <span v-else class="text-xs text-muted-foreground italic">View only</span>
               </TableCell>
             </TableRow>
           </template>
@@ -183,6 +186,8 @@ definePageMeta({
   layout: "default",
   middleware: ["auth", "admin"],
 });
+
+const { canPerformActions } = useViewerMode()
 
 const api = useApi();
 const loading = ref(true);

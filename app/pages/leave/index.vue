@@ -35,7 +35,8 @@
     <!-- Table Card -->
     <LeaveTable
       :filtered-leaves="filteredLeaves"
-      :is-admin="isAdmin"
+      :is-admin="isAdmin || isViewerMode"
+      :can-perform-actions="canPerformActions"
       :loading="loading"
       :get-leave-type-label="getLeaveTypeLabel"
       :format-date="formatDate"
@@ -55,6 +56,7 @@ import { useAuth } from '~/composables/useAuth'
 
 const auth = useAuth()
 const isAdmin = computed(() => auth.user.value?.role === 'ADMIN')
+const { isViewerMode, canPerformActions } = useViewerMode()
 
 const {
   filterStatus,

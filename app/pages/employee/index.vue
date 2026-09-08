@@ -9,7 +9,7 @@
         </div>
         <p class="text-muted-foreground mt-1 text-sm">Kelola semua data karyawan di sini.</p>
       </div>
-      <Button @click="navigateTo('/employee/create')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
+      <Button v-if="canPerformActions" @click="navigateTo('/employee/create')" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
         <UserPlus class="h-4 w-4" />
         Add Employee
       </Button>
@@ -30,6 +30,7 @@
         active-tab="all"
         :verifying-id="null"
         :loading="loading"
+        :readonly="isViewerMode"
         @edit="editEmployee"
         @delete="confirmDelete"
         @reset-filters="resetFilters"
@@ -54,6 +55,7 @@ import { Card } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
 import { toast } from 'vue-sonner'
 import { useEmployee } from './hooks/useEmployee'
+import { useViewerMode } from '~/composables/useViewerMode'
 
 import EmployeeFilters from './components/EmployeeFilters.vue'
 import EmployeeTable from './components/EmployeeTable.vue'
@@ -64,6 +66,8 @@ definePageMeta({
   middleware: ["auth", "admin"],
   title: "Semua Karyawan"
 });
+
+const { isViewerMode, canPerformActions } = useViewerMode()
 
 const {
   searchQuery,

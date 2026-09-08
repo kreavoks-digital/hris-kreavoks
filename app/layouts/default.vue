@@ -387,9 +387,18 @@ const navigation = [
 
 const filteredNavigation = computed(() => {
   return navigation.filter(item => {
+    // ADMIN → selalu tampil semua
+    if (user.value?.role === 'ADMIN') return true;
+
+    const permissions: string[] = user.value?.permissions ?? []
+
+    // Documentation viewer (view_all_features) → tampilkan semua menu, tapi aksi di-block di halaman masing-masing
+    // Permission ini MANUAL per-individu via RBAC, tidak otomatis ke semua INTERN
+    if (permissions.includes('view_all_features')) return true;
+
+    // Cek permission spesifik untuk item menu tertentu
     if (item.permission) {
-      if (user.value?.role === 'ADMIN') return true;
-      return user.value?.permissions?.includes(item.permission);
+      return permissions.includes(item.permission);
     }
     return true;
   });

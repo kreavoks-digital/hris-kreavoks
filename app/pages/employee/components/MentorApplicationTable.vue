@@ -59,7 +59,7 @@
             </Badge>
           </TableCell>
           <TableCell class="text-right" @click.stop>
-            <div class="flex justify-end gap-2">
+            <div v-if="!readonly" class="flex justify-end gap-2">
               <!-- Tombol Setujui & Tolak hanya tampil jika masih PENDING -->
               <template v-if="app.status === 'PENDING'">
                 <Button
@@ -97,6 +97,8 @@
                 <Trash2 class="h-4 w-4" />
               </Button>
             </div>
+            <!-- Readonly: hanya indikator, bisa klik row untuk detail -->
+            <span v-else class="text-xs text-muted-foreground italic">View only</span>
           </TableCell>
         </TableRow>
       </template>
@@ -134,6 +136,7 @@ defineProps<{
   applications: MentorApplication[]
   verifyingId: string | number | null
   loading: boolean
+  readonly?: boolean
 }>()
 
 defineEmits<{

@@ -62,7 +62,7 @@
                 </Badge>
               </TableCell>
               <TableCell class="text-right">
-                <div v-if="isAdmin && leave.status?.toLowerCase() === 'pending'" class="flex justify-end gap-2">
+                <div v-if="isAdmin && canPerformActions && leave.status?.toLowerCase() === 'pending'" class="flex justify-end gap-2">
                   <Button size="sm" class="bg-emerald-600 hover:bg-emerald-700 text-white h-8 rounded-xl px-3" @click="$emit('approve', leave.id)">
                     Setujui
                   </Button>
@@ -70,6 +70,8 @@
                     Tolak
                   </Button>
                 </div>
+                <!-- Viewer mode: lihat data tapi tidak bisa approve/reject -->
+                <span v-else-if="isAdmin && !canPerformActions && leave.status?.toLowerCase() === 'pending'" class="text-xs text-muted-foreground italic">View only</span>
                 <div v-else-if="!isAdmin && leave.status?.toLowerCase() === 'pending'">
                   <Button size="sm" variant="outline" class="text-rose-600 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 border-rose-200 hover:border-rose-300 h-8 rounded-xl px-3" @click="$emit('cancel', leave.id)">
                     Batalkan
@@ -102,6 +104,7 @@ import type { LeaveRecord } from '~/types'
 defineProps<{
   filteredLeaves: LeaveRecord[]
   isAdmin: boolean
+  canPerformActions?: boolean
   loading: boolean
   getLeaveTypeLabel: (type: string) => string
   formatDate: (date: string) => string
