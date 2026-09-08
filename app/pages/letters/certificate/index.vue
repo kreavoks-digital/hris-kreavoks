@@ -12,28 +12,24 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <template v-if="canPerformActions">
-          <Button
-            variant="outline"
-            @click="handleDownloadImage"
-            :disabled="isGenerating"
-          >
-            <ImageIcon class="h-4 w-4" />
-            Download PNG
-          </Button>
-          <Button
-            variant="default"
-            @click="handleDownloadPdf"
-            :disabled="isGenerating"
-          >
-            <Download v-if="!isGenerating" class="h-4 w-4" />
-            <Loader2 v-else class="h-4 w-4 animate-spin" />
-            {{ isGenerating ? 'Menyiapkan Dokumen...' : 'Download PDF' }}
-          </Button>
-        </template>
-        <span v-else class="text-xs text-muted-foreground italic px-3 py-2 border border-border rounded-xl bg-muted/30">
-          View only — tidak dapat men-download
-        </span>
+        <Button
+          variant="outline"
+          @click="handleDownloadImage"
+          :disabled="!canPerformActions || isGenerating"
+        >
+          <ImageIcon class="h-4 w-4" />
+          Download PNG
+        </Button>
+        <Button
+          variant="default"
+          @click="handleDownloadPdf"
+          :disabled="!canPerformActions || isGenerating"
+          class="rounded-3xl bg-kv-primary hover:bg-kv-primary/90"
+        >
+          <Download v-if="!isGenerating" class="h-4 w-4" />
+          <Loader2 v-else class="h-4 w-4 animate-spin" />
+          {{ isGenerating ? 'Menyiapkan Dokumen...' : 'Download PDF' }}
+        </Button>
       </div>
     </div>
 
@@ -41,8 +37,16 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
       
       <!-- LEFT PANEL: Editor & Auto-fill Controls (5 Columns) -->
-      <div class="lg:col-span-5 space-y-6">
+      <fieldset :disabled="!canPerformActions" class="lg:col-span-5 space-y-6 block border-0 p-0 m-0">
         
+        <!-- Viewer Mode Info Banner -->
+        <div v-if="!canPerformActions" class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-3xl flex items-center gap-3 text-xs text-amber-700 dark:text-amber-400">
+          <Info class="h-4 w-4 shrink-0" />
+          <p>
+            <strong>Mode Pratinjau (View Only):</strong> Anda hanya memiliki hak akses untuk melihat sertifikat. Pengisian form dan pembuatan dokumen dinonaktifkan.
+          </p>
+        </div>
+
         <!-- 1. Auto-fill Selector Card -->
         <Card class="border border-border bg-card rounded-3xl overflow-hidden">
           <CardHeader class="bg-muted/40 border-b border-border py-4 px-6">
@@ -59,8 +63,8 @@
           <CardContent class="p-6 space-y-4">
             <div class="space-y-2">
               <Label class="text-xs font-semibold text-foreground">Pilih Karyawan Magang</Label>
-              <Select v-model="selectedInternId">
-                <SelectTrigger class="rounded-2xl h-11 border-border bg-background focus:ring-kv-primary">
+              <Select v-model="selectedInternId" :disabled="!canPerformActions">
+                <SelectTrigger class="rounded-2xl h-11 border-border bg-background focus:ring-kv-primary" :disabled="!canPerformActions">
                   <SelectValue placeholder="Pilih Intern untuk Auto-Fill" />
                 </SelectTrigger>
                 <SelectContent class="rounded-2xl border-border bg-popover max-h-64">
@@ -79,7 +83,7 @@
                 <p class="font-semibold text-foreground">{{ selectedIntern.name }}</p>
                 <p class="text-muted-foreground">{{ selectedIntern.department }} &bull; {{ selectedIntern.institution || 'Kreavoks Intern' }}</p>
               </div>
-              <Button size="sm" variant="ghost" @click="resetFormToSample">
+              <Button v-if="canPerformActions" size="sm" variant="ghost" @click="resetFormToSample">
                 Reset ke Default
               </Button>
             </div>
@@ -107,25 +111,25 @@
               </div>
               <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Date of Completion</Label>
-                <Input v-model="form.dateOfCompletion" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="26 November 2025" />
+                <Input v-model="form.dateOfCompletion" :disabled="!canPerformActions" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="26 November 2025" />
               </div>
             </div>
 
             <!-- Recipient Name -->
             <div class="space-y-1.5">
               <Label class="text-xs font-semibold text-foreground">Nama Penerima (Calligraphy)</Label>
-              <Input v-model="form.recipientName" class="rounded-2xl h-10 border-border bg-background text-sm font-medium" placeholder="Nama lengkap penerima" />
+              <Input v-model="form.recipientName" :disabled="!canPerformActions" class="rounded-2xl h-10 border-border bg-background text-sm font-medium" placeholder="Nama lengkap penerima" />
             </div>
 
             <!-- Position & Duration -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div class="sm:col-span-2 space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Posisi / Role Magang</Label>
-                <Input v-model="form.position" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="UI/UX Designer" />
+                <Input v-model="form.position" :disabled="!canPerformActions" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="UI/UX Designer" />
               </div>
               <div class="space-y-1.5">
                 <Label class="text-xs font-semibold text-foreground">Durasi (Bulan)</Label>
-                <Input v-model="form.durationMonths" type="number" min="1" max="24" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="3" />
+                <Input v-model="form.durationMonths" :disabled="!canPerformActions" type="number" min="1" max="24" class="rounded-2xl h-10 border-border bg-background text-xs" placeholder="3" />
               </div>
             </div>
 
@@ -133,12 +137,13 @@
             <div class="space-y-1.5">
               <Label class="text-xs font-semibold text-foreground flex items-center justify-between">
                 Kalimat Ucapan / Statement
-                <button type="button" @click="resetStatement" class="text-xs text-kv-primary hover:underline font-normal">
+                <button v-if="canPerformActions" type="button" @click="resetStatement" class="text-xs text-kv-primary hover:underline font-normal">
                   Reset Kalimat
                 </button>
               </Label>
               <Textarea
                 v-model="form.statementText"
+                :disabled="!canPerformActions"
                 rows="3"
                 class="rounded-2xl border-border bg-background text-xs leading-relaxed resize-none"
                 placeholder="Successfully completed a 3-month internship as..."
@@ -166,6 +171,7 @@
                   </div>
                   <Input
                     :model-value="form.scores.attendance"
+                    :disabled="!canPerformActions"
                     @input="(e: any) => updateScore('attendance', e.target.value)"
                     type="text"
                     inputmode="numeric"
@@ -183,6 +189,7 @@
                   </div>
                   <Input
                     :model-value="form.scores.workPerformance"
+                    :disabled="!canPerformActions"
                     @input="(e: any) => updateScore('workPerformance', e.target.value)"
                     type="text"
                     inputmode="numeric"
@@ -200,6 +207,7 @@
                   </div>
                   <Input
                     :model-value="form.scores.teamWork"
+                    :disabled="!canPerformActions"
                     @input="(e: any) => updateScore('teamWork', e.target.value)"
                     type="text"
                     inputmode="numeric"
@@ -217,6 +225,7 @@
                   </div>
                   <Input
                     :model-value="form.scores.communication"
+                    :disabled="!canPerformActions"
                     @input="(e: any) => updateScore('communication', e.target.value)"
                     type="text"
                     inputmode="numeric"
@@ -247,6 +256,7 @@
                 </div>
                 <Input
                   v-model="form.customGrade"
+                  :disabled="!canPerformActions"
                   placeholder="Auto"
                   class="w-20 h-9 text-center font-bold text-xs rounded-2xl border-border bg-background"
                 />
@@ -256,7 +266,7 @@
           </CardContent>
         </Card>
 
-      </div>
+      </fieldset>
 
       <!-- RIGHT PANEL: Live Certificate Preview & Zoom Controls (7 Columns) -->
       <div class="lg:col-span-7 space-y-4 sticky top-6">
