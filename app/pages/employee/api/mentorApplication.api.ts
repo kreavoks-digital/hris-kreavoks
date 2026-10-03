@@ -57,7 +57,7 @@ export const mentorApplicationApi = {
     }
   },
 
-  reviewApplication: async (id: string | number, status: 'APPROVED' | 'REJECTED'): Promise<ApiResponse<any>> => {
+  reviewApplication: async (id: string | number, status: 'APPROVED' | 'REJECTED' | 'PENDING'): Promise<ApiResponse<any>> => {
     const api = useApi()
     const res = await api(`/mentor-applications/${id}/review` as any, {
       method: 'PATCH',
