@@ -193,46 +193,87 @@
 
         <!-- Right: Search, Bell, Profile -->
         <div class="flex items-center gap-2 sm:gap-3">
-          <!-- Search Bar (Dashboard Only) -->
-          <div v-if="route.path === '/dashboard'" class="relative hidden md:block w-48 lg:w-56">
-            <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
-            <Input
-              v-model="searchQuery"
-              type="text"
-              placeholder="Cari sesuatu"
-              class="pl-9 h-9 text-xs"
-            />
-          </div>
+          <!-- Global Search Rekan Kerja (ala Microsoft Teams) -->
+          <button
+            @click="openSearchModal"
+            class="flex items-center gap-2 px-3 py-1.5 rounded-3xl bg-muted/40 hover:bg-muted border border-border text-xs text-muted-foreground transition-colors w-36 sm:w-52 md:w-60 text-left cursor-pointer"
+            title="Cari rekan kerja (Ctrl + K)"
+          >
+            <Search class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            <span class="truncate flex-1">Cari rekan kerja...</span>
+            <kbd class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-background border border-border font-mono text-[10px]">Ctrl+K</kbd>
+          </button>
 
           <!-- Notification Bell -->
           <NotificationDropdown />
 
           <Separator orientation="vertical" class="h-6" />
 
-          <!-- User Dropdown -->
+          <!-- User Dropdown with Teams Presence -->
           <DropdownMenu>
-            <DropdownMenuTrigger class="flex items-center gap-2.5 px-2 py-1.5 hover:bg-accent rounded-xl transition-all cursor-pointer outline-none border-none bg-transparent">
-              <Avatar class="h-8 w-8 border border-border shadow-sm shrink-0">
-                <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.fullName || 'User'}`" />
-                <AvatarFallback class="bg-kv-primary text-primary-foreground font-bold text-xs">{{ initials }}</AvatarFallback>
-              </Avatar>
+            <DropdownMenuTrigger class="flex items-center gap-2.5 px-2 py-1.5 hover:bg-accent rounded-2xl transition-all cursor-pointer outline-none border-none bg-transparent">
+              <div class="relative shrink-0">
+                <Avatar class="h-9 w-9 border border-border">
+                  <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.fullName || 'User'}`" />
+                  <AvatarFallback class="bg-kv-primary text-primary-foreground font-bold text-xs">{{ initials }}</AvatarFallback>
+                </Avatar>
+                <!-- Status indicator dot on avatar -->
+                <div class="absolute -bottom-0.5 -right-0.5">
+                  <StatusIndicator :status="presence.effectiveStatus" size="md" />
+                </div>
+              </div>
               <div class="hidden md:flex flex-col items-start gap-0">
                 <span class="text-xs font-semibold text-foreground leading-tight">{{ user?.fullName || 'User' }}</span>
                 <span class="text-[11px] text-muted-foreground leading-tight">{{ user?.position || 'Staff' }}</span>
               </div>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent :side-offset="8" align="end" class="w-56 p-1.5 z-50">
+            <DropdownMenuContent :side-offset="8" align="end" class="w-60 p-1.5 z-50 rounded-2xl border border-border bg-popover">
               <div class="px-3 py-2 border-b border-border/50 mb-1">
                 <div class="text-sm font-semibold text-foreground">{{ user?.fullName || 'User' }}</div>
-                <div class="text-[12px] text-muted-foreground">{{ user?.position || 'Staff' }}</div>
+                <div class="text-xs text-muted-foreground truncate">{{ user?.email }}</div>
               </div>
 
               <div class="space-y-0.5">
-                <DropdownMenuItem class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent focus:text-accent-foreground rounded-xl group transition-colors">
+                <DropdownMenuItem
+                  class="flex items-center gap-3 px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent focus:text-accent-foreground rounded-xl group transition-colors"
+                  @click="user?.id && viewProfile(user.id)"
+                >
                   <UserCircle class="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   <span class="text-sm font-medium">Profil Saya</span>
                 </DropdownMenuItem>
+
+                <!-- Teams Status Submenu -->
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger class="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-accent focus:bg-accent rounded-xl group transition-colors">
+                    <div class="flex items-center gap-3">
+                      <StatusIndicator :status="presence.effectiveStatus" size="sm" />
+                      <span class="text-sm font-medium">{{ currentConfig.label }}</span>
+                    </div>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent class="w-56 p-1.5 rounded-2xl border border-border bg-popover z-50">
+                    <DropdownMenuItem
+                      v-for="opt in STATUS_OPTIONS"
+                      :key="opt.key"
+                      class="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-accent rounded-xl"
+                      @click="setStatus(opt.key)"
+                    >
+                      <StatusIndicator :status="opt.key" size="sm" />
+                      <span class="text-sm flex-1">{{ opt.label }}</span>
+                      <Check v-if="presence.customStatus === opt.key" class="w-3.5 h-3.5 text-kv-primary" />
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator class="my-1 border-border/50" />
+
+                    <DropdownMenuItem
+                      class="flex items-center gap-2.5 px-3 py-2 cursor-pointer hover:bg-accent rounded-xl text-muted-foreground"
+                      @click="resetStatus"
+                    >
+                      <RotateCcw class="w-3.5 h-3.5" />
+                      <span class="text-sm">Reset status (Otomatis)</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
 
                 <DropdownMenuSeparator class="mx-2 my-1" />
 
@@ -268,6 +309,10 @@
   </div>
   <!-- Global Notification Toast (teleported to body) -->
   <NotificationToast />
+
+  <!-- Global Modals for Colleague Search & Public Profile -->
+  <ColleagueSearchModal />
+  <PublicProfileModal />
 </template>
 
 <script setup lang="ts">
@@ -288,7 +333,9 @@ import {
   Shield,
   Sun,
   Moon,
-  FileText
+  FileText,
+  RotateCcw,
+  Check,
 } from 'lucide-vue-next'
 import { useDark, useToggle } from '@vueuse/core'
 import { Button } from '~/components/ui/button'
@@ -301,15 +348,36 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from '~/components/ui/dropdown-menu'
 import NotificationDropdown from '~/components/shared/NotificationDropdown.vue'
 import NotificationToast from '~/components/shared/NotificationToast.vue'
+import StatusIndicator from '~/components/shared/StatusIndicator.vue'
+import ColleagueSearchModal from '~/components/shared/ColleagueSearchModal.vue'
+import PublicProfileModal from '~/components/shared/PublicProfileModal.vue'
+import { usePresence } from '~/composables/usePresence'
+import { useColleagueSearch } from '~/composables/useColleagueSearch'
 import { toast } from 'vue-sonner'
 
 const route = useRoute()
 const { user, logoutAndRedirect, fetchUser, accessToken } = useAuth()
 const searchQuery = useState('dashboard_search_query', () => '')
 const { fetchNotifications, setupFcmListener, destroyFcmListener } = useNotifications()
+
+// Presence & Teams Search
+const { presence, currentConfig, setStatus, resetStatus, initPresence } = usePresence()
+const { openSearchModal, viewProfile } = useColleagueSearch()
+
+const STATUS_OPTIONS = [
+  { key: 'AVAILABLE', label: 'Available' },
+  { key: 'BUSY', label: 'Busy' },
+  { key: 'DND', label: 'Do not disturb' },
+  { key: 'BE_RIGHT_BACK', label: 'Be right back' },
+  { key: 'AWAY', label: 'Appear away' },
+  { key: 'OFFLINE', label: 'Appear offline' },
+]
 
 // --- Sidebar State ---
 const isCollapsed = ref(false)
@@ -321,6 +389,8 @@ const toggleDark = useToggle(isDark)
 
 // Restore from localStorage on client
 onMounted(async () => {
+  // Inisialisasi presence heartbeat & auto-status
+  initPresence()
   const saved = localStorage.getItem('kvhris-sidebar-collapsed')
   if (saved !== null) {
     isCollapsed.value = saved === 'true'
