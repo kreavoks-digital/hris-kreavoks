@@ -171,7 +171,7 @@
 
           <!-- Dashboard Specific -->
           <template v-if="route.path === '/dashboard'">
-            <h1 class="text-sm md:text-base font-semibold text-foreground">
+            <h1 class="hidden md:block text-sm md:text-base font-semibold text-foreground">
               Selamat datang kembali,
               <span class="text-kv-primary font-bold">{{ user?.fullName || 'User' }}</span> 👋
             </h1>
