@@ -3,13 +3,13 @@
     <CardHeader class="bg-muted/50 border-b border-border">
       <div class="flex items-center gap-2">
         <Briefcase class="h-5 w-5 text-kv-primary" />
-        <CardTitle class="text-lg font-semibold text-foreground">Keahlian & Profesionalisme</CardTitle>
+        <CardTitle class="text-lg font-semibold text-foreground">Keahlian & Pengalaman</CardTitle>
       </div>
     </CardHeader>
     <CardContent class="p-6 space-y-4">
       <div class="space-y-6">
         <div class="flex flex-col">
-          <span class="text-xs text-muted-foreground font-medium mb-3">Bidang Keahlian</span>
+          <span class="text-xs text-muted-foreground font-medium mb-3">Keahlian</span>
           <ol v-if="parsedExpertise && parsedExpertise.length > 0" class="flex flex-col gap-2.5">
             <li v-for="(exp, idx) in parsedExpertise" :key="idx" class="flex items-start gap-2">
               <span class="text-sm font-medium text-muted-foreground w-4 flex-shrink-0 pt-0.5">{{ Number(idx) + 1 }}.</span>
@@ -28,15 +28,15 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-y-4 gap-x-8 border-t border-border/60 pt-4">
           <div class="flex flex-col">
-            <span class="text-xs text-muted-foreground font-medium">Lama Pengalaman Kerja</span>
+            <span class="text-xs text-muted-foreground font-medium">Pengalaman Kerja</span>
             <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.experience || '0' }} Tahun</span>
           </div>
           <div class="flex flex-col">
-            <span class="text-xs text-muted-foreground font-medium">Pekerjaan Saat Ini</span>
+            <span class="text-xs text-muted-foreground font-medium">Pekerjaan</span>
             <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.currentJob || '-' }}</span>
           </div>
           <div class="flex flex-col">
-            <span class="text-xs text-muted-foreground font-medium">Perusahaan / Institusi</span>
+            <span class="text-xs text-muted-foreground font-medium">Perusahaan</span>
             <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.company || '-' }}</span>
           </div>
         </div>
@@ -44,7 +44,7 @@
 
       <div class="border-t border-border/60 pt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div class="flex flex-col">
-          <span class="text-xs text-muted-foreground font-medium">Ketersediaan Mengajar</span>
+          <span class="text-xs text-muted-foreground font-medium">Jadwal Mengajar</span>
           <span class="text-sm text-foreground mt-0.5">{{ application.teachingAvailability || '-' }}</span>
         </div>
         <div class="flex flex-col">
@@ -54,13 +54,13 @@
       </div>
 
       <div class="border-t border-border/60 pt-4 space-y-2">
-        <span class="text-xs text-muted-foreground font-medium">Bio Singkat</span>
-        <p class="text-sm text-foreground bg-muted/30 p-3 rounded-xl border border-border/50 leading-relaxed">{{ application.bio || 'Tidak ada biografi' }}</p>
+        <span class="text-xs text-muted-foreground font-medium">Bio</span>
+        <p class="text-sm text-foreground bg-muted/30 p-3 rounded-xl border border-border/50 leading-relaxed">{{ application.bio || 'Belum diisi' }}</p>
       </div>
 
       <div class="space-y-2">
         <span class="text-xs text-muted-foreground font-medium">Alasan Mendaftar</span>
-        <p class="text-sm text-foreground bg-muted/30 p-3 rounded-xl border border-border/50 leading-relaxed">{{ application.reason || 'Tidak ada alasan khusus' }}</p>
+        <p class="text-sm text-foreground bg-muted/30 p-3 rounded-xl border border-border/50 leading-relaxed">{{ application.reason || 'Belum diisi' }}</p>
       </div>
 
       <div class="border-t border-border/60 pt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -69,9 +69,9 @@
           <div class="flex flex-col overflow-hidden">
             <span class="text-[10px] text-muted-foreground">Portofolio</span>
             <a v-if="application.portfolioLink" :href="application.portfolioLink" target="_blank" class="text-xs font-semibold text-kv-primary hover:underline truncate">
-              Buka Link Portofolio
+              Lihat Portofolio
             </a>
-            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak melampirkan</span>
+            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak ada</span>
           </div>
         </div>
         <div class="flex items-center gap-3 p-3 border border-border rounded-2xl bg-muted/10">
@@ -79,9 +79,9 @@
           <div class="flex flex-col overflow-hidden">
             <span class="text-[10px] text-muted-foreground">LinkedIn</span>
             <a v-if="application.linkedinLink" :href="application.linkedinLink" target="_blank" class="text-xs font-semibold text-kv-primary hover:underline truncate">
-              Buka Profil LinkedIn
+              Lihat LinkedIn
             </a>
-            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak melampirkan</span>
+            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak ada</span>
           </div>
         </div>
         <div class="flex items-center gap-3 p-3 border border-border rounded-2xl bg-muted/10">
@@ -89,9 +89,9 @@
           <div class="flex flex-col overflow-hidden">
             <span class="text-[10px] text-muted-foreground">Dokumen CV</span>
             <a v-if="application.cvFileUrl" :href="application.cvFileUrl" target="_blank" class="text-xs font-semibold text-kv-primary hover:underline truncate">
-              Buka Dokumen CV
+              Lihat CV
             </a>
-            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak melampirkan</span>
+            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak ada</span>
           </div>
         </div>
         <div class="flex items-center gap-3 p-3 border border-border rounded-2xl bg-muted/10">
@@ -99,9 +99,9 @@
           <div class="flex flex-col overflow-hidden">
             <span class="text-[10px] text-muted-foreground">Dokumen KTP</span>
             <a v-if="application.ktpFileUrl" :href="application.ktpFileUrl" target="_blank" class="text-xs font-semibold text-kv-primary hover:underline truncate">
-              Buka Dokumen KTP
+              Lihat KTP
             </a>
-            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak melampirkan</span>
+            <span v-else class="text-xs font-semibold text-muted-foreground">Tidak ada</span>
           </div>
         </div>
       </div>

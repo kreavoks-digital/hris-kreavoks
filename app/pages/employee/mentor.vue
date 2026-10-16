@@ -4,7 +4,7 @@
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
       <div>
         <h1 class="text-2xl font-semibold text-foreground">Pendaftaran Mentor</h1>
-        <p class="text-muted-foreground mt-1 text-sm">Kelola pendaftaran mentor dari Kreavoks Portal.</p>
+        <p class="text-muted-foreground mt-1 text-sm">Kelola pendaftaran calon mentor.</p>
       </div>
     </div>
 
@@ -13,9 +13,9 @@
       <div class="flex items-start gap-3 min-w-0">
         <Info class="h-5 w-5 text-kv-primary mt-0.5 flex-shrink-0" />
         <div class="min-w-0">
-          <p class="text-sm font-medium text-kv-primary">Pendaftaran Mentor Lintas Aplikasi (Portal)</p>
+          <p class="text-sm font-medium text-kv-primary">Pendaftaran Calon Mentor</p>
           <p class="text-sm text-muted-foreground mt-0.5">
-            Mentor di bawah ini mendaftar melalui Kreavoks Portal. Setujui untuk membuat akun di HRIS secara otomatis &amp; memicu sinkronisasi provisioning akun ke Portal.
+            Daftar calon mentor yang mendaftar via Portal. Setujui untuk mengaktifkan akun mentor mereka.
           </p>
         </div>
       </div>
@@ -62,8 +62,8 @@
     <!-- Delete Confirmation Modal -->
     <KreaConfirmDialog
       v-model:open="isDeleteDialogOpen"
-      title="Hapus Pendaftaran Mentor"
-      :description="`Hapus pendaftaran mentor atas nama ${selectedAppToDelete?.name || ''}? Tindakan ini tidak dapat dibatalkan.`"
+      title="Hapus Pendaftaran"
+      :description="`Hapus pendaftaran ${selectedAppToDelete?.name || ''}? Data yang dihapus tidak bisa dikembalikan.`"
       confirmText="Hapus"
       cancelText="Batal"
       variant="danger"
@@ -147,13 +147,13 @@ const handleDeleteMentor = async () => {
     const response = await mentorApplicationApi.deleteApplication(selectedAppToDelete.value.id)
     if (response.success) {
       toast.success('Pendaftaran Dihapus', {
-        description: `Pendaftaran ${selectedAppToDelete.value.name} telah dihapus permanen.`
+        description: `Pendaftaran ${selectedAppToDelete.value.name} berhasil dihapus.`
       })
       fetchMentorApplications()
     }
   } catch (error: any) {
     toast.error('Gagal Menghapus', {
-      description: error?.data?.message || 'Terjadi kesalahan saat menghapus pendaftaran mentor.'
+      description: error?.data?.message || 'Gagal menghapus pendaftaran mentor.'
     })
   } finally {
     verifyingId.value = null
@@ -163,19 +163,19 @@ const handleDeleteMentor = async () => {
 
 const reviewMentor = async (id: string | number, status: 'APPROVED' | 'REJECTED') => {
   verifyingId.value = id
-  const actionText = status === 'APPROVED' ? 'menyetujui' : 'menolak'
+  const statusLabel = status === 'APPROVED' ? 'disetujui' : 'ditolak'
   
   try {
     const response = await mentorApplicationApi.reviewApplication(id, status)
     if (response.success) {
       toast.success(`Pendaftaran ${status === 'APPROVED' ? 'Disetujui' : 'Ditolak'}`, {
-        description: `Mentor berhasil di-${actionText} dan provisioning data dijalankan.`
+        description: `Pendaftaran mentor berhasil di${statusLabel}.`
       })
       fetchMentorApplications()
     }
   } catch (error: any) {
-    toast.error('Gagal memproses keputusan', {
-      description: error?.data?.message || 'Terjadi masalah koneksi dengan backend HRIS.'
+    toast.error('Gagal Memproses', {
+      description: error?.data?.message || 'Gagal memproses pendaftaran mentor.'
     })
   } finally {
     verifyingId.value = null
@@ -188,12 +188,12 @@ const handleResendEmail = async (app: MentorApplication) => {
     const response = await mentorApplicationApi.resendEmail(app.id)
     if (response.success) {
       toast.success('Email Terkirim', {
-        description: `Email notifikasi berhasil dikirim ulang ke ${app.email}.`
+        description: `Email berhasil dikirim ulang ke ${app.email}.`
       })
     }
   } catch (error: any) {
     toast.error('Gagal Mengirim Email', {
-      description: error?.data?.message || 'Terjadi kesalahan saat mengirim ulang email.'
+      description: error?.data?.message || 'Gagal mengirim ulang email.'
     })
   } finally {
     verifyingId.value = null

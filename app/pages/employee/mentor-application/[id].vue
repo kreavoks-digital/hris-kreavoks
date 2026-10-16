@@ -7,8 +7,8 @@
           <ArrowLeft class="h-5 w-5" />
         </Button>
         <div class="min-w-0">
-          <h1 class="text-xl sm:text-2xl font-semibold text-foreground truncate">Review Pendaftaran Mentor</h1>
-          <p class="text-muted-foreground text-xs sm:text-sm">Tinjau data pendaftaran mentor dari Kreavoks Portal sebelum melakukan approval.</p>
+          <h1 class="text-xl sm:text-2xl font-semibold text-foreground truncate">Detail Calon Mentor</h1>
+          <p class="text-muted-foreground text-xs sm:text-sm">Tinjau data calon mentor sebelum menentukan keputusan.</p>
         </div>
       </div>
     </div>
@@ -21,7 +21,7 @@
       <div class="flex items-center gap-2">
         <CheckCircle2 v-if="formData.status === 'APPROVED'" class="h-5 w-5 text-emerald-600" />
         <X v-else class="h-5 w-5 text-rose-600" />
-        <span class="font-medium text-sm">Pendaftaran ini telah {{ formData.status === 'APPROVED' ? 'Disetujui' : 'Ditolak' }}.</span>
+        <span class="font-medium text-sm">Pendaftaran ini sudah {{ formData.status === 'APPROVED' ? 'disetujui' : 'ditolak' }}.</span>
       </div>
     </div>
 
@@ -39,7 +39,7 @@
       <!-- Viewer mode: tidak ada aksi -->
       <div v-if="isViewerMode" class="flex items-center gap-2.5 px-4 py-2.5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl text-amber-700 dark:text-amber-400 text-sm">
         <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-        <span>Mode <strong>View Only</strong> — Anda hanya dapat melihat data pendaftaran ini.</span>
+        <span>Mode <strong>Lihat Saja</strong> — Anda hanya dapat melihat data ini.</span>
       </div>
       <!-- APPROVED: locked, show back only -->
       <!-- If already APPROVED -->
@@ -93,7 +93,7 @@
           @click="reviewMentor('PENDING')"
           :disabled="loading || deleting"
         >
-          Reset ke Menunggu
+          Kembalikan ke Menunggu
         </Button>
         <!-- Reject -->
         <Button
@@ -103,7 +103,7 @@
           @click="reviewMentor('REJECTED')"
           :disabled="loading || deleting || formData.status === 'REJECTED'"
         >
-          Tolak Pendaftaran
+          Tolak
         </Button>
         <!-- Approve -->
         <Button
@@ -114,7 +114,7 @@
         >
           <Loader2 v-if="loading" class="h-4 w-4 animate-spin" />
           <CheckCircle2 v-else class="h-4 w-4" />
-          Setujui Mentor
+          Setujui
         </Button>
         <!-- Hapus -->
         <Button
@@ -134,8 +134,8 @@
     <!-- Delete Confirmation Modal -->
     <KreaConfirmDialog
       v-model:open="isDeleteDialogOpen"
-      title="Hapus Pendaftaran Mentor"
-      :description="`Hapus pendaftaran mentor atas nama ${formData?.name || ''}? Tindakan ini tidak dapat dibatalkan.`"
+      title="Hapus Pendaftaran"
+      :description="`Hapus pendaftaran ${formData?.name || ''}? Data yang dihapus tidak bisa dikembalikan.`"
       confirmText="Hapus"
       cancelText="Batal"
       variant="danger"
@@ -164,7 +164,7 @@ import KreaConfirmDialog from '~/components/shared/KreaConfirmDialog.vue'
 definePageMeta({
   layout: "default",
   middleware: ["auth", "admin"],
-  title: "Review Pendaftaran Mentor"
+  title: "Detail Calon Mentor"
 });
 
 const { isViewerMode } = useViewerMode()
@@ -186,13 +186,13 @@ const handleDeleteMentor = async () => {
     const response = await mentorApplicationApi.deleteApplication(formData.value.id);
     if (response.success) {
       toast.success('Pendaftaran Dihapus', {
-        description: `Pendaftaran ${formData.value.name} telah dihapus permanen.`
+        description: `Pendaftaran ${formData.value.name} berhasil dihapus.`
       });
       navigateTo('/employee/mentor');
     }
   } catch (error: any) {
     toast.error('Gagal Menghapus', {
-      description: error?.data?.message || 'Terjadi kesalahan saat menghapus pendaftaran mentor.'
+      description: error?.data?.message || 'Gagal menghapus pendaftaran mentor.'
     });
   } finally {
     deleting.value = false;
@@ -236,12 +236,12 @@ const fetchDetail = async () => {
     if (response.success && response.data) {
       formData.value = response.data;
     } else {
-      toast.error("Detail pendaftaran tidak ditemukan");
+      toast.error("Data tidak ditemukan");
       navigateTo("/employee");
     }
   } catch (error) {
     console.error("Error loading application detail:", error);
-    toast.error("Gagal memuat detail data");
+    toast.error("Gagal memuat data");
   } finally {
     loading.value = false;
   }
@@ -249,21 +249,21 @@ const fetchDetail = async () => {
 
 const reviewMentor = async (status: 'APPROVED' | 'REJECTED' | 'PENDING') => {
   const id = route.params.id as string;
-  const actionText = status === 'APPROVED' ? 'menyetujui' : status === 'REJECTED' ? 'menolak' : 'mereset ke Menunggu';
-  const toastTitle = status === 'APPROVED' ? 'Pendaftaran Disetujui' : status === 'REJECTED' ? 'Pendaftaran Ditolak' : 'Pendaftaran Direset';
+  const statusLabel = status === 'APPROVED' ? 'disetujui' : status === 'REJECTED' ? 'ditolak' : 'diubah ke menunggu';
+  const toastTitle = status === 'APPROVED' ? 'Pendaftaran Disetujui' : status === 'REJECTED' ? 'Pendaftaran Ditolak' : 'Status Diperbarui';
   
   loading.value = true;
   try {
     const response = await mentorApplicationApi.reviewApplication(id, status);
     if (response.success) {
       toast.success(toastTitle, {
-        description: `Berhasil ${actionText} pendaftaran mentor.`
+        description: `Pendaftaran mentor berhasil ${statusLabel}.`
       });
       await fetchDetail(); // Refresh data instead of navigating away
     }
   } catch (error: any) {
-    toast.error("Gagal mengirimkan keputusan", {
-      description: error?.data?.message || "Terjadi kesalahan pada server."
+    toast.error("Gagal Memproses", {
+      description: error?.data?.message || "Gagal memproses pendaftaran mentor."
     });
   } finally {
     loading.value = false;
@@ -277,12 +277,12 @@ const handleResendEmail = async () => {
     const response = await mentorApplicationApi.resendEmail(formData.value.id);
     if (response.success) {
       toast.success('Email Terkirim', {
-        description: `Email notifikasi berhasil dikirim ulang ke ${formData.value.email}.`
+        description: `Email berhasil dikirim ulang ke ${formData.value.email}.`
       });
     }
   } catch (error: any) {
     toast.error('Gagal Mengirim Email', {
-      description: error?.data?.message || 'Terjadi kesalahan saat mengirim ulang email.'
+      description: error?.data?.message || 'Gagal mengirim ulang email.'
     });
   } finally {
     sendingEmail.value = false;

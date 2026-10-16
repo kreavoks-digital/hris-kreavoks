@@ -13,19 +13,19 @@
           <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.name }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-xs text-muted-foreground font-medium">Alamat Email</span>
+          <span class="text-xs text-muted-foreground font-medium">Email</span>
           <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.email }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-xs text-muted-foreground font-medium">No. Telepon / WhatsApp</span>
+          <span class="text-xs text-muted-foreground font-medium">No. Telepon</span>
           <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.phone || '-' }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-xs text-muted-foreground font-medium">Nomor KTP</span>
+          <span class="text-xs text-muted-foreground font-medium">No. KTP</span>
           <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.ktpNumber || '-' }}</span>
         </div>
         <div class="flex flex-col">
-          <span class="text-xs text-muted-foreground font-medium">Nomor NPWP</span>
+          <span class="text-xs text-muted-foreground font-medium">No. NPWP</span>
           <span class="text-sm font-semibold text-foreground mt-0.5">{{ application.npwpNumber || '-' }}</span>
         </div>
       </div>

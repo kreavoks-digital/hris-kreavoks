@@ -3,7 +3,7 @@
     <Table class="min-w-[750px]">
       <TableHeader>
         <TableRow>
-          <TableHead class="whitespace-nowrap">Nama Calon Mentor</TableHead>
+          <TableHead class="whitespace-nowrap">Nama Mentor</TableHead>
           <TableHead class="whitespace-nowrap">Keahlian</TableHead>
           <TableHead class="whitespace-nowrap">Pengalaman</TableHead>
           <TableHead class="whitespace-nowrap">Portofolio</TableHead>
@@ -40,7 +40,7 @@
             </TableCell>
             <TableCell class="whitespace-nowrap">
               <a v-if="app.portfolioLink" :href="app.portfolioLink" target="_blank" class="text-xs text-kv-primary underline hover:text-kv-primary/80" @click.stop>
-                Buka Portofolio
+                Lihat Portofolio
               </a>
               <span v-else class="text-xs text-muted-foreground italic">-</span>
             </TableCell>
@@ -50,7 +50,7 @@
             <TableCell class="whitespace-nowrap">
               <!-- Badge status dinamis berdasarkan app.status -->
               <Badge v-if="app.status === 'PENDING'" class="px-2 py-0.5 rounded-full text-xs bg-amber-500/10 text-amber-600 border border-amber-200 dark:border-amber-800 dark:text-amber-400 whitespace-nowrap">
-                Menunggu Approval
+                Menunggu
               </Badge>
               <Badge v-else-if="app.status === 'APPROVED'" class="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-600 border border-emerald-200 dark:border-emerald-800 dark:text-emerald-400 whitespace-nowrap">
                 Disetujui
@@ -118,7 +118,7 @@
                 </DropdownMenu>
               </div>
               <!-- Readonly: hanya indikator, bisa klik row untuk detail -->
-              <span v-else class="text-xs text-muted-foreground italic">View only</span>
+              <span v-else class="text-xs text-muted-foreground italic">Lihat saja</span>
             </TableCell>
           </TableRow>
         </template>
@@ -128,8 +128,8 @@
           <TableCell :colspan="7" class="h-64 text-center">
             <div class="flex flex-col items-center justify-center text-muted-foreground">
               <Users class="h-12 w-12 mb-2 opacity-20 text-kv-primary" />
-              <p class="font-medium">Tidak ada pendaftaran mentor masuk</p>
-              <p class="text-sm mt-1">Belum ada mentor mendaftar via Kreavoks Portal</p>
+              <p class="font-medium">Belum ada pendaftaran</p>
+              <p class="text-sm mt-1">Pendaftaran calon mentor akan muncul di sini</p>
             </div>
           </TableCell>
         </TableRow>
