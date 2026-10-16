@@ -60,43 +60,62 @@
               </Badge>
             </TableCell>
             <TableCell class="text-right whitespace-nowrap" @click.stop>
-              <div v-if="!readonly" class="flex justify-end gap-2">
-                <!-- Tombol Setujui & Tolak hanya tampil jika masih PENDING -->
-                <template v-if="app.status === 'PENDING'">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    @click="$emit('review', app.id, 'APPROVED')"
-                    :disabled="verifyingId === app.id"
-                    class="h-8 gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 dark:border-emerald-800"
-                  >
-                    <Loader2 v-if="verifyingId === app.id" class="h-3.5 w-3.5 animate-spin" />
-                    <CheckCircle2 v-else class="h-3.5 w-3.5" />
-                    Setujui
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    @click="$emit('review', app.id, 'REJECTED')"
-                    :disabled="verifyingId === app.id"
-                    class="h-8 gap-1 text-rose-600 border-rose-200 hover:bg-rose-50 dark:hover:bg-rose-950/30 dark:border-rose-800"
-                  >
-                    <X class="h-3.5 w-3.5" />
-                    Tolak
-                  </Button>
-                </template>
-                
-                <!-- Tombol Delete Permanent -->
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  @click="$emit('delete', app)"
-                  :disabled="verifyingId === app.id"
-                  class="h-8 w-8 text-destructive hover:bg-destructive/10"
-                  title="Hapus Permanen"
-                >
-                  <Trash2 class="h-4 w-4" />
-                </Button>
+              <div v-if="!readonly" class="flex justify-end">
+                <DropdownMenu>
+                  <DropdownMenuTrigger as-child>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      class="h-8 w-8 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted"
+                      title="Opsi Lainnya"
+                      :disabled="verifyingId === app.id"
+                    >
+                      <Loader2 v-if="verifyingId === app.id" class="h-4 w-4 animate-spin" />
+                      <MoreHorizontal v-else class="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" class="w-44 rounded-2xl p-1.5 shadow-md">
+                    <!-- Setujui & Tolak (tampil jika PENDING) -->
+                    <template v-if="app.status === 'PENDING'">
+                      <DropdownMenuItem
+                        class="cursor-pointer gap-2 text-xs py-2 rounded-xl text-emerald-600 focus:text-emerald-700 focus:bg-emerald-50 dark:focus:bg-emerald-950/30"
+                        @click="$emit('review', app.id, 'APPROVED')"
+                      >
+                        <CheckCircle2 class="h-3.5 w-3.5" />
+                        <span>Setujui</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        class="cursor-pointer gap-2 text-xs py-2 rounded-xl text-rose-600 focus:text-rose-700 focus:bg-rose-50 dark:focus:bg-rose-950/30"
+                        @click="$emit('review', app.id, 'REJECTED')"
+                      >
+                        <X class="h-3.5 w-3.5" />
+                        <span>Tolak</span>
+                      </DropdownMenuItem>
+                    </template>
+
+                    <!-- Kirim Ulang Email (tampil jika sudah APPROVED atau REJECTED) -->
+                    <DropdownMenuItem
+                      v-if="app.status !== 'PENDING'"
+                      class="cursor-pointer gap-2 text-xs py-2 rounded-xl"
+                      @click="$emit('resend-email', app)"
+                    >
+                      <Mail class="h-3.5 w-3.5 text-muted-foreground" />
+                      <span>Kirim Ulang Email</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator class="my-1" />
+
+                    <!-- Hapus Permanen -->
+                    <DropdownMenuItem
+                      class="cursor-pointer gap-2 text-xs py-2 rounded-xl text-rose-500 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30"
+                      @click="$emit('delete', app)"
+                    >
+                      <Trash2 class="h-3.5 w-3.5" />
+                      <span>Hapus</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <!-- Readonly: hanya indikator, bisa klik row untuk detail -->
               <span v-else class="text-xs text-muted-foreground italic">View only</span>
@@ -128,10 +147,17 @@ import {
   TableHeader, 
   TableRow 
 } from '~/components/ui/table'
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from '~/components/ui/dropdown-menu'
 import TableSkeleton from '~/components/ui/skeleton/TableSkeleton.vue'
 import { Button } from '~/components/ui/button'
 import { Badge } from '~/components/ui/badge'
-import { CheckCircle2, X, Loader2, Users, Trash2 } from 'lucide-vue-next'
+import { CheckCircle2, X, Loader2, Users, Trash2, MoreHorizontal, Mail } from 'lucide-vue-next'
 import type { MentorApplication } from '~/pages/employee/api/mentorApplication.api'
 
 defineProps<{
@@ -144,6 +170,7 @@ defineProps<{
 defineEmits<{
   (e: 'review', id: string | number, status: 'APPROVED' | 'REJECTED'): void
   (e: 'delete', app: MentorApplication): void
+  (e: 'resend-email', app: MentorApplication): void
 }>()
 
 const parseExpertise = (expertiseStr: string | null | undefined): string[] => {

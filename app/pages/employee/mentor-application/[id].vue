@@ -42,12 +42,37 @@
         <span>Mode <strong>View Only</strong> — Anda hanya dapat melihat data pendaftaran ini.</span>
       </div>
       <!-- APPROVED: locked, show back only -->
-      <div v-else-if="formData.status === 'APPROVED'" class="flex justify-end p-4">
+      <!-- If already APPROVED -->
+      <div v-else-if="formData.status === 'APPROVED'" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 p-4">
+        <Button
+          type="button"
+          variant="outline"
+          class="gap-2"
+          @click="handleResendEmail"
+          :disabled="sendingEmail"
+        >
+          <Loader2 v-if="sendingEmail" class="h-4 w-4 animate-spin" />
+          <Mail v-else class="h-4 w-4" />
+          Kirim Ulang Email
+        </Button>
         <Button variant="ghost" class="px-6" @click="handleBack">Kembali</Button>
       </div>
 
       <!-- PENDING or REJECTED: allow review/re-review -->
       <div v-else class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-end gap-3 p-4">
+        <!-- Kirim Ulang Email (jika REJECTED) -->
+        <Button
+          v-if="formData.status === 'REJECTED'"
+          type="button"
+          variant="outline"
+          class="gap-2"
+          @click="handleResendEmail"
+          :disabled="sendingEmail"
+        >
+          <Loader2 v-if="sendingEmail" class="h-4 w-4 animate-spin" />
+          <Mail v-else class="h-4 w-4" />
+          Kirim Ulang Email
+        </Button>
         <!-- Reset to PENDING (only for REJECTED) -->
         <Button
           v-if="formData.status === 'REJECTED'"
@@ -90,7 +115,8 @@ import {
   ArrowLeft, 
   CheckCircle2,
   X,
-  Loader2
+  Loader2,
+  Mail
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { toast } from 'vue-sonner'
@@ -109,6 +135,7 @@ const { isViewerMode } = useViewerMode()
 
 const route = useRoute();
 const loading = ref(false);
+const sendingEmail = ref(false);
 
 const handleBack = () => {
   navigateTo('/employee');
@@ -182,6 +209,25 @@ const reviewMentor = async (status: 'APPROVED' | 'REJECTED' | 'PENDING') => {
     });
   } finally {
     loading.value = false;
+  }
+};
+
+const handleResendEmail = async () => {
+  if (!formData.value?.id) return;
+  sendingEmail.value = true;
+  try {
+    const response = await mentorApplicationApi.resendEmail(formData.value.id);
+    if (response.success) {
+      toast.success('Email Terkirim', {
+        description: `Email notifikasi berhasil dikirim ulang ke ${formData.value.email}.`
+      });
+    }
+  } catch (error: any) {
+    toast.error('Gagal Mengirim Email', {
+      description: error?.data?.message || 'Terjadi kesalahan saat mengirim ulang email.'
+    });
+  } finally {
+    sendingEmail.value = false;
   }
 };
 

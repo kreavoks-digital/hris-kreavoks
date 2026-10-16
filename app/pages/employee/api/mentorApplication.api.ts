@@ -78,5 +78,17 @@ export const mentorApplicationApi = {
       success: res.success ?? true,
       data: res.data
     }
+  },
+
+  resendEmail: async (id: string | number): Promise<ApiResponse<any>> => {
+    const api = useApi()
+    const res = await api(`/mentor-applications/${id}/resend-email` as any, {
+      method: 'POST'
+    })
+    return {
+      success: res.success ?? true,
+      data: res.data,
+      message: res.message
+    }
   }
 }

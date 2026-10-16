@@ -46,6 +46,7 @@
         :readonly="isViewerMode"
         @review="reviewMentor"
         @delete="confirmDeleteMentor"
+        @resend-email="handleResendEmail"
       />
     </Card>
 
@@ -175,6 +176,24 @@ const reviewMentor = async (id: string | number, status: 'APPROVED' | 'REJECTED'
   } catch (error: any) {
     toast.error('Gagal memproses keputusan', {
       description: error?.data?.message || 'Terjadi masalah koneksi dengan backend HRIS.'
+    })
+  } finally {
+    verifyingId.value = null
+  }
+}
+
+const handleResendEmail = async (app: MentorApplication) => {
+  verifyingId.value = app.id
+  try {
+    const response = await mentorApplicationApi.resendEmail(app.id)
+    if (response.success) {
+      toast.success('Email Terkirim', {
+        description: `Email notifikasi berhasil dikirim ulang ke ${app.email}.`
+      })
+    }
+  } catch (error: any) {
+    toast.error('Gagal Mengirim Email', {
+      description: error?.data?.message || 'Terjadi kesalahan saat mengirim ulang email.'
     })
   } finally {
     verifyingId.value = null
