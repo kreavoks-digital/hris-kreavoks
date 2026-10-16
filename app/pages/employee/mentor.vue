@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6 animate-in fade-in duration-500">
+  <div class="space-y-6 animate-in fade-in duration-500 min-w-0 w-full max-w-full">
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
       <div>
         <h1 class="text-2xl font-semibold text-foreground">Pendaftaran Mentor</h1>
         <p class="text-muted-foreground mt-1 text-sm">Kelola pendaftaran mentor dari Kreavoks Portal.</p>
@@ -9,10 +9,10 @@
     </div>
 
     <!-- Info banner for mentor tab -->
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-kv-primary/10 border border-kv-primary/20 rounded-xl">
-      <div class="flex items-start gap-3">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-kv-primary/10 border border-kv-primary/20 rounded-xl min-w-0 w-full">
+      <div class="flex items-start gap-3 min-w-0">
         <Info class="h-5 w-5 text-kv-primary mt-0.5 flex-shrink-0" />
-        <div>
+        <div class="min-w-0">
           <p class="text-sm font-medium text-kv-primary">Pendaftaran Mentor Lintas Aplikasi (Portal)</p>
           <p class="text-sm text-muted-foreground mt-0.5">
             Mentor di bawah ini mendaftar melalui Kreavoks Portal. Setujui untuk membuat akun di HRIS secara otomatis &amp; memicu sinkronisasi provisioning akun ke Portal.
@@ -20,13 +20,13 @@
         </div>
       </div>
       <!-- Filter Status -->
-      <div class="flex gap-1 p-1 bg-background/60 rounded-lg flex-shrink-0 self-start sm:self-center">
+      <div class="flex gap-1 p-1 bg-background/60 rounded-lg flex-shrink-0 self-start sm:self-center overflow-x-auto max-w-full">
         <button
           v-for="opt in mentorStatusOptions"
           :key="opt.value"
           @click="mentorStatusFilter = opt.value; page = 1; fetchMentorApplications()"
           :class="[
-            'px-3 py-1 rounded-md text-xs font-medium transition-all duration-150',
+            'px-3 py-1 rounded-md text-xs font-medium transition-all duration-150 whitespace-nowrap',
             mentorStatusFilter === opt.value
               ? 'bg-kv-primary text-white shadow-sm'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted'
@@ -38,7 +38,7 @@
     </div>
 
     <!-- Table Section -->
-    <Card class="border border-border bg-card overflow-hidden rounded-3xl">
+    <Card class="border border-border bg-card overflow-hidden rounded-3xl min-w-0 w-full max-w-full">
       <MentorApplicationTable
         :applications="mentorApplications"
         :verifying-id="verifyingId"

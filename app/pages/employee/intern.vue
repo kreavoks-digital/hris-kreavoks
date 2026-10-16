@@ -1,7 +1,7 @@
 <template>
-  <div class="space-y-6 animate-in fade-in duration-500">
+  <div class="space-y-6 animate-in fade-in duration-500 min-w-0 w-full max-w-full">
     <!-- Header Section -->
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
       <div>
         <h1 class="text-2xl font-semibold text-foreground">Pending Intern</h1>
         <p class="text-muted-foreground mt-1 text-sm">Kelola pendaftar intern yang membutuhkan verifikasi.</p>
@@ -13,9 +13,9 @@
     </div>
 
     <!-- Info banner for pending tab -->
-    <div class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
+    <div class="flex items-start gap-3 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl min-w-0 w-full">
       <Info class="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-      <div>
+      <div class="min-w-0">
         <p class="text-sm font-medium text-amber-800 dark:text-amber-300">Pendaftar Menunggu Verifikasi</p>
         <p class="text-sm text-amber-700 dark:text-amber-400 mt-0.5">
           Karyawan berikut mendaftar mandiri dan membutuhkan verifikasi Admin sebelum dapat login. Klik "Verifikasi" untuk mengaktifkan akun mereka.
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Table Section -->
-    <Card class="border border-border bg-card overflow-hidden rounded-3xl">
+    <Card class="border border-border bg-card overflow-hidden rounded-3xl min-w-0 w-full max-w-full">
       <EmployeeTable
         :employees="filteredEmployees"
         active-tab="pending"

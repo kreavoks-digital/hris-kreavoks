@@ -1,13 +1,13 @@
 <template>
-  <div class="bg-card p-6 rounded-3xl border border-border space-y-4">
+  <div class="bg-card p-4 sm:p-6 rounded-3xl border border-border space-y-4 min-w-0 w-full max-w-full overflow-hidden">
     <!-- Section Header -->
-    <div class="flex items-center justify-between">
-      <h2 class="text-xl font-semibold text-foreground">Logbook</h2>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0 w-full">
+      <h2 class="text-lg sm:text-xl font-semibold text-foreground">Logbook</h2>
       
       <!-- Filters & Actions -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
         <Select v-model="filterMonth">
-          <SelectTrigger class="w-[140px] bg-background border-border">
+          <SelectTrigger class="w-[130px] sm:w-[140px] bg-background border-border text-xs sm:text-sm">
             <SelectValue placeholder="Pilih Bulan" />
           </SelectTrigger>
           <SelectContent class="bg-popover border-border">
@@ -19,7 +19,7 @@
         </Select>
 
         <Select v-model="filterYear">
-          <SelectTrigger class="w-[110px] bg-background border-border">
+          <SelectTrigger class="w-[100px] sm:w-[110px] bg-background border-border text-xs sm:text-sm">
             <SelectValue placeholder="Pilih Tahun" />
           </SelectTrigger>
           <SelectContent class="bg-popover border-border">
@@ -32,8 +32,8 @@
     </div>
 
     <!-- Table -->
-    <div class="overflow-x-auto min-h-[250px] flex flex-col">
-      <Table v-if="logbooks && logbooks.length > 0">
+    <div class="overflow-x-auto min-h-[250px] flex flex-col min-w-0 w-full">
+      <Table v-if="logbooks && logbooks.length > 0" class="min-w-[650px]">
         <TableHeader class="bg-muted/50">
           <TableRow class="border-b border-border hover:bg-transparent">
             <TableHead class="font-semibold text-muted-foreground rounded-l-2xl w-[15%]">Posisi</TableHead>

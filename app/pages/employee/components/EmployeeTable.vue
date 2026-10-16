@@ -1,6 +1,7 @@
 <template>
-  <Table>
-    <TableHeader>
+  <div class="w-full overflow-x-auto min-w-0">
+    <Table class="min-w-[800px]">
+      <TableHeader>
       <TableRow>
         <TableHead class="w-[120px] whitespace-nowrap">NPK</TableHead>
         <TableHead>Karyawan</TableHead>
@@ -178,6 +179,7 @@
       </TableRow>
     </TableBody>
   </Table>
+  </div>
 </template>
 
 <script setup lang="ts">

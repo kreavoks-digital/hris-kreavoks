@@ -1,14 +1,14 @@
 <template>
-  <div class="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+  <div class="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 min-w-0 w-full max-w-full">
     <!-- Header Section -->
-    <div class="flex items-center justify-between">
-      <div class="flex items-center gap-4">
-        <Button variant="ghost" size="icon" @click="handleBack" class="rounded-full w-10 text-muted-foreground hover:text-foreground hover:bg-accent">
+    <div class="flex items-center justify-between min-w-0 w-full">
+      <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+        <Button variant="ghost" size="icon" @click="handleBack" class="rounded-full w-9 h-9 sm:w-10 sm:h-10 text-muted-foreground hover:text-foreground hover:bg-accent shrink-0">
           <ArrowLeft class="h-5 w-5" />
         </Button>
-        <div>
-          <h1 class="text-2xl font-semibold text-foreground">Review Pendaftaran Mentor</h1>
-          <p class="text-muted-foreground text-sm">Tinjau data pendaftaran mentor dari Kreavoks Portal sebelum melakukan approval.</p>
+        <div class="min-w-0">
+          <h1 class="text-xl sm:text-2xl font-semibold text-foreground truncate">Review Pendaftaran Mentor</h1>
+          <p class="text-muted-foreground text-xs sm:text-sm">Tinjau data pendaftaran mentor dari Kreavoks Portal sebelum melakukan approval.</p>
         </div>
       </div>
     </div>
@@ -47,7 +47,7 @@
       </div>
 
       <!-- PENDING or REJECTED: allow review/re-review -->
-      <div v-else class="flex flex-wrap items-center justify-end gap-3 p-4">
+      <div v-else class="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center justify-end gap-3 p-4">
         <!-- Reset to PENDING (only for REJECTED) -->
         <Button
           v-if="formData.status === 'REJECTED'"

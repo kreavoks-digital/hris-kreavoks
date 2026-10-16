@@ -1,5 +1,5 @@
 <template>
-  <div class="space-y-4 animate-in fade-in duration-500">
+  <div class="space-y-4 animate-in fade-in duration-500 min-w-0 w-full max-w-full">
     <template v-if="dashboard.isLoading.value">
       <!-- Skeleton Stats -->
       <CardSkeleton :cards="4" />

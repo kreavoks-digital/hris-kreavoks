@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-background text-foreground">
+  <div class="min-h-screen bg-background text-foreground overflow-x-hidden w-full max-w-full">
 
     <!-- Mobile Overlay -->
     <Transition name="fade">
@@ -152,15 +152,15 @@
     <!-- Main Content Area -->
     <div
       :class="[
-        'flex flex-col min-h-screen transition-all duration-300 ease-in-out',
+        'flex flex-col min-h-screen transition-all duration-300 ease-in-out min-w-0 w-full max-w-full',
         isCollapsed ? 'lg:pl-[76px]' : 'lg:pl-[240px]'
       ]"
     >
       <!-- Header -->
-      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md lg:px-6">
+      <header class="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md lg:px-6 min-w-0 w-full max-w-full">
 
         <!-- Left: Mobile hamburger + page title -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 mr-2">
           <!-- Mobile Menu Button -->
           <button
             @click="isMobileOpen = true"
@@ -171,7 +171,7 @@
 
           <!-- Dashboard Specific -->
           <template v-if="route.path === '/dashboard'">
-            <h1 class="hidden md:block text-sm md:text-base font-semibold text-foreground">
+            <h1 class="hidden md:block text-sm md:text-base font-semibold text-foreground truncate">
               Selamat datang kembali,
               <span class="text-kv-primary font-bold">{{ user?.fullName || 'User' }}</span> 👋
             </h1>
@@ -179,28 +179,28 @@
 
           <!-- Standard page title + breadcrumb -->
           <template v-else>
-            <div class="flex items-center gap-3 md:gap-4">
-              <h2 class="text-sm md:text-base font-semibold text-foreground leading-none">{{ pageTitle }}</h2>
-              <div class="h-4 w-px bg-border hidden sm:block"></div>
-              <div class="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
+            <div class="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
+              <h2 class="text-sm md:text-base font-semibold text-foreground leading-none truncate max-w-[130px] min-[390px]:max-w-[160px] min-[440px]:max-w-[200px] sm:max-w-none" :title="pageTitle">{{ pageTitle }}</h2>
+              <div class="h-4 w-px bg-border hidden sm:block shrink-0"></div>
+              <div class="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
                 <span>Main</span>
                 <ChevronRight class="h-3 w-3" />
-                <span class="text-foreground font-medium">{{ pageTitle }}</span>
+                <span class="text-foreground font-medium truncate max-w-[200px]">{{ pageTitle }}</span>
               </div>
             </div>
           </template>
         </div>
 
         <!-- Right: Search, Bell, Profile -->
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
           <!-- Global Search Rekan Kerja (ala Microsoft Teams) -->
           <button
             @click="openSearchModal"
-            class="flex items-center gap-2 px-3 py-1.5 rounded-3xl bg-muted/40 hover:bg-muted border border-border text-xs text-muted-foreground transition-colors w-36 sm:w-52 md:w-60 text-left cursor-pointer"
+            class="flex items-center justify-center sm:justify-start gap-2 h-9 w-9 sm:h-auto sm:w-52 md:w-60 px-0 sm:px-3 py-0 sm:py-1.5 rounded-full sm:rounded-3xl bg-muted/40 hover:bg-muted border border-border text-xs text-muted-foreground transition-colors text-left cursor-pointer shrink-0"
             title="Cari rekan kerja (Ctrl + K)"
           >
-            <Search class="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-            <span class="truncate flex-1">Cari rekan kerja...</span>
+            <Search class="h-4 w-4 sm:h-3.5 sm:w-3.5 shrink-0 text-muted-foreground" />
+            <span class="hidden sm:inline truncate flex-1">Cari rekan kerja...</span>
             <kbd class="hidden sm:inline-block px-1.5 py-0.5 rounded bg-background border border-border font-mono text-[10px]">Ctrl+K</kbd>
           </button>
 
@@ -288,16 +288,16 @@
       </header>
 
       <!-- Main Section -->
-      <main class="flex-1 p-4 lg:p-8">
-        <div class="mx-auto max-w-7xl">
+      <main class="flex-1 p-4 lg:p-8 min-w-0 w-full max-w-full">
+        <div class="mx-auto max-w-7xl min-w-0 w-full">
           <slot />
         </div>
       </main>
 
       <!-- Footer -->
-      <footer class="border-t border-border py-6 px-8">
+      <footer class="border-t border-border py-6 px-4 lg:px-8 w-full max-w-full">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p class="text-sm text-muted-foreground">© 2024 Kreavoks Digital Agency - HRIS Ecosystem</p>
+          <p class="text-sm text-muted-foreground text-center sm:text-left">© 2024 Kreavoks Digital Agency - HRIS Ecosystem</p>
           <div class="flex gap-4 text-sm text-muted-foreground">
             <span>Support</span>
             <span>Terms</span>

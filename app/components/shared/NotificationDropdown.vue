@@ -22,7 +22,7 @@
     <Transition name="dropdown">
       <div
         v-if="isOpen"
-        class="absolute top-full right-0 mt-2 w-[360px] bg-background/95 backdrop-blur-md border border-border shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl overflow-hidden flex flex-col z-50"
+        class="fixed sm:absolute top-[68px] sm:top-full left-3 right-3 sm:left-auto sm:right-0 mt-0 sm:mt-2 w-auto sm:w-[360px] bg-background/95 backdrop-blur-md border border-border shadow-[0_8px_32px_rgba(0,0,0,0.12)] rounded-3xl overflow-hidden flex flex-col z-50 max-h-[calc(100vh-80px)] sm:max-h-none"
         style="min-height: 350px"
         role="dialog"
         aria-label="Panel Notifikasi"
@@ -46,7 +46,7 @@
           <!-- Detail Body -->
           <div
             ref="detailScrollRef"
-            class="p-6 flex-1 overflow-y-auto max-h-[420px] relative"
+            class="p-5 sm:p-6 flex-1 overflow-y-auto max-h-[calc(100vh-210px)] sm:max-h-[420px] relative"
             @scroll="onDetailScroll"
           >
             <h4 class="font-bold text-foreground text-lg leading-snug mb-1">
@@ -126,7 +126,7 @@
           </div>
 
           <!-- Notification List -->
-          <div class="max-h-[400px] overflow-y-auto flex-1">
+          <div class="max-h-[calc(100vh-210px)] sm:max-h-[400px] overflow-y-auto flex-1">
             <!-- Empty State -->
             <div
               v-if="filteredNotifications.length === 0"
