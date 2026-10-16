@@ -62,9 +62,9 @@
     <!-- Delete Confirmation Modal -->
     <KreaConfirmDialog
       v-model:open="isDeleteDialogOpen"
-      title="Hapus Pendaftaran Mentor?"
-      :description="`Apakah Anda yakin ingin menghapus pendaftaran ${selectedAppToDelete?.name} secara permanen? Tindakan ini juga akan menghapus file yang dilampirkan dari cloud storage dan tidak dapat dibatalkan.`"
-      confirmText="Hapus Permanen"
+      title="Hapus Pendaftaran Mentor"
+      :description="`Hapus pendaftaran mentor atas nama ${selectedAppToDelete?.name || ''}? Tindakan ini tidak dapat dibatalkan.`"
+      confirmText="Hapus"
       cancelText="Batal"
       variant="danger"
       @confirm="handleDeleteMentor"

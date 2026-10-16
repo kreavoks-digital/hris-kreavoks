@@ -49,11 +49,22 @@
           variant="outline"
           class="gap-2"
           @click="handleResendEmail"
-          :disabled="sendingEmail"
+          :disabled="sendingEmail || deleting"
         >
           <Loader2 v-if="sendingEmail" class="h-4 w-4 animate-spin" />
           <Mail v-else class="h-4 w-4" />
           Kirim Ulang Email
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          class="gap-1.5 text-rose-600 border-rose-200 hover:bg-rose-50 dark:border-rose-800 dark:hover:bg-rose-950/20"
+          @click="isDeleteDialogOpen = true"
+          :disabled="deleting"
+        >
+          <Loader2 v-if="deleting" class="h-4 w-4 animate-spin" />
+          <Trash2 v-else class="h-4 w-4" />
+          Hapus
         </Button>
         <Button variant="ghost" class="px-6" @click="handleBack">Kembali</Button>
       </div>
@@ -67,7 +78,7 @@
           variant="outline"
           class="gap-2"
           @click="handleResendEmail"
-          :disabled="sendingEmail"
+          :disabled="sendingEmail || deleting"
         >
           <Loader2 v-if="sendingEmail" class="h-4 w-4 animate-spin" />
           <Mail v-else class="h-4 w-4" />
@@ -80,7 +91,7 @@
           variant="outline"
           class="px-6 text-amber-600 border-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/20"
           @click="reviewMentor('PENDING')"
-          :disabled="loading"
+          :disabled="loading || deleting"
         >
           Reset ke Menunggu
         </Button>
@@ -90,7 +101,7 @@
           variant="outline"
           class="px-6 text-destructive border-destructive hover:bg-destructive/10"
           @click="reviewMentor('REJECTED')"
-          :disabled="loading || formData.status === 'REJECTED'"
+          :disabled="loading || deleting || formData.status === 'REJECTED'"
         >
           Tolak Pendaftaran
         </Button>
@@ -99,14 +110,37 @@
           type="button"
           class="w-full sm:w-48 gap-2 bg-emerald-600 hover:bg-emerald-700 text-white border-none"
           @click="reviewMentor('APPROVED')"
-          :disabled="loading"
+          :disabled="loading || deleting"
         >
           <Loader2 v-if="loading" class="h-4 w-4 animate-spin" />
           <CheckCircle2 v-else class="h-4 w-4" />
           Setujui Mentor
         </Button>
+        <!-- Hapus -->
+        <Button
+          type="button"
+          variant="outline"
+          class="gap-1.5 text-rose-600 border-rose-200 hover:bg-rose-50 dark:border-rose-800 dark:hover:bg-rose-950/20"
+          @click="isDeleteDialogOpen = true"
+          :disabled="loading || deleting"
+        >
+          <Loader2 v-if="deleting" class="h-4 w-4 animate-spin" />
+          <Trash2 v-else class="h-4 w-4" />
+          Hapus
+        </Button>
       </div>
     </div>
+
+    <!-- Delete Confirmation Modal -->
+    <KreaConfirmDialog
+      v-model:open="isDeleteDialogOpen"
+      title="Hapus Pendaftaran Mentor"
+      :description="`Hapus pendaftaran mentor atas nama ${formData?.name || ''}? Tindakan ini tidak dapat dibatalkan.`"
+      confirmText="Hapus"
+      cancelText="Batal"
+      variant="danger"
+      @confirm="handleDeleteMentor"
+    />
   </div>
 </template>
 
@@ -116,7 +150,8 @@ import {
   CheckCircle2,
   X,
   Loader2,
-  Mail
+  Mail,
+  Trash2
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { toast } from 'vue-sonner'
@@ -124,6 +159,7 @@ import { mentorApplicationApi, type MentorApplication } from '~/pages/employee/a
 import MentorIdentityCard from '../components/MentorIdentityCard.vue'
 import MentorExpertiseCard from '../components/MentorExpertiseCard.vue'
 import MentorBankCard from '../components/MentorBankCard.vue'
+import KreaConfirmDialog from '~/components/shared/KreaConfirmDialog.vue'
 
 definePageMeta({
   layout: "default",
@@ -136,9 +172,31 @@ const { isViewerMode } = useViewerMode()
 const route = useRoute();
 const loading = ref(false);
 const sendingEmail = ref(false);
+const isDeleteDialogOpen = ref(false);
+const deleting = ref(false);
 
 const handleBack = () => {
-  navigateTo('/employee');
+  navigateTo('/employee/mentor');
+};
+
+const handleDeleteMentor = async () => {
+  if (!formData.value?.id) return;
+  deleting.value = true;
+  try {
+    const response = await mentorApplicationApi.deleteApplication(formData.value.id);
+    if (response.success) {
+      toast.success('Pendaftaran Dihapus', {
+        description: `Pendaftaran ${formData.value.name} telah dihapus permanen.`
+      });
+      navigateTo('/employee/mentor');
+    }
+  } catch (error: any) {
+    toast.error('Gagal Menghapus', {
+      description: error?.data?.message || 'Terjadi kesalahan saat menghapus pendaftaran mentor.'
+    });
+  } finally {
+    deleting.value = false;
+  }
 };
 
 const formData = ref<MentorApplication>({

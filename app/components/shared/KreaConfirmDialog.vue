@@ -46,7 +46,7 @@ const handleCancel = () => {
   <AlertDialog v-model:open="isOpen">
     <AlertDialogContent>
       <AlertDialogHeader>
-        <AlertDialogTitle class="text-[#131313]">{{ title }}</AlertDialogTitle>
+        <AlertDialogTitle class="text-foreground">{{ title }}</AlertDialogTitle>
         <AlertDialogDescription v-if="description">
           {{ description }}
         </AlertDialogDescription>
