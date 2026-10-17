@@ -6,10 +6,20 @@
         <h1 class="text-2xl font-semibold text-foreground">Manajemen Surat</h1>
         <p class="text-muted-foreground mt-1 text-sm">Buat dan kelola penomoran surat resmi perusahaan.</p>
       </div>
-      <Button v-if="canPerformActions" @click="openAdd" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none">
-        <FileText class="h-4 w-4" />
-        Buat Surat
-      </Button>
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <div class="relative w-full sm:w-64">
+          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input 
+            v-model="searchQuery"
+            placeholder="Cari surat..." 
+            class="pl-9 bg-card border-border rounded-xl w-full"
+          />
+        </div>
+        <Button v-if="canPerformActions" @click="openAdd" class="gap-2 bg-kv-primary hover:bg-kv-primary/90 text-white border-none shrink-0">
+          <FileText class="h-4 w-4" />
+          Buat Surat
+        </Button>
+      </div>
     </div>
 
     <!-- Template Letters Section -->
@@ -68,7 +78,7 @@
           <template v-else-if="regularLetters.length === 0">
             <TableRow>
               <TableCell colspan="6" class="text-center text-muted-foreground py-8">
-                Belum ada surat yang dibuat.
+                {{ searchQuery.trim() ? `Tidak ditemukan surat dengan kata kunci "${searchQuery}".` : 'Belum ada surat yang dibuat.' }}
               </TableCell>
             </TableRow>
           </template>
@@ -234,8 +244,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { FileText, Link, Trash2, Loader2, Edit } from 'lucide-vue-next'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import { FileText, Link, Trash2, Loader2, Edit, Search } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Card } from '~/components/ui/card'
 import { Badge } from '~/components/ui/badge'
@@ -300,10 +310,26 @@ const getLetterTypeLabel = (type: string) => {
   return map[type] || type;
 };
 
+const searchQuery = ref('');
+let debounceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+watch(searchQuery, () => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(() => {
+    fetchLetters();
+  }, 400);
+});
+
+onUnmounted(() => {
+  if (debounceTimeout) clearTimeout(debounceTimeout);
+});
+
 const fetchLetters = async () => {
   loading.value = true;
   try {
-    const response = await api('/letters' as any);
+    const q = searchQuery.value.trim();
+    const url = q ? `/letters?search=${encodeURIComponent(q)}` : '/letters';
+    const response = await api(url as any);
     if (response.success) {
       letters.value = response.data;
     }

@@ -7,26 +7,26 @@
       <div class="w-full max-w-md mx-auto">
         <!-- Header: Rata Kiri & Logo Kompak -->
         <div class="mb-8">
-          <div class="flex items-center gap-3 mb-5">
+          <div class="flex items-center gap-2.5 mb-4">
             <img
               src="/images/logo/logo.png"
               alt="Kreavoks Logo"
-              class="h-6 w-auto object-contain"
+              class="h-5 w-auto object-contain"
             />
-            <div class="h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
+            <div class="h-3.5 w-px bg-slate-200 dark:bg-slate-700"></div>
             <img
               src="/images/logo/kreavoks-hris.svg"
               alt="Kreavoks HRIS"
-              class="h-5 w-auto object-contain dark:hidden"
+              class="h-4 w-auto object-contain dark:hidden"
             />
             <img
               src="/images/logo/kreavoks-hris-white.svg"
               alt="Kreavoks HRIS"
-              class="h-5 w-auto object-contain hidden dark:block"
+              class="h-4 w-auto object-contain hidden dark:block"
             />
           </div>
 
-          <h1 class="text-2xl font-semibold text-[#131313] dark:text-slate-50 text-left">
+          <h1 class="text-3xl font-semibold tracking-tight text-[#131313] dark:text-slate-50 text-left">
             Selamat Datang Kembali
           </h1>
           <p class="text-slate-500 dark:text-slate-400 text-sm mt-1.5 text-left">
@@ -100,26 +100,24 @@
           </Button>
         </form>
 
-        <!-- Register & Secured by SSO in one flex row -->
-        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div class="text-sm text-slate-500">
-            Belum punya akun?
-            <NuxtLink
-              to="/auth/register"
-              class="text-kv-primary font-medium hover:underline ml-1 transition-all"
-            >
-              Daftar Sekarang
-            </NuxtLink>
-          </div>
+        <div class="mt-6 text-center text-sm text-slate-500">
+          Belum punya akun?
+          <NuxtLink
+            to="/auth/register"
+            class="text-kv-primary font-medium hover:underline ml-1 transition-all"
+          >
+            Daftar Sekarang
+          </NuxtLink>
+        </div>
 
-          <div class="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 shrink-0">
-            <span>Secured by</span>
-            <img
-              src="/images/sso/kreavoks-sso.svg"
-              alt="Kreavoks SSO"
-              class="h-3.5 w-auto object-contain opacity-70"
-            />
-          </div>
+        <!-- Secured by SSO footer -->
+        <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+          <span>Secured by</span>
+          <img
+            src="/images/sso/kreavoks-sso.svg"
+            alt="Kreavoks SSO"
+            class="h-4 w-auto object-contain opacity-75 hover:opacity-100 transition-opacity"
+          />
         </div>
       </div>
     </div>
