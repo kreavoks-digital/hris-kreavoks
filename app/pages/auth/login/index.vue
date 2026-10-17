@@ -4,23 +4,36 @@
     <div
       class="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-6 md:py-10"
     >
-      <div class="mb-8 flex flex-col items-center">
-        <img
-          src="/images/logo/logo.png"
-          alt="Kreavoks Logo"
-          class="w-32 md:w-40 h-auto object-contain mb-6"
-        />
-        <div class="text-center">
-          <h1 class="text-2xl font-medium text-[#131313] dark:text-slate-50">
+      <div class="w-full max-w-md mx-auto">
+        <!-- Header: Rata Kiri & Logo Kompak -->
+        <div class="mb-8">
+          <div class="flex items-center gap-3 mb-5">
+            <img
+              src="/images/logo/logo.png"
+              alt="Kreavoks Logo"
+              class="h-6 w-auto object-contain"
+            />
+            <div class="h-4 w-px bg-slate-200 dark:bg-slate-700"></div>
+            <img
+              src="/images/logo/kreavoks-hris.svg"
+              alt="Kreavoks HRIS"
+              class="h-5 w-auto object-contain dark:hidden"
+            />
+            <img
+              src="/images/logo/kreavoks-hris-white.svg"
+              alt="Kreavoks HRIS"
+              class="h-5 w-auto object-contain hidden dark:block"
+            />
+          </div>
+
+          <h1 class="text-2xl font-semibold text-[#131313] dark:text-slate-50 text-left">
             Selamat Datang Kembali
           </h1>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-2 max-w-[340px] mx-auto">
+          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1.5 text-left">
             Masuk HRIS Anda untuk mengelola tugas harian dan meningkatkan produktivitas tim.
           </p>
         </div>
-      </div>
 
-      <div class="w-full max-w-md mx-auto">
         <form @submit.prevent="handleLogin" class="space-y-6">
           <!-- Error Alert -->
           <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg flex items-start gap-3">
@@ -48,12 +61,12 @@
           <div class="space-y-2">
             <div class="flex items-center justify-between">
               <Label for="password" class="text-sm font-medium">Password</Label>
-              <!-- <NuxtLink
+              <NuxtLink
                 to="/auth/forgot-password"
                 class="text-sm text-kv-primary hover:underline hover:text-kv-primary/80 transition-colors"
               >
                 Lupa password?
-              </NuxtLink> -->
+              </NuxtLink>
             </div>
             <div class="relative">
               <Lock class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -87,14 +100,26 @@
           </Button>
         </form>
 
-        <div class="mt-8 text-center text-sm text-slate-500">
-          Belum punya akun?
-          <NuxtLink
-            to="/auth/register"
-            class="text-kv-primary font-medium hover:underline ml-1 transition-all"
-          >
-            Daftar Sekarang
-          </NuxtLink>
+        <!-- Register & Secured by SSO in one flex row -->
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 text-xs">
+          <div class="text-sm text-slate-500">
+            Belum punya akun?
+            <NuxtLink
+              to="/auth/register"
+              class="text-kv-primary font-medium hover:underline ml-1 transition-all"
+            >
+              Daftar Sekarang
+            </NuxtLink>
+          </div>
+
+          <div class="flex items-center gap-1.5 text-xs text-slate-400 dark:text-slate-500 shrink-0">
+            <span>Secured by</span>
+            <img
+              src="/images/sso/kreavoks-sso.svg"
+              alt="Kreavoks SSO"
+              class="h-3.5 w-auto object-contain opacity-70"
+            />
+          </div>
         </div>
       </div>
     </div>

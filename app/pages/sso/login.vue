@@ -132,7 +132,14 @@ const onSubmit = async () => {
             />
           </div>
 
-          <div class="pt-4 flex items-center justify-end">
+          <div class="pt-4 flex items-center justify-between">
+            <NuxtLink
+              to="/auth/forgot-password"
+              class="text-sm font-medium text-kv-primary hover:text-kv-primary/80 hover:underline transition-colors"
+            >
+              Reset Password
+            </NuxtLink>
+
             <Button
               type="submit"
               :disabled="loading"
