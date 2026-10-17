@@ -1,12 +1,12 @@
 <template>
-  <div class="h-screen flex bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden lg:overflow-hidden">
+  <div class="h-dvh max-h-dvh flex bg-slate-50 dark:bg-slate-950 font-sans overflow-hidden">
     <!-- Left Side: Form -->
     <div
-      class="w-full lg:w-1/2 flex flex-col justify-center px-8 md:px-16 lg:px-24 py-6 md:py-10"
+      class="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-12 md:px-16 lg:px-24 py-4 sm:py-6 md:py-10 h-full overflow-hidden"
     >
-      <div class="w-full max-w-md mx-auto">
+      <div class="w-full max-w-md mx-auto flex flex-col justify-center h-full">
         <!-- Header: Rata Kiri & Logo Kompak -->
-        <div class="mb-8">
+        <div class="mb-5 sm:mb-8">
           <div class="flex items-center gap-2.5 mb-4">
             <img
               src="/images/logo/logo.png"
@@ -26,15 +26,15 @@
             />
           </div>
 
-          <h1 class="text-3xl font-semibold tracking-tight text-[#131313] dark:text-slate-50 text-left">
+          <h1 class="text-2xl sm:text-3xl font-semibold tracking-tight text-[#131313] dark:text-slate-50 text-left">
             Selamat Datang Kembali
           </h1>
-          <p class="text-slate-500 dark:text-slate-400 text-sm mt-1.5 text-left">
+          <p class="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1 sm:mt-1.5 text-left">
             Masuk HRIS Anda untuk mengelola tugas harian dan meningkatkan produktivitas tim.
           </p>
         </div>
 
-        <form @submit.prevent="handleLogin" class="space-y-6">
+        <form @submit.prevent="handleLogin" class="space-y-4 sm:space-y-6">
           <!-- Error Alert -->
           <div v-if="error" class="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg flex items-start gap-3">
             <div class="mt-0.5">
@@ -43,7 +43,7 @@
             <p class="text-sm text-red-600 dark:text-red-400 font-medium leading-snug">{{ error }}</p>
           </div>
 
-          <div class="space-y-2">
+          <div class="space-y-1.5 sm:space-y-2">
             <Label for="email" class="text-sm font-medium">Email</Label>
             <div class="relative">
               <Mail class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -58,7 +58,7 @@
             </div>
           </div>
 
-          <div class="space-y-2">
+          <div class="space-y-1.5 sm:space-y-2">
             <div class="flex items-center justify-between">
               <Label for="password" class="text-sm font-medium">Password</Label>
               <NuxtLink
@@ -100,7 +100,7 @@
           </Button>
         </form>
 
-        <div class="mt-6 text-center text-sm text-slate-500">
+        <div class="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-slate-500">
           Belum punya akun?
           <NuxtLink
             to="/auth/register"
@@ -111,7 +111,7 @@
         </div>
 
         <!-- Secured by SSO footer -->
-        <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400 dark:text-slate-500">
+        <div class="mt-3 sm:mt-4 flex items-center justify-center gap-2 text-xs text-slate-400 dark:text-slate-500">
           <span>Secured by</span>
           <img
             src="/images/sso/kreavoks-sso.svg"
