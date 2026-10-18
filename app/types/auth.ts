@@ -5,6 +5,9 @@ export interface User {
   role?: string;
   avatar?: string;
   permissions?: string[];
+  agreementLink?: string | null;
+  hasDocuments?: boolean;
+  documents?: string[];
 }
 
 export interface AuthResponse {

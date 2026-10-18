@@ -19,9 +19,16 @@ export const useLogin = () => {
         // setAuth hanya butuh user dan accessToken — refreshToken di HttpOnly cookie
         setAuth(response.data.user, response.data.accessToken)
         toast.success('Login Berhasil', {
-          description: `Selamat datang, ${response.data.user.name || response.data.user.email}!`
+          description: `Selamat datang, ${response.data.user.fullName || response.data.user.name || response.data.user.email}!`
         })
         
+        // Jika akun adalah MENTOR dan belum melengkapi dokumen
+        const isMentorNeedingDocs = response.data.user.role === 'MENTOR' && !response.data.user.hasDocuments && !response.data.user.agreementLink
+        if (isMentorNeedingDocs) {
+          await navigateTo('/onboarding')
+          return
+        }
+
         // Redirect ke target yang diteruskan (untuk SSO/fallback) atau default ke /dashboard
         const redirectPath = redirectUrl || '/dashboard'
         await navigateTo(redirectPath)
