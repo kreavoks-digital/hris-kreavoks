@@ -1,6 +1,6 @@
 <template>
   <Card 
-    class="p-6 rounded-3xl border flex flex-col justify-between text-center shadow-none relative overflow-hidden transition-colors duration-1000"
+    class="p-6 sm:p-7 rounded-3xl border flex flex-col justify-between text-center shadow-none relative overflow-hidden transition-colors duration-1000 min-h-[360px] sm:min-h-[380px]"
     :class="[
       attendanceState === 'clocked_out' ? 'bg-emerald-500/10 border-emerald-500/30' :
       isNightTime ? 'bg-red-500/10 border-red-500/30 animate-pulse' : 'bg-card border-border'
@@ -9,17 +9,18 @@
     <!-- Mascot Image Top Right -->
     <img :src="mascotSrc" alt="Mascot" class="absolute top-4 right-4 w-12 h-12 md:w-16 md:h-16 object-contain pointer-events-none drop-shadow-sm opacity-90 z-0" />
 
-    <div class="relative z-10 pr-16">
+    <div class="relative z-10 pr-16 pb-1">
       <div class="text-sm font-semibold text-foreground text-left">Absensi</div>
-      <hr class="border-t border-border mt-3" />
+      <hr class="border-t border-border mt-2" />
     </div>
-    <div class="space-y-4 my-auto relative z-10">
+
+    <div class="space-y-4 pt-10 pb-8 sm:py-8 sm:my-auto relative z-10">
       <!-- Big clock duration -->
       <div>
-        <h2 class="text-2xl font-bold text-foreground tabular-nums">
+        <h2 class="text-3xl sm:text-2xl md:text-3xl font-extrabold text-foreground tabular-nums tracking-tight">
           {{ attendanceState === 'clocked_out' ? clockRangeText : currentTime }}
         </h2>
-        <p class="text-xs text-muted-foreground mt-2">
+        <p class="text-xs sm:text-sm text-muted-foreground mt-2.5 leading-relaxed">
           <template v-if="attendanceState === 'clocked_out'">
             Anda sudah pulang <span class="font-semibold text-kv-primary">pukul {{ clockOutTime }} WIB</span>
           </template>
@@ -34,8 +35,8 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="space-y-3 mt-6">
-      <div class="grid grid-cols-2 gap-3">
+    <div class="space-y-4 mt-auto pt-4 relative z-10">
+      <div class="grid grid-cols-2 gap-3 sm:gap-4">
         <ClockOutModal />
 
         <AlertDialog>
@@ -56,7 +57,7 @@
                 Apakah Anda yakin ingin melakukan Clock In pada pukul {{ currentTime }} WIB?
               </AlertDialogDescription>
             </AlertDialogHeader>
-              <AlertDialogFooter>
+            <AlertDialogFooter>
               <AlertDialogCancel as-child>
                 <Button variant="outline" :disabled="isSubmitting">Batal</Button>
               </AlertDialogCancel>
@@ -71,7 +72,9 @@
         </AlertDialog>
       </div>
       
-      <LeaveRequestModal />
+      <div class="pt-1">
+        <LeaveRequestModal />
+      </div>
     </div>
   </Card>
 </template>

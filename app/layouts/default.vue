@@ -55,37 +55,63 @@
         <button
           @click="toggleCollapse"
           :title="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-          class="absolute -right-3 top-[22px] hidden lg:flex w-6 h-6 bg-background border border-border rounded-full items-center justify-center text-muted-foreground hover:text-kv-primary hover:border-kv-primary transition-all shadow-sm z-50"
+          class="absolute -right-3 top-[20px] hidden lg:flex w-8 h-8 bg-background border border-border rounded-sm items-center justify-center hover:border-kv-primary transition-all shadow-sm z-50 cursor-pointer"
         >
-          <ChevronLeft v-if="!isCollapsed" class="w-3 h-3" />
-          <ChevronRight v-else class="w-3 h-3" />
+          <ChevronLeft v-if="!isCollapsed" class="w-3.5 h-3.5" />
+          <ChevronRight v-else class="w-3.5 h-3.5" />
         </button>
       </div>
 
       <!-- Navigation -->
-      <nav class="flex-1 overflow-y-auto overflow-x-hidden py-4 px-2 space-y-1">
+      <nav
+        ref="sidebarNavRef"
+        :class="[
+          'flex-1 py-4 px-2 space-y-1',
+          isCollapsed ? 'overflow-visible' : 'overflow-y-auto overflow-x-hidden'
+        ]"
+      >
         <template v-for="item in filteredNavigation" :key="item.name">
-          <!-- Tooltip wrapper when collapsed -->
+          <!-- Item wrapper -->
           <div class="relative group/nav-item">
             <NuxtLink
-              :to="item.to"
-              :title="isCollapsed ? item.name : ''"
+              :to="isCollapsed && item.children ? undefined : item.to"
+              @click="(e) => handleNavClick(item, e)"
               :class="[
-                'flex items-center gap-3 rounded-xl transition-all duration-200 text-sm font-medium relative overflow-hidden',
+                'flex items-center gap-3 rounded-xl transition-all duration-200 text-sm font-medium relative overflow-hidden cursor-pointer',
                 isCollapsed ? 'justify-center w-11 h-11 mx-auto p-0' : 'justify-start px-3 py-2.5',
                 (item.children ? route.path.startsWith(item.to) : route.path === item.to)
                   ? 'bg-kv-primary text-white shadow-sm'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+                (isCollapsed && activeCollapsedMenu === item.name && !route.path.startsWith(item.to))
+                  ? 'bg-accent text-accent-foreground ring-1 ring-border'
+                  : ''
               ]"
             >
               <component
                 :is="item.icon"
                 :class="[
                   'shrink-0 transition-colors w-5 h-5',
-                  (item.children ? route.path.startsWith(item.to) : route.path === item.to) ? 'text-white' : 'text-muted-foreground/70 group-hover:text-accent-foreground'
+                  (item.children ? route.path.startsWith(item.to) : route.path === item.to) ? 'text-white' : 'text-muted-foreground/70 group-hover/nav-item:text-accent-foreground'
                 ]"
                 stroke-width="1.75"
               />
+
+              <!-- Adobe Illustrator / Photoshop corner triangle indicator (for collapsed items with children) -->
+              <span
+                v-if="isCollapsed && item.children"
+                class="absolute bottom-1 right-1 pointer-events-none transition-all duration-200"
+                :class="[
+                  activeCollapsedMenu === item.name
+                    ? 'opacity-100 scale-110'
+                    : 'opacity-60 group-hover/nav-item:opacity-100'
+                ]"
+                title="Memiliki sub-navigasi"
+              >
+                <svg class="w-1.5 h-1.5 fill-current" viewBox="0 0 6 6">
+                  <polygon points="6,0 6,6 0,6" />
+                </svg>
+              </span>
+
               <!-- Label: only show when not collapsed -->
               <Transition name="sidebar-label">
                 <span v-if="!isCollapsed" class="whitespace-nowrap flex-1 text-left">
@@ -93,7 +119,7 @@
                 </span>
               </Transition>
               
-              <!-- Chevron for children -->
+              <!-- Chevron for children when expanded -->
               <Transition name="sidebar-label">
                 <div v-if="!isCollapsed && item.children" class="ml-auto opacity-70">
                   <ChevronDown v-if="route.path.startsWith(item.to)" class="w-4 h-4" />
@@ -102,7 +128,7 @@
               </Transition>
             </NuxtLink>
 
-            <!-- Sub Navigation -->
+            <!-- Sub Navigation (when sidebar is expanded) -->
             <div v-if="!isCollapsed && item.children && route.path.startsWith(item.to)" class="mt-1 flex flex-col pl-9 space-y-1">
               <NuxtLink
                 v-for="child in item.children"
@@ -115,10 +141,63 @@
               </NuxtLink>
             </div>
 
-            <!-- Collapsed tooltip -->
+            <!-- Collapsed Flyout Submenu (Adobe Photoshop/Illustrator style - when isCollapsed && item.children) -->
             <div
-              v-if="isCollapsed"
-              class="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-popover border border-border text-popover-foreground text-xs font-medium rounded-lg whitespace-nowrap opacity-0 group-hover/nav-item:opacity-100 pointer-events-none transition-opacity duration-150 z-[60] shadow-lg"
+              v-if="isCollapsed && item.children"
+              :class="[
+                'absolute left-full top-0 ml-3 z-[70] transition-all duration-200 select-none',
+                activeCollapsedMenu === item.name
+                  ? 'opacity-100 translate-x-0 pointer-events-auto visible'
+                  : 'opacity-0 -translate-x-1.5 pointer-events-none invisible group-hover/nav-item:opacity-100 group-hover/nav-item:translate-x-0 group-hover/nav-item:pointer-events-auto group-hover/nav-item:visible'
+              ]"
+            >
+              <!-- Hover bridge to prevent mouseleave when moving from button across gap -->
+              <div class="absolute -left-4 top-0 bottom-0 w-4 pointer-events-auto" />
+
+              <div class="w-56 p-2 rounded-2xl border border-border bg-popover text-popover-foreground shadow-2xl backdrop-blur-md">
+                <!-- Flyout Header: Parent icon, title & badge -->
+                <div class="px-2.5 py-1.5 flex items-center justify-between border-b border-border/50 mb-1.5">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <component :is="item.icon" class="w-4 h-4 text-kv-primary shrink-0" stroke-width="2" />
+                    <span class="text-xs font-semibold text-foreground tracking-tight truncate">{{ item.name }}</span>
+                  </div>
+                  <span class="text-[10px] font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded-md shrink-0">
+                    {{ item.children.length }} menu
+                  </span>
+                </div>
+
+                <!-- Children links -->
+                <div class="space-y-0.5">
+                  <NuxtLink
+                    v-for="child in item.children"
+                    :key="child.name"
+                    :to="child.to"
+                    @click="closeCollapsedMenu"
+                    :class="[
+                      'flex items-center justify-between px-2.5 py-2 text-xs rounded-xl transition-all duration-150 font-medium group/child',
+                      route.path === child.to
+                        ? 'bg-kv-primary text-white shadow-xs font-semibold'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    ]"
+                  >
+                    <span class="truncate">{{ child.name }}</span>
+                    <div
+                      v-if="route.path === child.to"
+                      class="w-1.5 h-1.5 rounded-full bg-white shrink-0 ml-2 shadow-xs"
+                    />
+                    <ChevronRight
+                      v-else
+                      class="w-3.5 h-3.5 opacity-0 group-hover/child:opacity-60 transition-opacity shrink-0 ml-2"
+                    />
+                  </NuxtLink>
+                </div>
+              </div>
+            </div>
+
+            <!-- Collapsed Tooltip (only for items WITHOUT children) -->
+            <div
+              v-if="isCollapsed && !item.children"
+              class="absolute left-full top-1/2 -translate-y-1/2 ml-3 px-2.5 py-1.5 bg-popover border border-border text-popover-foreground text-xs font-medium rounded-xl whitespace-nowrap opacity-0 group-hover/nav-item:opacity-100 pointer-events-none transition-all duration-150 -translate-x-1 group-hover/nav-item:translate-x-0 z-[60] shadow-lg flex items-center gap-1.5"
             >
               {{ item.name }}
               <!-- Arrow -->
@@ -164,7 +243,7 @@
           <!-- Mobile Menu Button -->
           <button
             @click="isMobileOpen = true"
-            class="lg:hidden w-9 h-9 flex items-center justify-center rounded-full border border-border text-muted-foreground hover:border-kv-primary hover:text-kv-primary transition-all shrink-0"
+            class="lg:hidden w-9 h-9 flex items-center justify-center rounded-sm border border-border text-muted-foreground hover:border-kv-primary hover:text-kv-primary transition-all shrink-0 cursor-pointer shadow-xs"
           >
             <Menu class="h-4 w-4" stroke-width="1.75" />
           </button>
@@ -337,7 +416,7 @@ import {
   RotateCcw,
   Check,
 } from 'lucide-vue-next'
-import { useDark, useToggle } from '@vueuse/core'
+import { useDark, useToggle, onClickOutside } from '@vueuse/core'
 import { Button } from '~/components/ui/button'
 import { Separator } from '~/components/ui/separator'
 import { Input } from '~/components/ui/input'
@@ -383,6 +462,25 @@ const STATUS_OPTIONS = [
 const isCollapsed = ref(false)
 const isMobileOpen = ref(false)
 
+// --- Collapsed Submenu Flyout (Adobe style) ---
+const sidebarNavRef = ref<HTMLElement | null>(null)
+const activeCollapsedMenu = ref<string | null>(null)
+
+const handleNavClick = (item: any, event: MouseEvent) => {
+  if (isCollapsed.value && item.children && item.children.length > 0) {
+    event.preventDefault()
+    activeCollapsedMenu.value = activeCollapsedMenu.value === item.name ? null : item.name
+  }
+}
+
+const closeCollapsedMenu = () => {
+  activeCollapsedMenu.value = null
+}
+
+onClickOutside(sidebarNavRef, () => {
+  activeCollapsedMenu.value = null
+})
+
 // --- Theme State ---
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
@@ -405,6 +503,15 @@ onMounted(async () => {
   window.addEventListener('resize', onResize)
   onUnmounted(() => window.removeEventListener('resize', onResize))
 
+  // Close flyout on Escape key
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      activeCollapsedMenu.value = null
+    }
+  }
+  window.addEventListener('keydown', handleKeyDown)
+  onUnmounted(() => window.removeEventListener('keydown', handleKeyDown))
+
   // Sinkronisasi data user & permission terbaru dari server
   if (accessToken.value) {
     await fetchUser()
@@ -419,13 +526,15 @@ onUnmounted(() => {
   destroyFcmListener()
 })
 
-// Close mobile sidebar on route change
+// Close mobile sidebar and flyout menu on route change
 watch(() => route.path, () => {
   isMobileOpen.value = false
+  activeCollapsedMenu.value = null
 })
 
 const toggleCollapse = () => {
   isCollapsed.value = !isCollapsed.value
+  activeCollapsedMenu.value = null
   localStorage.setItem('kvhris-sidebar-collapsed', String(isCollapsed.value))
 }
 

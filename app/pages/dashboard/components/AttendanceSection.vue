@@ -1,5 +1,5 @@
 <template>
-  <div class="grid gap-4 grid-cols-1 lg:grid-cols-12 flex-col">
+  <div class="grid gap-6 lg:gap-4 grid-cols-1 lg:grid-cols-12 flex-col">
     <!-- Column 1: Attendance Log Table (span 4) -->
     <AttendanceHistoryTable 
       class="order-2 lg:order-1 lg:col-span-4"
