@@ -135,8 +135,9 @@
             <Switch id="lifetime" v-model="isLifetime" />
           </div>
         </CardHeader>
-        <CardContent class="p-6" v-if="!isLifetime">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent class="p-6 space-y-6">
+          <!-- Periode Kontrak (Hanya tampil jika bukan Lifetime) -->
+          <div v-if="!isLifetime" class="grid grid-cols-1 md:grid-cols-2 gap-4 pb-6 border-b border-border/60">
             <div class="space-y-2">
               <Label for="startDate" class="text-foreground font-medium ml-1">Tanggal Mulai (Start Date)</Label>
               <Popover>
@@ -171,7 +172,7 @@
                 </PopoverContent>
               </Popover>
             </div>
-            <div class="space-y-2">
+            <div class="space-y-2 md:col-span-2">
               <Label for="certificateStatus" class="text-foreground font-medium ml-1">Status Sertifikat</Label>
               <Select v-model="formData.certificateStatus">
                 <SelectTrigger class="rounded-3xl h-11 border-border focus:ring-kv-primary bg-background text-foreground">
@@ -184,23 +185,88 @@
                 </SelectContent>
               </Select>
             </div>
-            <div class="space-y-2">
-              <Label for="agreementLink" class="text-foreground font-medium ml-1">Link Surat Perjanjian</Label>
-              
-              <div v-if="formData.agreementLink" class="relative border border-border rounded-2xl overflow-hidden bg-muted/30">
-                <iframe v-if="formData.agreementLink.toLowerCase().endsWith('.pdf')" :src="fullAgreementUrl" class="w-full h-48 border-0" title="PDF Preview"></iframe>
-                <div v-else class="flex items-center gap-3 p-4">
-                  <FileText class="h-5 w-5 text-kv-primary flex-shrink-0" />
-                  <a :href="fullAgreementUrl" target="_blank" class="text-sm font-medium text-kv-primary hover:underline truncate">
-                    Buka / Lihat Surat Perjanjian
-                  </a>
-                </div>
-                <Button type="button" variant="destructive" size="icon" class="absolute top-2 right-6 h-7 w-7 rounded-full shadow-md" @click="formData.agreementLink = ''">
-                  <X class="h-3.5 w-3.5" />
-                </Button>
-              </div>
+          </div>
 
-              <Input v-else id="agreementLink" v-model="formData.agreementLink" type="text" placeholder="https://... atau /uploads/..." class="border-border focus:ring-kv-primary bg-background rounded-3xl h-11" />
+          <!-- Surat Perjanjian Kerja Sama (Selalu tampil untuk semua karyawan & mentor) -->
+          <div class="space-y-3">
+            <div class="flex items-center justify-between">
+              <Label for="agreementLink" class="text-foreground font-medium ml-1">
+                Surat Perjanjian Kerja Sama
+              </Label>
+              <span v-if="agreementDocs.length > 0" class="text-xs text-muted-foreground font-medium">
+                {{ agreementDocs.length }} dokumen terlampir
+              </span>
+            </div>
+            
+            <!-- List Dokumen Terunggah -->
+            <div v-if="agreementDocs.length > 0" class="space-y-3">
+              <div
+                v-for="(doc, idx) in agreementDocs"
+                :key="idx"
+                class="border border-border rounded-2xl overflow-hidden bg-card shadow-sm hover:border-kv-primary/40 transition-colors"
+              >
+                <!-- Bar Info Dokumen -->
+                <div class="flex items-center justify-between p-3.5 bg-muted/40 border-b border-border gap-3">
+                  <div class="flex items-center gap-3 min-w-0">
+                    <div class="h-9 w-9 rounded-xl bg-kv-primary/10 text-kv-primary flex items-center justify-center shrink-0">
+                      <FileText class="h-4 w-4" />
+                    </div>
+                    <div class="min-w-0">
+                      <p class="text-sm font-semibold text-foreground truncate max-w-[200px] sm:max-w-md" :title="doc.fileName">
+                        {{ doc.fileName }}
+                      </p>
+                      <p class="text-xs text-muted-foreground">
+                        Dokumen #{{ idx + 1 }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="flex items-center gap-2 shrink-0">
+                    <a
+                      :href="doc.fullUrl"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-kv-primary text-white hover:bg-kv-primary/90 transition-colors shadow-sm"
+                    >
+                      <ExternalLink class="h-3.5 w-3.5" />
+                      <span>Buka / Unduh</span>
+                    </a>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      class="h-8 w-8 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                      title="Hapus Dokumen"
+                      @click="removeAgreementDoc(idx)"
+                    >
+                      <Trash2 class="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+
+                <!-- PDF Preview jika dokumen berupa PDF -->
+                <div v-if="doc.isPdf" class="relative bg-background">
+                  <iframe
+                    :src="doc.fullUrl"
+                    class="w-full h-56 border-0"
+                    :title="doc.fileName"
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+
+            <!-- Input manual jika belum ada dokumen -->
+            <div v-else class="space-y-2">
+              <Input
+                id="agreementLink"
+                v-model="formData.agreementLink"
+                type="text"
+                placeholder="https://... atau /uploads/..."
+                class="border-border focus:ring-kv-primary bg-background rounded-3xl h-11"
+              />
+              <p class="text-xs text-muted-foreground ml-1">
+                Belum ada dokumen terunggah. Masukkan URL dokumen atau biarkan mentor mengunggah saat onboarding.
+              </p>
             </div>
           </div>
         </CardContent>
@@ -229,7 +295,9 @@ import {
   Calendar as CalendarIconBase,
   CalendarIcon,
   FileText,
-  X
+  X,
+  ExternalLink,
+  Trash2
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Input } from '~/components/ui/input'
@@ -309,14 +377,90 @@ const endDateObj = computed({
 
 const config = useRuntimeConfig();
 
-const fullAgreementUrl = computed(() => {
-  const link = formData.value.agreementLink;
-  if (!link) return '';
-  if (link.startsWith('/uploads')) {
-    const baseUrl = config.public.apiUrl ? new URL(config.public.apiUrl).origin : 'http://localhost:5000';
-    return `${baseUrl}${link}`;
+interface AgreementDoc {
+  originalUrl: string;
+  fullUrl: string;
+  fileName: string;
+  isPdf: boolean;
+}
+
+const formatSingleUrl = (url: string) => {
+  if (!url) return '';
+  let cleaned = url.trim().replace(/^["']|["']$/g, '');
+  if (cleaned.startsWith('/uploads')) {
+    const baseUrl = config.public.apiUrl ? new URL(config.public.apiUrl).origin : 'http://localhost:3001';
+    return `${baseUrl}${cleaned}`;
   }
-  return link.startsWith('http') ? link : `https://${link}`;
+  return cleaned.startsWith('http') ? cleaned : `https://${cleaned}`;
+};
+
+const agreementDocs = computed<AgreementDoc[]>(() => {
+  const raw = formData.value.agreementLink;
+  if (!raw) return [];
+
+  let urls: string[] = [];
+  if (Array.isArray(raw)) {
+    urls = raw;
+  } else if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          urls = parsed;
+        } else if (typeof parsed === 'string') {
+          urls = [parsed];
+        }
+      } catch {
+        const matches = trimmed.match(/https?:\/\/[^\s"',\]]+/g);
+        urls = matches || [trimmed];
+      }
+    } else if (trimmed) {
+      urls = [trimmed];
+    }
+  }
+
+  return urls
+    .map(u => (typeof u === 'string' ? u.trim().replace(/^["']|["']$/g, '') : ''))
+    .filter(Boolean)
+    .map((url, idx) => {
+      const fullUrl = formatSingleUrl(url);
+      let fileName = `Surat Perjanjian ${idx + 1}`;
+      try {
+        const pathPart = new URL(fullUrl).pathname;
+        const baseName = pathPart.split('/').pop();
+        if (baseName) {
+          fileName = decodeURIComponent(baseName);
+        }
+      } catch {
+        // fallback
+      }
+
+      const isPdf = fullUrl.toLowerCase().split('?')[0].endsWith('.pdf');
+
+      return {
+        originalUrl: url,
+        fullUrl,
+        fileName,
+        isPdf,
+      };
+    });
+});
+
+const removeAgreementDoc = (index: number) => {
+  const docs = [...agreementDocs.value];
+  docs.splice(index, 1);
+  if (docs.length === 0) {
+    formData.value.agreementLink = '';
+  } else if (docs.length === 1) {
+    formData.value.agreementLink = docs[0].originalUrl;
+  } else {
+    formData.value.agreementLink = JSON.stringify(docs.map(d => d.originalUrl));
+  }
+};
+
+const fullAgreementUrl = computed(() => {
+  return agreementDocs.value[0]?.fullUrl || '';
 });
 
 const departmentGroups: Record<string, string[]> = {
