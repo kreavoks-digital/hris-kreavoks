@@ -190,7 +190,7 @@
           <!-- Surat Perjanjian Kerja Sama (Selalu tampil untuk semua karyawan & mentor) -->
           <div class="space-y-3">
             <div class="flex items-center justify-between">
-              <Label for="agreementLink" class="text-foreground font-medium ml-1">
+              <Label class="text-foreground font-medium ml-1">
                 Surat Perjanjian Kerja Sama
               </Label>
               <span v-if="agreementDocs.length > 0" class="text-xs text-muted-foreground font-medium">
@@ -202,7 +202,7 @@
             <div v-if="agreementDocs.length > 0" class="space-y-3">
               <div
                 v-for="(doc, idx) in agreementDocs"
-                :key="idx"
+                :key="doc.fullUrl || idx"
                 class="border border-border rounded-2xl overflow-hidden bg-card shadow-sm hover:border-kv-primary/40 transition-colors"
               >
                 <!-- Bar Info Dokumen -->
@@ -255,7 +255,6 @@
               </div>
             </div>
 
-            <!-- Input manual jika belum ada dokumen -->
             <div v-else class="space-y-2">
               <Input
                 id="agreementLink"
@@ -386,7 +385,7 @@ interface AgreementDoc {
 
 const formatSingleUrl = (url: string) => {
   if (!url) return '';
-  let cleaned = url.trim().replace(/^["']|["']$/g, '');
+  const cleaned = url.trim().replace(/^["']|["']$/g, '');
   if (cleaned.startsWith('/uploads')) {
     const baseUrl = config.public.apiUrl ? new URL(config.public.apiUrl).origin : 'http://localhost:3001';
     return `${baseUrl}${cleaned}`;
@@ -412,8 +411,11 @@ const agreementDocs = computed<AgreementDoc[]>(() => {
           urls = [parsed];
         }
       } catch {
-        const matches = trimmed.match(/https?:\/\/[^\s"',\]]+/g);
-        urls = matches || [trimmed];
+        const cleaned = trimmed.replace(/^\[|\]$/g, '');
+        urls = cleaned
+          .split(',')
+          .map((s) => s.trim().replace(/^["']|["']$/g, ''))
+          .filter(Boolean);
       }
     } else if (trimmed) {
       urls = [trimmed];
