@@ -438,7 +438,8 @@ const agreementDocs = computed<AgreementDoc[]>(() => {
         // fallback
       }
 
-      const isPdf = fullUrl.toLowerCase().split('?')[0].endsWith('.pdf');
+      const cleanPath = (fullUrl.toLowerCase().split('?')[0] || '');
+      const isPdf = cleanPath.endsWith('.pdf');
 
       return {
         originalUrl: url,
@@ -455,7 +456,7 @@ const removeAgreementDoc = (index: number) => {
   if (docs.length === 0) {
     formData.value.agreementLink = '';
   } else if (docs.length === 1) {
-    formData.value.agreementLink = docs[0].originalUrl;
+    formData.value.agreementLink = docs[0]?.originalUrl || '';
   } else {
     formData.value.agreementLink = JSON.stringify(docs.map(d => d.originalUrl));
   }
