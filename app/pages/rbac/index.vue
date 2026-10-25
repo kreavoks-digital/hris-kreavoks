@@ -1,282 +1,150 @@
 <template>
-  <div class="space-y-6 animate-in fade-in duration-500">
+  <div class="space-y-6">
     <!-- Header Section -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <h2 class="text-2xl font-semibold text-slate-900 dark:text-slate-50">
-          RBAC Management
+        <h2 class="text-2xl font-semibold text-foreground">
+          Role & Permission
         </h2>
-        <p class="text-slate-500 dark:text-slate-400 mt-1">
-          Manage roles and permissions for all system users.
+        <p class="text-sm text-muted-foreground mt-0.5">
+          Kelola role, permission, dan akses user di seluruh sistem Kreavoks.
         </p>
       </div>
-      <div class="flex flex-col sm:flex-row w-full md:w-auto gap-3">
-        <div class="relative w-full sm:w-64">
-          <Search class="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            v-model="searchQuery"
-            placeholder="Cari karyawan..." 
-            class="pl-9 bg-card border-border rounded-xl w-full"
-          />
-        </div>
-        <Button @click="fetchData" variant="outline" :disabled="loading" class="gap-2 rounded-xl">
-          <RefreshCw :class="{'animate-spin': loading}" class="h-4 w-4" />
+
+      <div class="flex items-center gap-3">
+        <Button
+          @click="fetchAllData"
+          variant="outline"
+          :disabled="loading"
+          class="gap-2 text-sm text-foreground hover:bg-muted"
+        >
+          <RefreshCw :class="{ 'animate-spin': loading }" class="h-4 w-4" />
           Refresh
         </Button>
       </div>
     </div>
 
-    <!-- Users Table Card -->
-    <Card class="border-slate-200 dark:border-slate-800 shadow-sm">
-      <CardHeader>
-        <CardTitle>Daftar Akses Pengguna</CardTitle>
-        <CardDescription>
-          Berikut adalah daftar pengguna beserta izin spesifik yang mereka miliki.
-        </CardDescription>
-      </CardHeader>
-      <CardContent class="p-0">
-        <div class="relative overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow class="bg-slate-50/50 hover:bg-slate-50/50">
-                <TableHead class="font-semibold">Nama Karyawan</TableHead>
-                <TableHead class="font-semibold">Role Utama</TableHead>
-                <TableHead class="font-semibold">Permissions</TableHead>
-                <TableHead class="font-semibold text-right">Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableSkeleton v-if="loading" :rows="5" :columns="4" />
-              <TableRow v-else-if="users.length === 0">
-                <TableCell colspan="4" class="h-24 text-center text-slate-500">
-                  Tidak ada data pengguna ditemukan
-                </TableCell>
-              </TableRow>
-              <template v-else>
-                <TableRow v-for="user in users" :key="user.id" class="hover:bg-slate-50/50">
-                  <TableCell>
-                    <div class="flex items-center gap-3">
-                      <Avatar class="h-9 w-9 border-2 border-card">
-                        <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.fullName}`" />
-                        <AvatarFallback>{{ user.fullName ? user.fullName.charAt(0) : 'U' }}</AvatarFallback>
-                      </Avatar>
-                      <div class="flex flex-col">
-                        <span class="font-medium text-slate-900 dark:text-slate-100 leading-tight">{{ user.fullName }}</span>
-                        <span class="text-xs text-slate-500">{{ user.email }}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge :variant="user.role === 'ADMIN' ? 'default' : 'secondary'">
-                      {{ user.role }}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div class="flex flex-wrap gap-1">
-                      <!-- Default Role Permissions -->
-                      <Badge v-if="user.role === 'ADMIN'" variant="outline" class="text-xs bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800">
-                        Full System Access
-                      </Badge>
-                      <Badge v-if="user.role === 'MENTOR'" variant="outline" class="text-xs bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
-                        Kelola Mentee & Evaluasi
-                      </Badge>
-                      <Badge v-if="user.role === 'INTERN'" variant="outline" class="text-xs bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800">
-                        Akses Karyawan & Logbook
-                      </Badge>
+    <!-- Stats Overview Cards -->
+    <RbacStatsCards :stats="stats" />
 
-                      <!-- Extra Assigned Permissions -->
-                      <Badge 
-                        v-for="p in user.permissions" 
-                        :key="p.id" 
-                        variant="outline" 
-                        class="text-xs bg-slate-50 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700"
-                      >
-                        {{ p.name }}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell class="text-right">
-                    <div v-if="!isViewerMode" class="flex items-center justify-end gap-2">
-                      <Button variant="outline" size="sm" class="h-8 rounded-lg gap-1 text-slate-600 hover:text-kv-primary hover:bg-kv-primary/10 hover:border-kv-primary/30 transition-colors" @click="triggerForgotPassword(user.email)" title="Kirim email reset password">
-                        <Key class="h-3.5 w-3.5" />
-                        <span class="sr-only sm:not-sr-only text-xs">Reset Pass</span>
-                      </Button>
-                      <Button variant="ghost" size="sm" class="h-8 rounded-lg gap-1 text-kv-primary hover:text-kv-primary hover:bg-kv-primary/10" @click="openAssignModal(user)">
-                        <ShieldCheck class="h-4 w-4" />
-                        Kelola
-                      </Button>
-                    </div>
-                    <div v-else class="text-xs text-muted-foreground italic text-right pr-2">
-                      View Only
-                    </div>
-                  </TableCell>
-                </TableRow>
-              </template>
-            </TableBody>
-          </Table>
-        </div>
+    <!-- KreaUI Tabs Navigation (from @kreavoks/kreaui) -->
+    <div class="space-y-4">
+      <Tabs
+        v-model="activeTab"
+        :items="tabItems"
+        variant="pills"
+        size="md"
+      />
 
-        <!-- Pagination Section -->
-        <div class="flex items-center justify-between px-6 py-4 border-t border-border">
-          <div class="flex flex-1 justify-between sm:hidden">
-            <Button
-              @click="page--"
-              :disabled="page === 1"
-              variant="outline"
-              class="rounded-xl"
-            >
-              Previous
-            </Button>
-            <Button
-              @click="page++"
-              :disabled="page === totalPages"
-              variant="outline"
-              class="rounded-xl"
-            >
-              Next
-            </Button>
-          </div>
-          <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-            <div>
-              <p class="text-sm text-muted-foreground">
-                Menampilkan
-                <span class="font-medium text-foreground">{{ totalItems === 0 ? 0 : (page - 1) * limit + 1 }}</span>
-                sampai
-                <span class="font-medium text-foreground">{{ Math.min(page * limit, totalItems) }}</span>
-                dari
-                <span class="font-medium text-foreground">{{ totalItems }}</span>
-                karyawan
-              </p>
-            </div>
-            <div>
-              <nav class="isolate inline-flex -space-x-px rounded-md gap-1" aria-label="Pagination">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  :disabled="page === 1"
-                  @click="page--"
-                  class="h-9 w-9 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground"
-                >
-                  <ChevronLeft class="h-4 w-4" />
-                </Button>
-                
-                <template v-for="p in totalPages" :key="p">
-                  <Button
-                    v-if="p === 1 || p === totalPages || (p >= page - 2 && p <= page + 2)"
-                    variant="outline"
-                    size="sm"
-                    @click="page = p"
-                    class="h-9 w-9 rounded-xl border-border"
-                    :class="page === p ? 'bg-kv-primary text-white border-transparent hover:bg-kv-primary/95' : 'bg-background hover:bg-accent text-muted-foreground hover:text-foreground'"
-                  >
-                    {{ p }}
-                  </Button>
-                  <span 
-                    v-else-if="(p === 2 && page > 4) || (p === totalPages - 1 && page < totalPages - 3)" 
-                    class="inline-flex items-center px-2 text-sm font-semibold text-muted-foreground"
-                  >
-                    ...
-                  </span>
-                </template>
+      <!-- Tab Content Area -->
+      <div class="pt-1">
+        <!-- Tab 1: Roles -->
+        <RolesTab
+          v-if="activeTab === 'roles'"
+          :roles="roles"
+          :loading="loadingRoles"
+          :is-viewer-mode="isViewerMode"
+          @create-role="openCreateRoleModal"
+          @edit-role="openEditRoleModal"
+          @manage-permissions="openManageRolePermissions"
+          @delete-role="deleteRole"
+        />
 
-                <Button
-                  variant="outline"
-                  size="icon"
-                  :disabled="page === totalPages"
-                  @click="page++"
-                  class="h-9 w-9 rounded-xl border-border bg-background text-muted-foreground hover:text-foreground"
-                >
-                  <ChevronRight class="h-4 w-4" />
-                </Button>
-              </nav>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        <!-- Tab 2: Permissions -->
+        <PermissionsTab
+          v-else-if="activeTab === 'permissions'"
+          :grouped-permissions="groupedPermissions"
+          :loading="loadingPermissions"
+          :is-viewer-mode="isViewerMode"
+          @create-permission="openCreatePermissionModal"
+          @edit-permission="openEditPermissionModal"
+          @delete-permission="deletePermission"
+        />
 
-    <!-- Assign Permission Modal -->
-    <Dialog :open="isAssignModalOpen" @update:open="closeAssignModal">
-      <DialogContent class="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Atur Hak Akses</DialogTitle>
-          <DialogDescription>
-            Pilih wewenang untuk <strong>{{ selectedUser?.fullName }}</strong>.
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div class="grid gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
-          <div 
-            v-for="permission in permissions" 
-            :key="permission.id" 
-            class="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4 shadow-sm cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
-            @click="togglePermission(permission.id, !selectedPermissionIds.includes(permission.id))"
-          >
-            <Checkbox 
-              :id="'perm-' + permission.id" 
-              :model-value="selectedPermissionIds.includes(permission.id)"
-              :checked="selectedPermissionIds.includes(permission.id)"
-              @update:model-value="(checked: any) => togglePermission(permission.id, Boolean(checked))"
-              @update:checked="(checked: any) => togglePermission(permission.id, Boolean(checked))"
-              @click.stop
-            />
-            <div class="space-y-1 leading-none select-none">
-              <label
-                :for="'perm-' + permission.id"
-                class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-slate-900 dark:text-slate-100"
-                @click.prevent
-              >
-                {{ permission.name }}
-              </label>
-              <p class="text-[13px] text-slate-500 dark:text-slate-400">
-                {{ permission.description }}
-              </p>
-            </div>
-          </div>
-        </div>
+        <!-- Tab 3: Users Management -->
+        <UserManagementTab
+          v-else-if="activeTab === 'users'"
+          :users="users"
+          :loading="loadingUsers"
+          v-model:search-query="searchQuery"
+          v-model:page="page"
+          :limit="limit"
+          :total-items="totalItems"
+          :total-pages="totalPages"
+          :is-viewer-mode="isViewerMode"
+          @refresh="fetchUsers"
+          @manage-role="openUserRoleModal"
+          @manage-direct-permissions="openAssignModal"
+          @reset-password="triggerForgotPassword"
+        />
+      </div>
+    </div>
 
-        <DialogFooter>
-          <Button variant="outline" @click="closeAssignModal" :disabled="isAssigning">
-            Batal
-          </Button>
-          <Button @click="savePermissions" :disabled="isAssigning" class="bg-kv-primary hover:bg-kv-primary/90">
-            <Loader2 v-if="isAssigning" class="mr-2 h-4 w-4 animate-spin" />
-            Simpan Perubahan
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <!-- Modal: Tambah/Edit Role -->
+    <RoleDialog
+      v-model:open="isRoleModalOpen"
+      :role="selectedRoleForEdit"
+      :loading="isSavingRole"
+      @save="saveRole"
+    />
+
+    <!-- Modal: Tambah/Edit Permission -->
+    <PermissionDialog
+      v-model:open="isPermissionModalOpen"
+      :permission="selectedPermissionForEdit"
+      :loading="isSavingPermission"
+      @save="savePermission"
+    />
+
+    <!-- Modal: Atur Hak Akses Role -->
+    <ManageRolePermissionsDialog
+      v-model:open="isManageRolePermissionsOpen"
+      :role="selectedRoleForPermissions"
+      :grouped-permissions="groupedPermissions"
+      v-model:selected-permission-ids="selectedRolePermissionIds"
+      :loading="isSavingRolePermissions"
+      @save="saveRolePermissions"
+    />
+
+    <!-- Modal: Ubah Role User -->
+    <UserRoleDialog
+      v-model:open="isUserRoleModalOpen"
+      :user="selectedUserForRole"
+      :roles="roles"
+      v-model:selected-role-id="selectedUserRoleId"
+      :loading="isSavingUserRole"
+      @save="saveUserRole"
+    />
+
+    <!-- Modal: Atur Custom Permissions User -->
+    <UserDirectPermissionsDialog
+      v-model:open="isAssignModalOpen"
+      :user="selectedUser"
+      :permissions="permissions"
+      v-model:selected-permission-ids="selectedPermissionIds"
+      :loading="isAssigning"
+      @save="savePermissions"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import TableSkeleton from '~/components/ui/skeleton/TableSkeleton.vue'
-import { 
-  ShieldCheck, 
-  Loader2,
-  RefreshCw,
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Key
-} from 'lucide-vue-next'
-
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '~/components/ui/table'
+import { RefreshCw, ShieldCheck, KeyRound, Users } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
-import { Input } from '~/components/ui/input'
-import { Badge } from '~/components/ui/badge'
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
-import { Checkbox } from '~/components/ui/checkbox'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog'
+import { Tabs } from '@kreavoks/kreaui'
 
+// Subcomponents
+import RbacStatsCards from './components/RbacStatsCards.vue'
+import RolesTab from './components/RolesTab.vue'
+import PermissionsTab from './components/PermissionsTab.vue'
+import UserManagementTab from './components/UserManagementTab.vue'
+import RoleDialog from './components/RoleDialog.vue'
+import PermissionDialog from './components/PermissionDialog.vue'
+import ManageRolePermissionsDialog from './components/ManageRolePermissionsDialog.vue'
+import UserRoleDialog from './components/UserRoleDialog.vue'
+import UserDirectPermissionsDialog from './components/UserDirectPermissionsDialog.vue'
+
+// Logic hook
 import { useRbac } from './hooks/useRbac'
 
 const { isViewerMode } = useViewerMode()
@@ -299,36 +167,73 @@ definePageMeta({
 })
 
 const {
-  users,
+  activeTab,
+  roles,
   permissions,
+  users,
   loading,
-  isAssigning,
+  loadingRoles,
+  loadingPermissions,
+  loadingUsers,
+  stats,
+  groupedPermissions,
+
+  // Modals
+  isRoleModalOpen,
+  selectedRoleForEdit,
+  isSavingRole,
+  isPermissionModalOpen,
+  selectedPermissionForEdit,
+  isSavingPermission,
+  isManageRolePermissionsOpen,
+  selectedRoleForPermissions,
+  selectedRolePermissionIds,
+  isSavingRolePermissions,
+  isUserRoleModalOpen,
+  selectedUserForRole,
+  selectedUserRoleId,
+  isSavingUserRole,
   isAssignModalOpen,
   selectedUser,
   selectedPermissionIds,
+  isAssigning,
+
+  // Pagination
   searchQuery,
   page,
   limit,
   totalItems,
   totalPages,
-  fetchData,
+
+  // Methods
+  fetchUsers,
+  fetchAllData,
+  openCreateRoleModal,
+  openEditRoleModal,
+  saveRole,
+  deleteRole,
+  openManageRolePermissions,
+  saveRolePermissions,
+  openCreatePermissionModal,
+  openEditPermissionModal,
+  savePermission,
+  deletePermission,
+  openUserRoleModal,
+  saveUserRole,
   openAssignModal,
-  closeAssignModal,
   savePermissions,
-  triggerForgotPassword
+  triggerForgotPassword,
 } = useRbac()
 
-const togglePermission = (id: number, checked: boolean) => {
-  if (checked) {
-    if (!selectedPermissionIds.value.includes(id)) {
-      selectedPermissionIds.value.push(id)
-    }
-  } else {
-    selectedPermissionIds.value = selectedPermissionIds.value.filter(pid => pid !== id)
-  }
-}
+// KreaUI Tabs Items
+const tabItems = computed(() => [
+  { id: 'roles', label: `Role (${roles.value.length})`, icon: ShieldCheck },
+  { id: 'permissions', label: `Permission (${permissions.value.length})`, icon: KeyRound },
+  { id: 'users', label: `User (${totalItems.value})`, icon: Users },
+])
 
+// RBAC Page - updated
 onMounted(() => {
-  fetchData()
+  fetchAllData()
 })
 </script>
