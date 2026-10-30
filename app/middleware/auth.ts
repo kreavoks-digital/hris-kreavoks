@@ -10,10 +10,11 @@ export default defineNuxtRouteMiddleware(async (to) => {
   }
 
   const isAuthPage = to.path.startsWith('/auth/')
+  const isPublicPage = isAuthPage || to.path.startsWith('/verify')
   const isLoggedIn = !!accessToken.value
 
-  // Jika belum login dan bukan auth page → redirect login
-  if (!isLoggedIn && !isAuthPage) {
+  // Jika belum login dan bukan halaman publik → redirect login
+  if (!isLoggedIn && !isPublicPage) {
     return navigateTo('/auth/login')
   }
 

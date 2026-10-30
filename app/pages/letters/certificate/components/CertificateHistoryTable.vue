@@ -202,6 +202,14 @@
 
                       <DropdownMenuItem
                         class="cursor-pointer gap-2 text-xs py-2 rounded-xl"
+                        @click="openVerifyPage(cert.serialNumber)"
+                      >
+                        <ShieldCheck class="h-3.5 w-3.5 text-kv-primary" />
+                        <span>Halaman Verifikasi</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        class="cursor-pointer gap-2 text-xs py-2 rounded-xl"
                         @click="copySerial(cert.serialNumber)"
                       >
                         <Copy class="h-3.5 w-3.5 text-muted-foreground" />
@@ -605,6 +613,7 @@ import {
   Check,
   ChevronsUpDown,
   UserCheck,
+  ShieldCheck,
   X
 } from 'lucide-vue-next'
 import { format } from 'date-fns'
@@ -763,6 +772,12 @@ const getGradeBadgeClass = (grade?: string) => {
 const copySerial = (serial: string) => {
   navigator.clipboard.writeText(serial)
   toast.success('Nomor seri berhasil disalin!', { description: serial })
+}
+
+const openVerifyPage = (serial: string) => {
+  if (typeof window !== 'undefined') {
+    window.open(`/verify/${encodeURIComponent(serial)}`, '_blank')
+  }
 }
 
 // ─── MODAL ADD / EDIT METHODS ───
