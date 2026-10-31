@@ -399,6 +399,7 @@ import {
   BarChart3,
   Users,
   CheckCircle2,
+  Calendar,
   CalendarDays,
   CircleDollarSign,
   LogOut,
@@ -541,6 +542,7 @@ const toggleCollapse = () => {
 // --- Navigation ---
 const navigation = [
   { name: 'Dashboard', to: '/dashboard', icon: BarChart3 },
+  { name: 'Calendar', to: '/calendar', icon: Calendar },
   { name: 'Attendance', to: '/attendance', icon: CheckCircle2 },
   { name: 'Leave', to: '/leave', icon: CalendarDays, permission: 'manage_users' },
   // { name: 'Payroll', to: '/payroll', icon: CircleDollarSign },
