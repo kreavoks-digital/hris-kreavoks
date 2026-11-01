@@ -451,28 +451,44 @@
                 <div
                   v-for="u in displayedCandidates"
                   :key="u.id"
-                  @click="toggleAttendee(u.id)"
+                  @click="!isUserDisabled(u) && toggleAttendee(u.id)"
                   :class="[
-                    'px-3.5 py-3 flex items-center justify-between cursor-pointer transition-colors text-sm',
-                    selectedAttendeeIds.includes(u.id) ? 'bg-muted/60' : 'hover:bg-muted/30'
+                    'px-3.5 py-3 flex items-center justify-between text-sm transition-colors',
+                    isUserDisabled(u)
+                      ? 'opacity-40 grayscale bg-muted/40 cursor-not-allowed select-none'
+                      : selectedAttendeeIds.includes(u.id)
+                        ? 'bg-muted/60 cursor-pointer hover:bg-muted/70'
+                        : 'hover:bg-muted/30 cursor-pointer'
                   ]"
+                  :title="isUserDisabled(u) ? `Akun ${getUserStatusLabel(u)} - Tidak dapat ditambahkan ke agenda` : ''"
                 >
                   <!-- Left: Avatar & Details -->
                   <div class="flex items-center gap-3 min-w-0 pr-2">
-                    <Avatar class="h-10 w-10 rounded-full border border-border shrink-0">
+                    <Avatar class="h-10 w-10 rounded-full border border-border shrink-0" :class="{ 'opacity-60': isUserDisabled(u) }">
                       <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.fullName || u.email)}`" />
-                      <AvatarFallback class="bg-kv-primary/10 text-kv-primary font-bold text-sm">
+                      <AvatarFallback class="bg-muted text-muted-foreground font-bold text-sm">
                         {{ (u.fullName || u.email).charAt(0).toUpperCase() }}
                       </AvatarFallback>
                     </Avatar>
 
                     <div class="min-w-0">
                       <div class="flex items-center gap-2 flex-wrap">
-                        <p class="font-medium text-foreground text-sm truncate leading-tight">
+                        <p
+                          class="font-medium text-foreground text-sm truncate leading-tight"
+                          :class="{ 'line-through text-muted-foreground': isUserDisabled(u) }"
+                        >
                           {{ u.fullName }}
                         </p>
                         <Badge
-                          v-if="u.position"
+                          v-if="isUserDisabled(u)"
+                          variant="secondary"
+                          size="sm"
+                          class="font-medium text-[10px] py-0 px-1.5 bg-muted text-muted-foreground border border-border/80"
+                        >
+                          {{ getUserStatusLabel(u) }}
+                        </Badge>
+                        <Badge
+                          v-else-if="u.position"
                           variant="secondary"
                           size="sm"
                           class="font-normal text-xs"
@@ -493,6 +509,7 @@
                   <div class="flex items-center shrink-0">
                     <Checkbox
                       :checked="selectedAttendeeIds.includes(u.id)"
+                      :disabled="isUserDisabled(u)"
                       class="rounded-md pointer-events-none"
                     />
                   </div>
@@ -843,18 +860,37 @@ const onCandidatesScroll = (e: Event) => {
   }
 }
 
+const isUserDisabled = (u: CandidateUser) => {
+  if (u.isActive === false) return true
+  const st = (u.status || '').toUpperCase()
+  return ['TERMINATED', 'SUSPENDED', 'RESIGNED'].includes(st)
+}
+
+const getUserStatusLabel = (u: CandidateUser) => {
+  const st = (u.status || '').toUpperCase()
+  if (st === 'TERMINATED') return 'Terminated'
+  if (st === 'SUSPENDED') return 'Suspended'
+  if (st === 'RESIGNED') return 'Resigned'
+  if (u.isActive === false) return 'Nonaktif'
+  return null
+}
+
 const allFilteredSelected = computed(() => {
-  if (filteredCandidates.value.length === 0) return false
-  return filteredCandidates.value.every(u => selectedAttendeeIds.value.includes(u.id))
+  const selectable = filteredCandidates.value.filter(u => !isUserDisabled(u))
+  if (selectable.length === 0) return false
+  return selectable.every(u => selectedAttendeeIds.value.includes(u.id))
 })
 
 const toggleSelectAllFiltered = () => {
+  const selectable = filteredCandidates.value.filter(u => !isUserDisabled(u))
+  if (selectable.length === 0) return
+
   if (allFilteredSelected.value) {
-    const idsToRemove = new Set(filteredCandidates.value.map(u => u.id))
+    const idsToRemove = new Set(selectable.map(u => u.id))
     selectedAttendeeIds.value = selectedAttendeeIds.value.filter(id => !idsToRemove.has(id))
   } else {
     const current = new Set(selectedAttendeeIds.value)
-    filteredCandidates.value.forEach(u => current.add(u.id))
+    selectable.forEach(u => current.add(u.id))
     selectedAttendeeIds.value = Array.from(current)
   }
   checkActiveRolePreset()
@@ -865,12 +901,13 @@ const selectedUsersList = computed(() => {
 })
 
 const checkActiveRolePreset = () => {
-  if (candidates.value.length === 0 || selectedAttendeeIds.value.length === 0) {
+  const activeCandidates = candidates.value.filter(u => !isUserDisabled(u))
+  if (activeCandidates.length === 0 || selectedAttendeeIds.value.length === 0) {
     activeRolePreset.value = null
     return
   }
 
-  const allIds = candidates.value.map(u => u.id)
+  const allIds = activeCandidates.map(u => u.id)
   if (allIds.length > 0 && selectedAttendeeIds.value.length === allIds.length && allIds.every(id => selectedAttendeeIds.value.includes(id))) {
     activeRolePreset.value = 'ALL'
     return
@@ -878,7 +915,7 @@ const checkActiveRolePreset = () => {
 
   const roles = ['INTERN', 'MENTOR', 'ADMIN'] as const
   for (const r of roles) {
-    const roleIds = candidates.value.filter(u => u.role?.toUpperCase() === r).map(u => u.id)
+    const roleIds = activeCandidates.filter(u => u.role?.toUpperCase() === r).map(u => u.id)
     if (roleIds.length > 0 && roleIds.length === selectedAttendeeIds.value.length && roleIds.every(id => selectedAttendeeIds.value.includes(id))) {
       activeRolePreset.value = r
       return
@@ -889,6 +926,9 @@ const checkActiveRolePreset = () => {
 }
 
 const toggleAttendee = (userId: number) => {
+  const user = candidates.value.find(u => u.id === userId)
+  if (user && isUserDisabled(user)) return
+
   const idx = selectedAttendeeIds.value.indexOf(userId)
   if (idx > -1) {
     selectedAttendeeIds.value.splice(idx, 1)
@@ -919,10 +959,11 @@ const assignRoleUsers = (roleType: 'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN') => {
   }
 
   activeRolePreset.value = roleType
+  const activeCandidates = candidates.value.filter(u => !isUserDisabled(u))
   if (roleType === 'ALL') {
-    selectedAttendeeIds.value = candidates.value.map(u => u.id)
+    selectedAttendeeIds.value = activeCandidates.map(u => u.id)
   } else {
-    selectedAttendeeIds.value = candidates.value
+    selectedAttendeeIds.value = activeCandidates
       .filter(u => u.role?.toUpperCase() === roleType)
       .map(u => u.id)
   }

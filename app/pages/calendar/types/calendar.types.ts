@@ -67,6 +67,8 @@ export interface CandidateUser {
   division: string
   position?: string | null
   department?: string | null
+  status?: string | null
+  isActive?: boolean | null
 }
 
 export interface CreateEventPayload {

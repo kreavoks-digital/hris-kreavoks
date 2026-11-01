@@ -53,7 +53,15 @@ export const useCalendarApi = () => {
 
   const getCandidates = async () => {
     try {
-      // Ambil data users resmi dari endpoint /users
+      const res = await api('/events/candidates')
+      if (Array.isArray(res.data) && res.data.length > 0) {
+        return res.data as CandidateUser[]
+      }
+    } catch {
+      // Fallback ke /users jika /events/candidates gagal
+    }
+
+    try {
       const res: any = await api('/users?limit=100')
       const userList = Array.isArray(res?.data) ? res.data : (Array.isArray(res?.data?.users) ? res.data.users : [])
       if (userList.length > 0) {
@@ -64,20 +72,16 @@ export const useCalendarApi = () => {
           customRole: typeof u.role === 'object' ? (u.role?.displayName || u.role?.name) : (u.customRole?.displayName || u.customRole?.name || null),
           fullName: u.fullName || u.profile?.fullName || u.email.split('@')[0],
           profilePicture: null,
-          division: u.department || u.profile?.department || u.position || u.profile?.position || '-'
+          division: u.department || u.profile?.department || u.position || u.profile?.position || '-',
+          status: u.status || (u.isActive === false ? 'SUSPENDED' : 'ACTIVE'),
+          isActive: u.isActive !== undefined ? u.isActive : true
         })) as CandidateUser[]
       }
-    } catch {
-      // Fallback ke /events/candidates jika user non-admin dibatasi dari /users
-    }
-
-    try {
-      const res = await api('/events/candidates')
-      return (res.data || []) as CandidateUser[]
     } catch (err) {
       console.error('Gagal mengambil daftar kandidat peserta:', err)
       return [] as CandidateUser[]
     }
+    return [] as CandidateUser[]
   }
 
   return {
