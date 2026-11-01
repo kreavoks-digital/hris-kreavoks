@@ -14,10 +14,10 @@
                     <AvatarFallback>{{ (key as string).split(' - ')[1]?.charAt(0) || 'U' }}</AvatarFallback>
                   </Avatar>
                   <div class="flex flex-col">
-                    <span class="font-semibold text-foreground leading-tight">{{ (key as string).split(' - ')[1] || 'Unknown' }}</span>
+                    <span class="font-semibold text-foreground">{{ (key as string).split(' - ')[1] || 'Unknown' }}</span>
                     <span class="text-xs text-muted-foreground">NPK: {{ (key as string).split(' - ')[0] || '-' }}</span>
                   </div>
-                  <Badge variant="outline" class="ml-auto bg-background shadow-sm border-border text-muted-foreground">{{ group.length }} Riwayat</Badge>
+                  <Badge variant="outline" class="ml-auto">{{ group.length }} Riwayat</Badge>
                 </div>
               </TableCell>
             </TableRow>
@@ -26,7 +26,7 @@
               <TableRow class="hover:bg-transparent border-b border-border bg-transparent">
                 <TableCell colspan="6" class="p-0">
                   <div class="px-8 py-6">
-                    <Table class="bg-background rounded-2xl overflow-hidden border border-border shadow-sm">
+                    <Table class="bg-background rounded-2xl overflow-hidden border border-border">
                       <TableHeader>
                         <TableRow class="bg-muted/50 hover:bg-muted/50">
                           <TableHead class="font-semibold">Tanggal</TableHead>
@@ -60,14 +60,13 @@
                             </TableCell>
                             <TableCell>
                               <Badge 
-                                variant="secondary"
-                                class="text-sm font-semibold px-2.5 py-0.5 rounded-3xl border-none"
-                                :class="{
-                                  'bg-emerald-500/10 text-emerald-600': record.status === 'present',
-                                  'bg-amber-500/10 text-amber-600': record.status === 'permission',
-                                  'bg-blue-500/10 text-blue-600': record.status === 'sick',
-                                  'bg-rose-500/10 text-rose-600': record.status === 'absent'
-                                }"
+                                :variant="
+                                  record.status === 'present' ? 'success' :
+                                  record.status === 'permission' ? 'warning' :
+                                  record.status === 'sick' ? 'info' :
+                                  record.status === 'absent' ? 'destructive' :
+                                  'secondary'
+                                "
                               >
                                 {{ getStatusLabel(record.status) }}
                               </Badge>

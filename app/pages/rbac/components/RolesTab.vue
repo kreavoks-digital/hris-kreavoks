@@ -90,7 +90,6 @@ const emit = defineEmits<{
                           <Badge
                             v-if="role.isSystem"
                             variant="secondary"
-                            class="rounded-lg text-xs py-0 px-1.5 font-normal"
                           >
                             Default
                           </Badge>
@@ -104,10 +103,7 @@ const emit = defineEmits<{
 
                   <!-- App Scope -->
                   <TableCell>
-                    <Badge
-                      variant="outline"
-                      class="rounded-xl text-xs border-border text-foreground font-normal"
-                    >
+                    <Badge variant="outline">
                       {{ role.app || 'HRIS' }}
                     </Badge>
                   </TableCell>
@@ -126,14 +122,12 @@ const emit = defineEmits<{
                         v-for="p in role.permissions.slice(0, 3)"
                         :key="p.id"
                         variant="secondary"
-                        class="rounded-xl text-xs bg-muted text-foreground border-border font-normal"
                       >
                         {{ p.name }}
                       </Badge>
                       <Badge
                         v-if="role.permissions.length > 3"
                         variant="outline"
-                        class="rounded-xl text-xs border-border text-muted-foreground font-normal"
                       >
                         +{{ role.permissions.length - 3 }} lainnya
                       </Badge>

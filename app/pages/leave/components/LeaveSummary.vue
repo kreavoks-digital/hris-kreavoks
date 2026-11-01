@@ -96,7 +96,7 @@
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <Badge variant="outline" class="border-border text-foreground font-medium text-xs px-2.5 py-0.5 rounded-3xl">
+                <Badge variant="outline">
                   {{ emp.total }} kali diajukan
                 </Badge>
                 <span class="text-xs text-emerald-600 font-medium">

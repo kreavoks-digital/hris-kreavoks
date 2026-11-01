@@ -42,7 +42,7 @@
       <div
         v-for="d in DAY_NAMES"
         :key="d"
-        class="text-center text-[10px] font-medium text-muted-foreground py-1"
+        class="text-center text-xs font-semibold text-muted-foreground py-1"
       >
         {{ d }}
       </div>

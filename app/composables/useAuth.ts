@@ -22,8 +22,18 @@ export const useAuth = () => {
   }
 
   const setUser = (u: any) => {
-    user.value = u
-    if (process.client) {
+    if (u) {
+      const roleName = typeof u.role === 'object' && u.role !== null ? u.role.name : (u.role || '')
+      user.value = {
+        ...u,
+        role: roleName,
+        roleDetail: typeof u.role === 'object' ? u.role : { name: roleName },
+      }
+    } else {
+      user.value = null
+    }
+
+    if (process.client && u) {
       // SECURITY FIX: Simpan HANYA data display yang tidak sensitif di sessionStorage.
       // Data seperti id, role, npk, permissions TIDAK disimpan di storage browser.
       // Data lengkap selalu di-fetch ulang dari server setelah token di-refresh.

@@ -39,7 +39,7 @@
           </TableCell>
           <TableCell class="text-sm text-muted-foreground">{{ emp.institution || '-' }}</TableCell>
           <TableCell>
-            <Badge variant="outline" class="font-medium bg-accent text-accent-foreground border-border whitespace-nowrap">
+            <Badge variant="outline">
               {{ emp.department }}
             </Badge>
           </TableCell>
@@ -74,14 +74,13 @@
           <TableCell>
             <div class="flex flex-col gap-1 items-start">
               <Badge
-                class="px-3 py-1 rounded-3xl text-sm font-medium border-transparent whitespace-nowrap"
-                :class="{
-                  'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20': emp.status === 'ACTIVE' && activeTab !== 'pending',
-                  'bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20': (emp.status === 'ACTIVE' && activeTab === 'pending') || emp.status === 'SUSPENDED',
-                  'bg-rose-500/15 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20': emp.status === 'TERMINATED',
-                  'bg-slate-500/15 text-slate-600 dark:text-slate-400 hover:bg-slate-500/20': emp.status === 'RESIGNED',
-                  'bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20': emp.status === 'GRADUATE',
-                }"
+                :variant="
+                  emp.status === 'ACTIVE' && activeTab !== 'pending' ? 'success' :
+                  (emp.status === 'ACTIVE' && activeTab === 'pending') || emp.status === 'SUSPENDED' ? 'warning' :
+                  emp.status === 'TERMINATED' ? 'destructive' :
+                  emp.status === 'RESIGNED' ? 'secondary' :
+                  emp.status === 'GRADUATE' ? 'primary' : 'secondary'
+                "
               >
                 {{
                   emp.status === 'ACTIVE' ? (activeTab === 'pending' ? 'Menunggu Verifikasi' : 'Aktif') :

@@ -5,7 +5,7 @@
       <div>
         <div class="flex items-center gap-2">
           <h1 class="text-2xl font-semibold text-foreground">Semua Karyawan</h1>
-          <Badge variant="secondary" class="font-normal border-none bg-kv-primary/10 text-kv-primary">{{ totalItems }} Total</Badge>
+          <Badge variant="primary">{{ totalItems }} Total</Badge>
         </div>
         <p class="text-muted-foreground mt-1 text-sm">Kelola semua data karyawan di sini.</p>
       </div>

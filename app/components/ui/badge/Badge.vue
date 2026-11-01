@@ -1,17 +1,25 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue"
-import type { BadgeVariants } from "."
-import { cn } from "@/lib/utils"
-import { badgeVariants } from "."
+import { Badge as KreaBadge } from "@kreavoks/kreaui"
+import type { BadgeProps } from "@kreavoks/kreaui"
 
-const props = defineProps<{
-  variant?: BadgeVariants["variant"]
-  class?: HTMLAttributes["class"]
-}>()
+defineOptions({
+  inheritAttrs: false
+})
+
+const props = defineProps<BadgeProps & { variant?: any }>()
 </script>
 
 <template>
-  <div :class="cn(badgeVariants({ variant }), props.class)">
+  <KreaBadge
+    v-bind="$attrs"
+    :type="props.type"
+    :variant="props.variant === 'destructive' ? 'error' : (props.variant || 'primary')"
+    :size="props.size"
+    :rounded="props.rounded"
+    :appearance="props.appearance"
+    :icon-only="props.iconOnly"
+    :class="props.class"
+  >
     <slot />
-  </div>
+  </KreaBadge>
 </template>

@@ -13,13 +13,11 @@
       </div>
       <Badge 
         v-if="leave"
-        variant="secondary"
-        class="text-sm font-semibold px-4 py-1.5 rounded-3xl border-none"
-        :class="{
-          'bg-emerald-500/10 text-emerald-600': leave.status?.toLowerCase() === 'approved',
-          'bg-slate-100 text-slate-500': leave.status?.toLowerCase() === 'pending',
-          'bg-rose-500/10 text-rose-600': leave.status?.toLowerCase() === 'rejected'
-        }"
+        :variant="
+          leave.status?.toLowerCase() === 'approved' ? 'success' :
+          leave.status?.toLowerCase() === 'rejected' ? 'destructive' :
+          'warning'
+        "
       >
         {{ getStatusLabel(leave.status) }}
       </Badge>

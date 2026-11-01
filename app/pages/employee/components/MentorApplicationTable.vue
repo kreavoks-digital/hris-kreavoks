@@ -27,8 +27,7 @@
                 <Badge 
                   v-for="(skill, index) in parseExpertise(app.expertise)" 
                   :key="index" 
-                  variant="secondary" 
-                  class="font-normal text-[11px] px-2 py-0.5 whitespace-nowrap bg-muted hover:bg-muted/80 text-foreground"
+                  variant="secondary"
                 >
                   {{ skill }}
                 </Badge>
@@ -49,13 +48,13 @@
             </TableCell>
             <TableCell class="whitespace-nowrap">
               <!-- Badge status dinamis berdasarkan app.status -->
-              <Badge v-if="app.status === 'PENDING'" class="px-2 py-0.5 rounded-full text-xs bg-amber-500/10 text-amber-600 border border-amber-200 dark:border-amber-800 dark:text-amber-400 whitespace-nowrap">
+              <Badge v-if="app.status === 'PENDING'" variant="warning">
                 Menunggu
               </Badge>
-              <Badge v-else-if="app.status === 'APPROVED'" class="px-2 py-0.5 rounded-full text-xs bg-emerald-500/10 text-emerald-600 border border-emerald-200 dark:border-emerald-800 dark:text-emerald-400 whitespace-nowrap">
+              <Badge v-else-if="app.status === 'APPROVED'" variant="success">
                 Disetujui
               </Badge>
-              <Badge v-else-if="app.status === 'REJECTED'" class="px-2 py-0.5 rounded-full text-xs bg-destructive/10 text-destructive border border-destructive/20 whitespace-nowrap">
+              <Badge v-else-if="app.status === 'REJECTED'" variant="destructive">
                 Ditolak
               </Badge>
             </TableCell>

@@ -95,7 +95,7 @@ const currentSelectedId = computed({
                 {{ role.description || '-' }}
               </p>
               <div class="flex items-center gap-2 mt-2">
-                <Badge variant="outline" class="rounded-xl text-xs py-0 px-2 border-border text-muted-foreground font-normal">
+                <Badge variant="outline">
                   {{ role.app || 'HRIS' }}
                 </Badge>
                 <span class="text-xs text-muted-foreground">

@@ -55,7 +55,7 @@
                 <UserCheck class="h-4 w-4 text-kv-primary" />
                 <CardTitle class="text-sm font-bold text-foreground">Auto-Fill dari Data Intern</CardTitle>
               </div>
-              <Badge variant="outline" class="text-xs font-medium border-border rounded-3xl">
+              <Badge variant="outline">
                 {{ interns.length }} Intern Tersedia
               </Badge>
             </div>
@@ -156,7 +156,7 @@
             <div class="space-y-3">
               <div class="flex items-center justify-between">
                 <Label class="text-xs font-bold text-foreground">Komponen Nilai Magang</Label>
-                <Badge variant="secondary" class="bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300 font-bold text-xs rounded-3xl">
+                <Badge variant="primary">
                   Predikat: {{ autoFinalGrade }}
                 </Badge>
               </div>

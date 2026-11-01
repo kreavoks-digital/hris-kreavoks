@@ -17,7 +17,7 @@
       </h4>
 
       <div class="mt-4 space-y-3 flex-1 max-h-[240px] overflow-y-auto pr-2">
-        <div v-if="events.length === 0" class="text-xs text-muted-foreground py-4 italic">
+        <div v-if="events.length === 0" class="text-sm text-muted-foreground py-4 italic">
           Tidak ada agenda, hari libur, atau logbook pada tanggal ini.
         </div>
         <div
@@ -31,8 +31,8 @@
             'border-emerald-500': event.type === 'green'
           }"
         >
-          <p class="text-xs font-semibold text-foreground">{{ event.title }}</p>
-          <p class="text-[10px] text-muted-foreground mt-0.5">
+          <p class="text-sm font-semibold text-foreground">{{ event.title }}</p>
+          <p class="text-sm text-muted-foreground mt-0.5">
             {{ event.date }}<span v-if="event.time">, {{ event.time }}</span>
           </p>
         </div>
@@ -40,11 +40,14 @@
 
       <!-- Legend -->
       <div class="mt-4 pt-3 border-t border-border space-y-1.5">
-        <p class="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Keterangan</p>
-        <div class="flex items-center gap-2 text-[10px] text-muted-foreground">
+        <p class="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-1">Keterangan</p>
+        <div class="flex items-center gap-2 text-sm text-muted-foreground">
+          <span class="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" /> Agenda acara
+        </div>
+        <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <span class="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" /> Hari libur nasional
         </div>
-        <div class="flex items-center gap-2 text-[10px] text-muted-foreground">
+        <div class="flex items-center gap-2 text-sm text-muted-foreground">
           <span class="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" /> Entri logbook
         </div>
       </div>

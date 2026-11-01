@@ -31,7 +31,7 @@
       <div class="flex overflow-x-auto gap-4 pb-4 snap-x">
         <Card v-for="template in templateLetters" :key="template.id" class="snap-start min-w-[280px] max-w-[320px] shrink-0 border border-border bg-card p-4 rounded-2xl hover:border-kv-primary/50 transition-colors cursor-pointer group flex flex-col gap-3">
           <div class="flex justify-between items-start">
-            <Badge class="bg-blue-500/15 text-blue-600 dark:text-blue-400 border-transparent text-[10px] px-2 py-0.5">
+            <Badge variant="primary">
               {{ getLetterTypeLabel(template.type) }}
             </Badge>
             <div v-if="canPerformActions" class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -85,7 +85,7 @@
           <template v-else>
             <TableRow v-for="letter in regularLetters" :key="letter.id" class="border-border hover:bg-muted/50 transition-colors">
               <TableCell class="font-medium text-foreground whitespace-nowrap">
-                <Badge variant="outline" class="bg-muted text-muted-foreground font-mono">
+                <Badge variant="outline" class="font-mono">
                   {{ letter.letterNumber }}
                 </Badge>
               </TableCell>
@@ -96,7 +96,7 @@
                 </a>
               </TableCell>
               <TableCell>
-                <Badge class="bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border-transparent">
+                <Badge variant="primary">
                   {{ getLetterTypeLabel(letter.type) }}
                 </Badge>
               </TableCell>

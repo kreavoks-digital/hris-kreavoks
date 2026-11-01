@@ -28,7 +28,12 @@ export interface PermissionItem {
 export interface RbacUserItem {
   id: number;
   email: string;
-  role: string;
+  roleId?: number | null;
+  role: {
+    id: number;
+    name: string;
+    displayName: string;
+  } | string | null;
   customRoleId?: number | null;
   customRole?: {
     id: number;

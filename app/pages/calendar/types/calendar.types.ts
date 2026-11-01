@@ -65,6 +65,8 @@ export interface CandidateUser {
   fullName: string
   profilePicture: string | null
   division: string
+  position?: string | null
+  department?: string | null
 }
 
 export interface CreateEventPayload {

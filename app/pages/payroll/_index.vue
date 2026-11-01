@@ -148,15 +148,7 @@
               <TableCell class="text-sm font-semibold text-rose-600">- Rp {{ formatCurrency(payroll.deduction) }}</TableCell>
               <TableCell class="text-sm font-semibold text-blue-600 border-l border-slate-100 pl-4">Rp {{ formatCurrency(payroll.totalSalary) }}</TableCell>
               <TableCell>
-                <Badge 
-                  :variant="getStatusVariant(payroll.status)"
-                  class="text-sm font-semibold px-3 py-1 rounded-3xl border-none"
-                  :class="{
-                    'bg-emerald-500/10 text-emerald-600': payroll.status === 'paid',
-                    'bg-blue-500/10 text-blue-600': payroll.status === 'processed',
-                    'bg-slate-100 text-slate-500': payroll.status === 'pending'
-                  }"
-                >
+                <Badge :variant="getStatusVariant(payroll.status)">
                   {{ getStatusLabel(payroll.status) }}
                 </Badge>
               </TableCell>
@@ -279,8 +271,13 @@ const viewSlip = (payrollId: string) => {
   navigateTo(`/payroll/slip/${payrollId}`);
 };
 
-const getStatusVariant = (status: string): "default" | "destructive" | "outline" | "secondary" | null | undefined => {
-  return 'secondary'
+const getStatusVariant = (status: string): "primary" | "secondary" | "success" | "warning" | "destructive" => {
+  switch (status?.toLowerCase()) {
+    case 'paid': return 'success'
+    case 'processed': return 'primary'
+    case 'pending': return 'warning'
+    default: return 'secondary'
+  }
 }
 
 onMounted(() => {

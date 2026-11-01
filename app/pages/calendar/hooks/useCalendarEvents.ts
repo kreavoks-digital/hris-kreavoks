@@ -2,6 +2,8 @@ import { useCalendarApi } from '../api/calendar.api'
 import type { CalendarEventItem, CandidateUser, CreateEventPayload, AttendeeStatus } from '../types/calendar.types'
 import { toast } from 'vue-sonner'
 
+import type { DateRangeValue } from '~/components/ui/date-picker'
+
 export const useCalendarEvents = () => {
   const api = useCalendarApi()
 
@@ -13,6 +15,8 @@ export const useCalendarEvents = () => {
   // Current view navigation
   const currentDate = ref(new Date())
   const selectedEvent = ref<CalendarEventItem | null>(null)
+  const selectedDayEvents = ref<CalendarEventItem[]>([])
+  const selectedDateRange = ref<DateRangeValue | null>(null)
 
   // Modals state
   const isCreateModalOpen = ref(false)
@@ -38,12 +42,20 @@ export const useCalendarEvents = () => {
   const loadEvents = async () => {
     isLoading.value = true
     try {
-      const data = await api.getEvents({
-        year: currentYear.value,
-        month: currentMonth.value,
+      const queryParams: any = {
         type: filterType.value === 'ALL' ? undefined : filterType.value,
         view: filterView.value
-      })
+      }
+
+      if (selectedDateRange.value?.start && selectedDateRange.value?.end) {
+        queryParams.startDate = `${selectedDateRange.value.start}T00:00:00.000Z`
+        queryParams.endDate = `${selectedDateRange.value.end}T23:59:59.999Z`
+      } else {
+        queryParams.year = currentYear.value
+        queryParams.month = currentMonth.value
+      }
+
+      const data = await api.getEvents(queryParams)
       events.value = data
     } catch (err: any) {
       toast.error('Gagal memuat jadwal acara: ' + (err.message || 'Terjadi kesalahan'))
@@ -61,6 +73,7 @@ export const useCalendarEvents = () => {
   }
 
   const prevMonth = () => {
+    selectedDateRange.value = null
     const d = new Date(currentDate.value)
     d.setMonth(d.getMonth() - 1)
     currentDate.value = d
@@ -68,6 +81,7 @@ export const useCalendarEvents = () => {
   }
 
   const nextMonth = () => {
+    selectedDateRange.value = null
     const d = new Date(currentDate.value)
     d.setMonth(d.getMonth() + 1)
     currentDate.value = d
@@ -75,6 +89,7 @@ export const useCalendarEvents = () => {
   }
 
   const goToToday = () => {
+    selectedDateRange.value = null
     currentDate.value = new Date()
     loadEvents()
   }
@@ -90,8 +105,9 @@ export const useCalendarEvents = () => {
     isCreateModalOpen.value = true
   }
 
-  const openDetailModal = async (event: CalendarEventItem) => {
+  const openDetailModal = async (event: CalendarEventItem, dayEvents?: CalendarEventItem[]) => {
     selectedEvent.value = event
+    selectedDayEvents.value = dayEvents || [event]
     isDetailModalOpen.value = true
     // Refresh detail in background for latest RSVPs
     try {
@@ -156,7 +172,7 @@ export const useCalendarEvents = () => {
     }
   }
 
-  watch([filterType, filterView], () => {
+  watch([filterType, filterView, selectedDateRange], () => {
     loadEvents()
   })
 
@@ -175,6 +191,8 @@ export const useCalendarEvents = () => {
     currentMonth,
     currentMonthLabel,
     selectedEvent,
+    selectedDayEvents,
+    selectedDateRange,
     isCreateModalOpen,
     isDetailModalOpen,
     eventToEdit,

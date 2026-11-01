@@ -115,7 +115,7 @@ export const useRbac = () => {
 
   const stats = computed(() => {
     const adminCount = users.value.filter(
-      (u) => u.role === 'ADMIN' || u.customRole?.name === 'ADMIN'
+      (u: any) => (u.role?.name || u.role) === 'ADMIN'
     ).length
 
     return {
@@ -308,10 +308,11 @@ export const useRbac = () => {
   // ─── User Role Management ───────────────────────────────────────────────────
 
   const openUserRoleModal = (user: RbacUserItem) => {
-    selectedUserForRole.value = user
-    // Cocokkan ID role dari customRoleId atau cari by name
+    // Cocokkan ID role dari roleId, role.id, atau cari by name
+    const roleId = (user as any).roleId || (typeof user.role === 'object' ? (user.role as any)?.id : null) || user.customRoleId
+    const roleName = typeof user.role === 'object' ? (user.role as any)?.name : user.role
     const foundRole = roles.value.find(
-      (r) => r.id === user.customRoleId || r.name === user.role
+      (r) => (roleId && r.id === roleId) || r.name === roleName
     )
     selectedUserRoleId.value = foundRole ? foundRole.id : null
     isUserRoleModalOpen.value = true

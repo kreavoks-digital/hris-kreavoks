@@ -45,7 +45,7 @@
           <template v-else>
             <TableRow v-for="letter in templateLetters" :key="letter.id" class="border-border hover:bg-muted/50 transition-colors">
               <TableCell class="font-medium text-foreground whitespace-nowrap">
-                <Badge variant="outline" class="bg-muted text-muted-foreground font-mono">
+                <Badge variant="outline" class="font-mono">
                   {{ letter.letterNumber || 'TEMPLATE' }}
                 </Badge>
               </TableCell>
@@ -56,7 +56,7 @@
                 </a>
               </TableCell>
               <TableCell>
-                <Badge class="bg-blue-500/15 text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 border-transparent">
+                <Badge variant="primary">
                   {{ getLetterTypeLabel(letter.type) }}
                 </Badge>
               </TableCell>

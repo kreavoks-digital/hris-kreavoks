@@ -23,7 +23,8 @@ export const useLogin = () => {
         })
         
         // Jika akun adalah MENTOR dan belum melengkapi dokumen
-        const isMentorNeedingDocs = response.data.user.role === 'MENTOR' && !response.data.user.hasDocuments && !response.data.user.agreementLink
+        const roleName = typeof response.data.user.role === 'object' ? response.data.user.role?.name : response.data.user.role
+        const isMentorNeedingDocs = roleName === 'MENTOR' && !response.data.user.hasDocuments && !response.data.user.agreementLink
         if (isMentorNeedingDocs) {
           await navigateTo('/onboarding')
           return

@@ -55,7 +55,7 @@
         <button
           @click="toggleCollapse"
           :title="isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'"
-          class="absolute -right-3 top-[20px] hidden lg:flex w-8 h-8 bg-background border border-border rounded-sm items-center justify-center hover:border-kv-primary transition-all shadow-sm z-50 cursor-pointer"
+          class="absolute -right-3 top-[22px] hidden lg:flex w-6 h-6 bg-background border border-border rounded-full items-center justify-center text-muted-foreground hover:text-kv-primary hover:border-kv-primary transition-all shadow-sm z-50 cursor-pointer"
         >
           <ChevronLeft v-if="!isCollapsed" class="w-3.5 h-3.5" />
           <ChevronRight v-else class="w-3.5 h-3.5" />
@@ -460,7 +460,7 @@ const STATUS_OPTIONS = [
 ]
 
 // --- Sidebar State ---
-const isCollapsed = ref(false)
+const isCollapsed = useState<boolean>('sidebar_is_collapsed', () => false)
 const isMobileOpen = ref(false)
 
 // --- Collapsed Submenu Flyout (Adobe style) ---

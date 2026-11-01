@@ -35,9 +35,21 @@ const searchValue = computed({
   set: (val: string) => emit('update:searchQuery', val)
 })
 
-const getRoleBadgeVariant = (roleName: string) => {
+const getRoleName = (role: any): string => {
+  if (!role) return ''
+  if (typeof role === 'object') return role.name || ''
+  return String(role)
+}
+
+const getRoleDisplayName = (role: any): string => {
+  if (!role) return '-'
+  if (typeof role === 'object') return role.displayName || role.name || '-'
+  return String(role)
+}
+
+const getRoleBadgeVariant = (roleName: string): 'primary' | 'secondary' | 'outline' => {
   const norm = (roleName || '').toUpperCase()
-  if (norm.includes('ADMIN')) return 'default'
+  if (norm.includes('ADMIN')) return 'primary'
   if (norm.includes('MENTOR')) return 'secondary'
   return 'outline'
 }
@@ -129,22 +141,14 @@ const getRoleBadgeVariant = (roleName: string) => {
                     <div class="flex items-center gap-2">
                       <div class="w-7 h-7 rounded-full bg-muted/60 flex items-center justify-center shrink-0 overflow-hidden">
                         <img
-                          :src="getRoleMascot(user.customRole?.name || user.role)"
-                          :alt="user.customRole?.displayName || user.role"
+                          :src="getRoleMascot(getRoleName(user.role))"
+                          :alt="getRoleDisplayName(user.role)"
                           class="w-5 h-5 object-contain"
                         />
                       </div>
                       <div class="flex flex-col">
-                        <Badge
-                          :variant="getRoleBadgeVariant(user.customRole?.name || user.role)"
-                          class="rounded-xl text-xs py-0.5 px-2 font-normal"
-                          :class="
-                            user.role === 'ADMIN' || user.customRole?.name === 'ADMIN'
-                              ? 'bg-kv-primary text-white border-transparent'
-                              : ''
-                          "
-                        >
-                          {{ user.customRole?.displayName || user.customRole?.name || user.role }}
+                        <Badge :variant="getRoleBadgeVariant(getRoleName(user.role))">
+                          {{ getRoleDisplayName(user.role) }}
                         </Badge>
                       </div>
                     </div>
@@ -155,23 +159,20 @@ const getRoleBadgeVariant = (roleName: string) => {
                     <div class="flex flex-wrap gap-1.5">
                       <!-- Badge Default Role Summary -->
                       <Badge
-                        v-if="user.role === 'ADMIN' || user.customRole?.name === 'ADMIN'"
+                        v-if="getRoleName(user.role) === 'ADMIN'"
                         variant="outline"
-                        class="rounded-xl text-xs bg-muted text-foreground border-border font-normal"
                       >
                         Full System Access
                       </Badge>
                       <Badge
-                        v-else-if="user.role === 'MENTOR' || user.customRole?.name === 'MENTOR'"
+                        v-else-if="getRoleName(user.role) === 'MENTOR'"
                         variant="outline"
-                        class="rounded-xl text-xs bg-muted text-foreground border-border font-normal"
                       >
                         Review Logbook & LMS
                       </Badge>
                       <Badge
                         v-else
                         variant="outline"
-                        class="rounded-xl text-xs bg-muted text-foreground border-border font-normal"
                       >
                         Presensi & Logbook
                       </Badge>
@@ -181,7 +182,6 @@ const getRoleBadgeVariant = (roleName: string) => {
                         v-for="p in user.permissions"
                         :key="p.id"
                         variant="outline"
-                        class="rounded-xl text-xs bg-muted text-foreground border-border font-normal"
                       >
                         {{ p.name }}
                       </Badge>

@@ -1,4 +1,6 @@
 import type { CalendarEvent, LogbookEntry } from '../types'
+import { useCalendarApi } from '~/pages/calendar/api/calendar.api'
+import type { CalendarEventItem } from '~/pages/calendar/types/calendar.types'
 
 interface SimpleDate {
   year: number
@@ -30,6 +32,8 @@ export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
 
   const holidays = ref<Record<string, string>>({})
   const fetchedYears = ref<Set<number>>(new Set())
+  const calendarApi = useCalendarApi()
+  const calendarEvents = ref<CalendarEventItem[]>([])
 
   const fetchHolidaysForYear = async (year: number) => {
     if (fetchedYears.value.has(year)) return
@@ -54,18 +58,41 @@ export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
     }
   }
 
+  const fetchCalendarEvents = async () => {
+    try {
+      calendarEvents.value = await calendarApi.getEvents({
+        year: selectedDateVal.value.year,
+        month: selectedDateVal.value.month
+      })
+    } catch (e) {
+      console.error('Failed to fetch dashboard calendar events:', e)
+    }
+  }
+
   onMounted(() => {
     fetchHolidaysForYear(selectedDateVal.value.year)
+    fetchCalendarEvents()
   })
 
-  // When selected year changes, fetch holidays for that year
-  watch(() => selectedDateVal.value.year, (newYear) => {
-    fetchHolidaysForYear(newYear)
+  // When selected year/month changes, fetch holidays and events
+  watch([() => selectedDateVal.value.year, () => selectedDateVal.value.month], () => {
+    fetchHolidaysForYear(selectedDateVal.value.year)
+    fetchCalendarEvents()
   })
 
   const getCustomIndicators = (date: SimpleDate) => {
     const list: Array<'blue' | 'yellow' | 'green'> = []
     if (!date) return list
+
+    // Blue indicator for Calendar Events
+    const hasEvent = calendarEvents.value.some((ev) => {
+      if (!ev.startDate) return false
+      const evDate = ev.startDate.split('T')[0]
+      return evDate === date.iso
+    })
+    if (hasEvent) {
+      list.push('blue')
+    }
 
     if (holidays.value[date.iso]) {
       list.push('yellow')
@@ -88,6 +115,26 @@ export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
     const { day: d, month: m, year: y, iso } = selectedDateVal.value
     const list: Array<CalendarEvent> = []
 
+    // 1. Calendar Events (Blue)
+    const matchingEvents = calendarEvents.value.filter((ev) => {
+      if (!ev.startDate) return false
+      const evDate = ev.startDate.split('T')[0]
+      return evDate === iso
+    })
+    matchingEvents.forEach((ev) => {
+      const timeStr = ev.isAllDay ? 'Sepanjang hari' : (
+        new Date(ev.startDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) +
+        (ev.endDate ? ` - ${new Date(ev.endDate).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}` : '')
+      )
+      list.push({
+        title: ev.title,
+        date: `${d} ${MONTHS_ID[m - 1]} ${y}`,
+        time: timeStr + (ev.location ? ` • ${ev.location}` : ''),
+        type: 'blue'
+      })
+    })
+
+    // 2. Holidays (Yellow)
     const holidayTitle = holidays.value[iso]
     if (holidayTitle) {
       list.push({
@@ -98,6 +145,7 @@ export const useDashboardCalendar = (logbooks: Ref<LogbookEntry[]>) => {
       })
     }
 
+    // 3. Logbooks (Green)
     const monthName = MONTHS_ID[m - 1]
     const matchingLogbooks = logbooks.value.filter((lb: any) => {
       const parts = lb.tanggal.split(' ')

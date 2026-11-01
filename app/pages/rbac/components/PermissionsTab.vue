@@ -125,10 +125,7 @@ const getModuleLabel = (moduleKey: string): string => {
 
                     <!-- Aplikasi -->
                     <TableCell>
-                      <Badge
-                        variant="outline"
-                        class="rounded-xl text-xs border-border text-foreground font-normal"
-                      >
+                      <Badge variant="outline">
                         {{ p.app || 'HRIS' }}
                       </Badge>
                     </TableCell>

@@ -33,7 +33,7 @@
                 </div>
               </TableCell>
               <TableCell>
-                <Badge variant="outline" class="capitalize">
+                <Badge variant="outline">
                   {{ getLeaveTypeLabel(leave.type || 'Izin') }}
                 </Badge>
               </TableCell>
@@ -50,13 +50,11 @@
               </TableCell>
               <TableCell>
                 <Badge 
-                  variant="secondary"
-                  class="text-xs font-semibold px-2.5 py-0.5 rounded-3xl border-none"
-                  :class="{
-                    'bg-amber-500/10 text-amber-600': leave.status?.toLowerCase() === 'pending',
-                    'bg-emerald-500/10 text-emerald-600': leave.status?.toLowerCase() === 'approved',
-                    'bg-rose-500/10 text-rose-600': leave.status?.toLowerCase() === 'rejected'
-                  }"
+                  :variant="
+                    leave.status?.toLowerCase() === 'approved' ? 'success' :
+                    leave.status?.toLowerCase() === 'rejected' ? 'destructive' :
+                    'warning'
+                  "
                 >
                   {{ formatStatusLabel(leave.status) }}
                 </Badge>

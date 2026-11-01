@@ -101,7 +101,7 @@ const getModuleLabel = (moduleKey: string): string => {
           <DialogTitle class="text-foreground text-lg font-semibold">
             Manage Permissions: {{ role?.displayName }}
           </DialogTitle>
-          <Badge variant="outline" class="rounded-xl text-xs border-border text-muted-foreground font-normal">
+          <Badge variant="outline">
             {{ role?.name }}
           </Badge>
         </div>

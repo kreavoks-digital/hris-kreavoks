@@ -20,8 +20,24 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
     - Soft White: `#fafafa`
     - Soft Black: `#131313`
 - **Rounding**:
-    - **Universal**: `rounded-3xl` for all UI components (Buttons, Sections, Cards, Inputs).
-    - **Exception**: `rounded-full` only for profile avatars.
+    - **Universal**: `rounded-3xl` for all primary UI components (Buttons, Sections, Cards, Inputs).
+    - **Exception**: `rounded-full` ONLY for circular profile avatars and notification/hint badges.
+    - **Button Component (from `@kreavoks/kreaui`)**:
+        - **IMPORT DIRECTLY**: Selalu gunakan komponen resmi KreaUI: `import { Button } from '@kreavoks/kreaui'` (atau `<Button>` via Nuxt auto-import).
+        - **DOKUMENTASI RESMI**: Mengacu 100% pada [KreaUI Button Docs](https://kreaui.kreavoks.workers.dev/components/button/).
+        - **Standard Props**: Gunakan prop resmi `variant="primary | secondary | outline | ghost | link | danger"`, `size="xs | sm | md | lg | xl"`, `loading`, `disabled`, `icon`, `label`.
+        - **STRICT FORBIDDEN**: Dilarang meng-override rounded atau warna dasar tombol dengan class ad-hoc di halaman.
+    - **Badge Component (from `@kreavoks/kreaui`)**:
+        - **IMPORT DIRECTLY**: Selalu gunakan komponen resmi KreaUI: `import { Badge } from '@kreavoks/kreaui'` (atau `<Badge>` via Nuxt auto-import).
+        - **DOKUMENTASI RESMI**: Mengacu 100% pada [KreaUI Badge Docs](https://kreaui.kreavoks.workers.dev/components/badge/).
+        - **STRICT FORBIDDEN**: Dilarang meng-override background, border, text color, atau padding pada instance `<Badge>` di halaman dengan class ad-hoc (misal `class="bg-accent text-accent-foreground border-border"`).
+        - **Standard Props**: Gunakan prop resmi `variant="primary | secondary | success | error | warning | info | outline"`, `size="sm | md | lg"`, dan `type="label | notification | hint"`.
+    - **Tabs & DropdownMenu Component (from `@kreavoks/kreaui`)**:
+        - **IMPORT DIRECTLY**: Gunakan `import { Tabs, DropdownMenu } from '@kreavoks/kreaui'`.
+        - **DOKUMENTASI RESMI**: Mengacu pada [KreaUI Tabs Docs](https://kreaui.kreavoks.workers.dev/components/tabs/) dan [KreaUI Dropdown Menu Docs](https://kreaui.kreavoks.workers.dev/navigation/menu/).
+        - **Tabs Props**: `v-model`, `items: TabItem[]`, `variant="pills | underline | separated"`, `size="sm | md | lg"`.
+        - **DropdownMenu Props**: `v-model`, `items: DropdownMenuItem[]`, `triggerText`, `variant="default | ghost | outline"`, `size="sm | md | lg"`.
+        - **STRICT FORBIDDEN**: Dilarang membuat custom tab wrapper atau native select kustom secara manual jika sudah didukung KreaUI.
 - **Effects**: Subtle glassmorphism is encouraged for depth. **NEVER** use shadow effects (`shadow-*`). Avoid excessive hover effects like `transform` or `scale` unless it's a critical interactive element.
 
 ## 3. Architecture (Simplified FSD)
@@ -57,14 +73,17 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
     - Check `app/components/ui` (shadcn) or `app/components/shared` first.
     - If a feature needs a slightly different global component, **USE PROPS** to handle variations rather than duplicating the component.
     - Component files should not be "gemuk" (bloated). Split logic if necessary.
-- **Styling Restrictions**:
-    - **NO HARDCODED CLASSES**: Do not hardcode styling classes (e.g., `bg-white`, `border-slate-100`, `text-slate-600`) directly on instances of shared UI components inside pages.
-    - **Use Semantic/Variant Props**: If a component needs styling changes, define it via `variant`, `size`, or other props in the parent component definition (e.g. `app/components/ui/button/Button.vue`). This ensures consistency across all pages that use the component.
+- **Styling Restrictions & Component Reusability**:
+    - **NO AD-HOC CLASS OVERRIDES ON SHARED UI INSTANCES**:
+        - **STRICT FORBIDDEN**: Do NOT override background, text color, borders, corner radius, or padding on instances of shared UI components like `<Badge>` or `<Button>` inside pages (e.g., `class="font-medium bg-accent text-accent-foreground border-border"` or `:class="{ 'bg-emerald-500/15 text-emerald-600': ... }"`).
+        - **USE COMPONENT VARIANTS**: Shared components already define standardized styles via `variant` and `size` props (e.g. `<Badge variant="outline">`, `<Badge variant="success">`, `<Badge variant="warning">`, `<Badge variant="destructive">`, `<Badge variant="primary">`, `<Badge variant="secondary">`).
+        - Overriding shared components per-instance causes severe visual fragmentation and breaks dark mode. If a legitimate new variant is required, define it inside the base component (`app/components/ui/badge/index.ts`), never through page-level custom class overrides.
     - **Semantic Colors Only**: Always use Tailwind semantic variables (e.g., `bg-background`, `bg-card`, `border-border`, `text-foreground`, `text-muted-foreground`) to ensure proper dark mode support out-of-the-box, rather than hardcoding light/dark colors individually.
 - **Color Restrictions**:
     - **DO NOT** use random colors. Stick to Primary `#4082E6`, Accent `#FEF747`, and the soft grayscale palette.
 - **Rounding**:
-    - **DO NOT** use `rounded-md` or `rounded-lg` for primary elements. Use `rounded-3xl` globally.
+    - **DO NOT** use `rounded-md` or `rounded-lg` for primary elements (Cards, Buttons, Inputs must use `rounded-3xl`).
+    - **Badges**: Mengikuti standar bawaan `@kreavoks/kreaui` (default `rounded="lg"`, tanpa override manual).
 - **Effects Restrictions**:
     - **NO SHADOWS**: Do not use `shadow-*` effects (e.g., `shadow-sm`, `shadow-md`, `shadow-lg`). Shadows are considered unprofessional for this project's aesthetic.
     - **NO EXCESSIVE HOVER**: Avoid using `group-hover:scale-*` or `hover:scale-*` and `transition-transform` for standard cards or icons. Keep interactions static or extremely subtle.
