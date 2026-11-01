@@ -111,8 +111,37 @@
       </div>
     </div>
 
-    <!-- Main Content: 2-Column Scheduling Layout -->
-    <div v-else class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <!-- Navigation Tabs (Detail vs Notes) -->
+    <div v-if="!isLoadingData" class="flex items-center gap-2 border-b border-border pb-3">
+      <button
+        type="button"
+        @click="currentTab = 'detail'"
+        :class="[
+          'px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all',
+          currentTab === 'detail'
+            ? 'bg-kv-primary text-white'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+        ]"
+      >
+        Detail Agenda
+      </button>
+      <button
+        type="button"
+        @click="currentTab = 'notes'"
+        :class="[
+          'px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2',
+          currentTab === 'notes'
+            ? 'bg-kv-primary text-white'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+        ]"
+      >
+        <FileText class="w-4 h-4" />
+        <span>Catatan / Notes</span>
+      </button>
+    </div>
+
+    <!-- TAB 1: Detail Agenda Layout -->
+    <div v-if="!isLoadingData && currentTab === 'detail'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
       <!-- LEFT COLUMN: Event Details (7 Cols - Teams Style) -->
       <div class="lg:col-span-7">
@@ -540,6 +569,55 @@
 
     </div>
 
+    <!-- TAB 2: Notes / Meeting Minutes (Tiptap WYSIWYG) -->
+    <div v-if="!isLoadingData && currentTab === 'notes'" class="space-y-6">
+      <Card class="border border-border bg-card/60 backdrop-blur-sm rounded-3xl p-6 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+          <div>
+            <h2 class="text-lg font-semibold text-foreground">Catatan Pertemuan (Meeting Minutes)</h2>
+            <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
+              Tuliskan agenda rapat, ringkasan pembahasan, atau daftar tugas.
+            </p>
+          </div>
+
+          <!-- Visibility Control -->
+          <div class="flex items-center gap-2 shrink-0">
+            <Label class="text-xs font-semibold text-muted-foreground">Visibilitas Peserta:</Label>
+            <select
+              v-model="notesVisibility"
+              class="h-9 px-3 rounded-2xl border border-border bg-background text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-kv-primary"
+            >
+              <option value="ORGANIZER_ONLY">Hanya Penyelenggara</option>
+              <option value="ATTENDEES_VIEW">Peserta Hanya Lihat (View-Only)</option>
+              <option value="ATTENDEES_EDIT">Peserta Boleh Mengedit (Kolaboratif)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Tiptap WYSIWYG Editor -->
+        <TiptapEditor
+          v-model="notesContent"
+          placeholder="Tulis catatan meeting, poin keputusan, atau follow-up di sini..."
+          min-height="420px"
+        />
+
+        <div class="flex items-center justify-between pt-2">
+          <p class="text-xs text-muted-foreground">
+            Perubahan catatan dapat disimpan langsung tanpa mengubah detail agenda.
+          </p>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            :loading="isSavingNotes"
+            @click="handleSaveNotes"
+          >
+            Simpan Catatan
+          </Button>
+        </div>
+      </Card>
+    </div>
+
     <!-- Fixed Bottom Action Bar -->
     <div
       :class="[
@@ -640,6 +718,8 @@ import { TimePicker } from '~/components/ui/time-picker'
 import { useCalendarApi } from '../api/calendar.api'
 import type { CandidateUser, CreateEventPayload, EventType, CalendarEventItem } from '../types/calendar.types'
 import { Skeleton } from '~/components/ui/skeleton'
+import TiptapEditor from '../../components/TiptapEditor.vue'
+import type { NotesVisibility } from '../types/calendar.types'
 import { toast } from 'vue-sonner'
 
 definePageMeta({
@@ -663,6 +743,10 @@ const candidates = ref<CandidateUser[]>([])
 const searchQuery = ref('')
 const selectedAttendeeIds = ref<number[]>([])
 const activeRolePreset = ref<'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN' | null>(null)
+const currentTab = ref<'detail' | 'notes'>('detail')
+const notesContent = ref('')
+const notesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
+const isSavingNotes = ref(false)
 
 // Separated date & time picker states
 const startDateOnly = ref('')
@@ -762,6 +846,8 @@ const loadEventDetail = async () => {
     form.value.eventUrl = ev.eventUrl || ''
     form.value.color = ev.color || '#4082E6'
     form.value.isAllDay = ev.isAllDay
+    notesContent.value = ev.notesContent || ''
+    notesVisibility.value = ev.notesVisibility || 'ATTENDEES_VIEW'
 
     const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -966,6 +1052,22 @@ const assignRoleUsers = (roleType: 'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN') => {
     selectedAttendeeIds.value = activeCandidates
       .filter(u => u.role?.toUpperCase() === roleType)
       .map(u => u.id)
+  }
+}
+
+const handleSaveNotes = async () => {
+  if (!eventId.value) return
+  isSavingNotes.value = true
+  try {
+    await calendarApi.updateNotes(eventId.value, {
+      notesContent: notesContent.value,
+      notesVisibility: notesVisibility.value
+    })
+    toast.success('Catatan agenda berhasil disimpan.')
+  } catch (err: any) {
+    toast.error('Gagal menyimpan catatan: ' + (err.message || 'Terjadi kesalahan'))
+  } finally {
+    isSavingNotes.value = false
   }
 }
 
