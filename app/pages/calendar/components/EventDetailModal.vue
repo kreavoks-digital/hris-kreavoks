@@ -66,22 +66,32 @@
             rel="noopener noreferrer"
             class="flex-1"
           >
-            <Button variant="primary" size="sm" class="w-full gap-1.5 font-medium">
-              <Video class="w-4 h-4" />
-              <span>Join</span>
-            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              :icon-left="Video"
+              label="Join"
+              class="w-full"
+            />
           </a>
 
           <Button
             v-if="isOrganizerOrAdmin"
             variant="outline"
             size="sm"
-            class="gap-1.5 font-medium min-w-[76px]"
+            :icon-left="Pencil"
+            label="Edit"
             @click="emit('edit', event)"
-          >
-            <Pencil class="w-3.5 h-3.5" />
-            <span>Edit</span>
-          </Button>
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            :icon-left="Share2"
+            label="Bagikan"
+            @click="showShareModal = true"
+          />
         </div>
 
         <!-- Detail Information Rows (Teams Style) -->
@@ -204,9 +214,19 @@
       </DialogContent>
     </DialogPortal>
   </DialogRoot>
+
+  <!-- Share Modal -->
+  <ShareModal
+    v-if="event"
+    v-model:open="showShareModal"
+    :event="event"
+    :can-manage-settings="isOrganizerOrAdmin"
+    @updated="emit('refresh')"
+  />
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import {
   DialogRoot,
   DialogPortal,
@@ -219,6 +239,7 @@ import {
   Check,
   Video,
   Pencil,
+  Share2,
   MapPin,
   Link2,
   Copy,
@@ -229,6 +250,7 @@ import {
 import { Button } from '@kreavoks/kreaui'
 import { Badge } from '~/components/ui/badge'
 import { toast } from 'vue-sonner'
+import ShareModal from './ShareModal.vue'
 import type { CalendarEventItem, AttendeeStatus } from '../types/calendar.types'
 
 const props = defineProps<{
@@ -244,7 +266,10 @@ const emit = defineEmits<{
   'cancel': [eventId: number]
   'rsvp': [eventId: number, status: AttendeeStatus]
   'select-event': [event: CalendarEventItem]
+  'refresh': []
 }>()
+
+const showShareModal = ref(false)
 
 const { user } = useAuth()
 

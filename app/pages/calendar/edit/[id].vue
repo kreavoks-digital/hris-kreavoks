@@ -1,20 +1,80 @@
 <template>
   <div class="max-w-7xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-28">
     <!-- Header Section -->
-    <div class="flex items-center justify-between gap-3">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="min-w-0">
         <h1 class="text-xl sm:text-2xl font-semibold text-foreground truncate">Edit Jadwal</h1>
         <p class="text-muted-foreground text-xs sm:text-sm mt-0.5 truncate">Perbarui detail acara atau penugasan peserta.</p>
       </div>
 
-      <div class="flex items-center gap-2 shrink-0">
+      <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+        <!-- Profile User Sedang View / Peserta (Avatar Stack dengan Tooltip Hover) -->
+        <div v-if="activeViewers.length > 0" class="flex items-center gap-1.5 mr-1">
+          <div class="flex items-center -space-x-2 py-0.5">
+            <div
+              v-for="viewer in displayedViewers"
+              :key="viewer.id"
+              class="relative group cursor-pointer transition-transform hover:z-30 hover:scale-105"
+            >
+              <!-- Avatar Circle -->
+              <Avatar class="w-8 h-8 rounded-full border-2 border-background ring-1 ring-border/50 shadow-2xs overflow-hidden">
+                <AvatarImage :src="viewer.profilePicture" :alt="viewer.name" class="w-full h-full object-cover" />
+                <AvatarFallback class="text-[10px] font-bold bg-kv-primary/10 text-kv-primary">
+                  {{ getInitials(viewer.name) }}
+                </AvatarFallback>
+              </Avatar>
+
+              <!-- Online / Active Viewing Dot -->
+              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background ring-1 ring-emerald-500/20" />
+
+              <!-- Tooltip on Hover (Terbuka ke Bawah agar Tidak Terpotong) -->
+              <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none transition-all">
+                <div class="w-2 h-2 bg-popover border-l border-t border-border rotate-45 -mb-1 z-10 shadow-xs"></div>
+                <div class="bg-popover text-popover-foreground border border-border shadow-xl px-2.5 py-1.5 rounded-xl text-center whitespace-nowrap min-w-[120px] max-w-[200px]">
+                  <p class="font-semibold text-xs text-foreground truncate">{{ viewer.name }}</p>
+                  <p class="text-xs text-muted-foreground truncate">{{ viewer.position }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Overlapping +N Counter jika lebih dari 4 -->
+            <div
+              v-if="remainingViewersCount > 0"
+              class="relative group cursor-pointer transition-transform hover:z-30 hover:scale-105"
+            >
+              <div class="w-8 h-8 rounded-full border-2 border-background bg-muted text-muted-foreground font-semibold text-[11px] flex items-center justify-center shadow-2xs ring-1 ring-border/50">
+                +{{ remainingViewersCount }}
+              </div>
+
+              <!-- Tooltip on Hover for Remaining Viewers (Terbuka ke Bawah) -->
+              <div class="absolute top-full mt-2 right-0 hidden group-hover:flex flex-col items-end z-50 pointer-events-none transition-all">
+                <div class="w-2 h-2 bg-popover border-l border-t border-border rotate-45 -mb-1 mr-3 z-10 shadow-xs"></div>
+                <div class="bg-popover text-popover-foreground border border-border shadow-xl p-2.5 rounded-xl text-left min-w-[160px] max-w-[230px] space-y-1.5">
+                  <p class="text-[10px] font-semibold text-muted-foreground pb-1 border-b border-border/50">
+                    +{{ remainingViewersCount }} peserta lainnya
+                  </p>
+                  <div v-for="viewer in remainingViewersList" :key="viewer.id" class="flex items-center gap-2 py-0.5">
+                    <Avatar class="w-5 h-5 rounded-full shrink-0 border border-border">
+                      <AvatarImage :src="viewer.profilePicture" :alt="viewer.name" class="w-full h-full object-cover" />
+                      <AvatarFallback class="text-[8px]">{{ getInitials(viewer.name) }}</AvatarFallback>
+                    </Avatar>
+                    <div class="min-w-0 flex-1">
+                      <p class="font-medium text-xs text-foreground truncate">{{ viewer.name }}</p>
+                      <p class="text-[10px] text-muted-foreground truncate">{{ viewer.position }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <Button
           type="button"
           variant="outline"
           size="sm"
           :icon-left="Share2"
           label="Bagikan"
-          class="rounded-2xl text-xs h-9 px-3 border-border hover:bg-muted"
           :disabled="isLoadingData"
           @click="showShareModal = true"
         />
@@ -124,15 +184,59 @@
       </div>
     </div>
 
-    <!-- Navigation Tabs (Detail vs Notes) using KreaUI underline variant -->
-    <div v-if="!isLoadingData" class="w-full">
+    <!-- Navigation Tabs (Detail vs Notes) with inline Notes Action Bar -->
+    <div v-if="!isLoadingData" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b border-border/60 pb-1">
       <Tabs
         v-model="currentTab"
         :items="tabsList"
         variant="underline"
         size="md"
-        class="mb-6"
+        class="mb-0"
       />
+
+      <!-- Action & Status di sebelah kanan pojok sejajar tab notes -->
+      <div v-if="currentTab === 'notes'" class="flex items-center gap-2.5 shrink-0">
+        <!-- Status Auto-save halus -->
+        <span v-if="autoSaveStatus === 'saving'" class="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-xl transition-all">
+          <Loader2 class="w-3.5 h-3.5 animate-spin text-kv-primary" />
+          <span class="hidden md:inline">Menyimpan otomatis...</span>
+        </span>
+        <span v-else-if="autoSaveStatus === 'saved'" class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-xl transition-all">
+          <Check class="w-3.5 h-3.5 text-emerald-500" />
+          <span class="hidden md:inline">Tersimpan</span>
+        </span>
+        <span v-else-if="autoSaveStatus === 'error'" class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 px-2.5 py-1 rounded-xl transition-all">
+          <AlertCircle class="w-3.5 h-3.5 text-rose-500" />
+          <span class="hidden md:inline">Gagal simpan</span>
+        </span>
+
+        <!-- Akses Peserta Selector -->
+        <div class="flex items-center gap-1.5">
+          <span class="text-xs text-muted-foreground hidden lg:inline">Akses:</span>
+          <Select v-model="notesVisibility">
+            <SelectTrigger class="h-8 min-w-[150px] sm:min-w-[180px] rounded-xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary">
+              <SelectValue placeholder="Pilih akses" />
+            </SelectTrigger>
+            <SelectContent class="rounded-xl">
+              <SelectItem value="ORGANIZER_ONLY" class="text-xs">Hanya Penyelenggara</SelectItem>
+              <SelectItem value="ATTENDEES_VIEW" class="text-xs">Peserta Hanya Lihat</SelectItem>
+              <SelectItem value="ATTENDEES_EDIT" class="text-xs">Peserta Boleh Mengedit</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <!-- Tombol Simpan Manual sejajar kanan pojok -->
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          class="h-8 text-xs rounded-xl"
+          :loading="isSavingNotes"
+          @click="handleSaveNotes"
+        >
+          Simpan Manual
+        </Button>
+      </div>
     </div>
 
     <!-- TAB 1: Detail Agenda Layout -->
@@ -564,55 +668,14 @@
 
     </div>
 
-    <!-- TAB 2: Notes / Meeting Minutes (Tiptap WYSIWYG) -->
-    <div v-if="!isLoadingData && currentTab === 'notes'" class="space-y-6">
-      <Card class="border border-border bg-card/60 backdrop-blur-sm rounded-3xl p-6 space-y-5">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
-          <div>
-            <h2 class="text-lg font-semibold text-foreground">Catatan Pertemuan (Meeting Minutes)</h2>
-            <p class="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Tuliskan agenda rapat, ringkasan pembahasan, atau daftar tugas.
-            </p>
-          </div>
-
-          <!-- Visibility Control -->
-          <div class="flex items-center gap-2 shrink-0">
-            <Label class="text-xs font-semibold text-muted-foreground">Visibilitas Peserta:</Label>
-            <Select v-model="notesVisibility">
-              <SelectTrigger class="h-9 min-w-[200px] rounded-2xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary">
-                <SelectValue placeholder="Pilih visibilitas" />
-              </SelectTrigger>
-              <SelectContent class="rounded-2xl">
-                <SelectItem value="ORGANIZER_ONLY" class="text-xs">Hanya Penyelenggara</SelectItem>
-                <SelectItem value="ATTENDEES_VIEW" class="text-xs">Peserta Hanya Lihat (View-Only)</SelectItem>
-                <SelectItem value="ATTENDEES_EDIT" class="text-xs">Peserta Boleh Mengedit (Kolaboratif)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <!-- Tiptap WYSIWYG Editor -->
-        <TiptapEditor
-          v-model="notesContent"
-          placeholder="Tulis catatan meeting, poin keputusan, atau follow-up di sini..."
-          min-height="420px"
-        />
-
-        <div class="flex items-center justify-between pt-2">
-          <p class="text-xs text-muted-foreground">
-            Perubahan catatan dapat disimpan langsung tanpa mengubah detail agenda.
-          </p>
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            :loading="isSavingNotes"
-            @click="handleSaveNotes"
-          >
-            Simpan Catatan
-          </Button>
-        </div>
-      </Card>
+    <!-- TAB 2: Notes / Meeting Minutes (1 Lembar Dokumen Halaman Lebar Penuh) -->
+    <div v-if="!isLoadingData && currentTab === 'notes'" class="w-full pb-8">
+      <!-- 1 Lembar Dokumen Catatan Lebar Penuh (Tiptap Editor) -->
+      <TiptapEditor
+        v-model="notesContent"
+        placeholder="Ketik '/' untuk menu format, atau mulai menulis catatan rapat..."
+        min-height="650px"
+      />
     </div>
 
     <!-- Fixed Bottom Action Bar -->
@@ -693,8 +756,12 @@ import {
   Palette,
   Globe,
   Trash2,
-  Share2
+  Share2,
+  Check,
+  Loader2,
+  AlertCircle
 } from 'lucide-vue-next'
+import { useDebounceFn } from '@vueuse/core'
 import { Button } from '~/components/ui/button'
 import { Badge, Tabs } from '@kreavoks/kreaui'
 import type { TabItem } from '@kreavoks/kreaui'
@@ -762,6 +829,97 @@ const tabsList: TabItem[] = [
 const notesContent = ref('')
 const notesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
 const isSavingNotes = ref(false)
+const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'error'>('idle')
+const isInitialLoaded = ref(false)
+
+// Viewer Profiles logic for active viewers avatar stack in header
+interface ActiveViewer {
+  id: number
+  name: string
+  position: string
+  profilePicture?: string | null
+}
+
+const getInitials = (name: string) => {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/)
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+}
+
+const activeViewers = computed<ActiveViewer[]>(() => {
+  const list: ActiveViewer[] = []
+  const seenIds = new Set<number>()
+
+  // 1. Penyelenggara Agenda (Organizer / Creator)
+  if (rawEventData.value?.createdBy) {
+    const creator = rawEventData.value.createdBy
+    seenIds.add(creator.id)
+    const cand = candidates.value.find(c => c.id === creator.id)
+    const name = creator.profile?.fullName || cand?.fullName || creator.email || 'Penyelenggara'
+    const position = cand?.position || creator.profile?.division || cand?.division || 'Penyelenggara Agenda'
+    list.push({
+      id: creator.id,
+      name,
+      position,
+      profilePicture:
+        creator.profile?.profilePicture ||
+        cand?.profilePicture ||
+        `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
+    })
+  }
+
+  // 2. Peserta Terdaftar (Attendees dari Database)
+  if (rawEventData.value?.attendees && rawEventData.value.attendees.length > 0) {
+    for (const a of rawEventData.value.attendees) {
+      if (seenIds.has(a.userId)) continue
+      seenIds.add(a.userId)
+      const cand = candidates.value.find(c => c.id === a.userId)
+      const name = a.user?.profile?.fullName || cand?.fullName || a.user?.email || 'Peserta'
+      const position =
+        cand?.position ||
+        a.user?.profile?.division ||
+        cand?.division ||
+        a.user?.customRole?.displayName ||
+        cand?.customRole ||
+        a.user?.role ||
+        'Peserta'
+      list.push({
+        id: a.userId,
+        name,
+        position,
+        profilePicture:
+          a.user?.profile?.profilePicture ||
+          cand?.profilePicture ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
+      })
+    }
+  } else if (selectedAttendeeIds.value.length > 0) {
+    for (const id of selectedAttendeeIds.value) {
+      if (seenIds.has(id)) continue
+      seenIds.add(id)
+      const c = candidates.value.find(cand => cand.id === id)
+      if (c) {
+        const name = c.fullName || c.email || 'Peserta'
+        const position = c.position || c.division || c.customRole || c.role || 'Peserta'
+        list.push({
+          id: c.id,
+          name,
+          position,
+          profilePicture:
+            c.profilePicture ||
+            `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
+        })
+      }
+    }
+  }
+
+  return list
+})
+
+const displayedViewers = computed(() => activeViewers.value.slice(0, 4))
+const remainingViewersCount = computed(() => Math.max(0, activeViewers.value.length - 4))
+const remainingViewersList = computed(() => activeViewers.value.slice(4))
 
 // Separated date & time picker states
 const startDateOnly = ref('')
@@ -864,6 +1022,9 @@ const loadEventDetail = async () => {
     form.value.isAllDay = ev.isAllDay
     notesContent.value = ev.notesContent || ''
     notesVisibility.value = ev.notesVisibility || 'ATTENDEES_VIEW'
+    setTimeout(() => {
+      isInitialLoaded.value = true
+    }, 400)
 
     const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -1071,16 +1232,51 @@ const assignRoleUsers = (roleType: 'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN') => {
   }
 }
 
-const handleSaveNotes = async () => {
-  if (!eventId.value) return
-  isSavingNotes.value = true
+const debouncedAutoSave = useDebounceFn(async () => {
+  if (!eventId.value || !isInitialLoaded.value) return
+  autoSaveStatus.value = 'saving'
   try {
     await calendarApi.updateNotes(eventId.value, {
       notesContent: notesContent.value,
       notesVisibility: notesVisibility.value
     })
-    toast.success('Catatan agenda berhasil disimpan.')
+    autoSaveStatus.value = 'saved'
+    setTimeout(() => {
+      if (autoSaveStatus.value === 'saved') {
+        autoSaveStatus.value = 'idle'
+      }
+    }, 2500)
   } catch (err: any) {
+    autoSaveStatus.value = 'error'
+    console.error('Auto-save error:', err)
+  }
+}, 1200)
+
+watch([notesContent, notesVisibility], () => {
+  if (isInitialLoaded.value) {
+    autoSaveStatus.value = 'saving'
+    debouncedAutoSave()
+  }
+})
+
+const handleSaveNotes = async () => {
+  if (!eventId.value) return
+  isSavingNotes.value = true
+  autoSaveStatus.value = 'saving'
+  try {
+    await calendarApi.updateNotes(eventId.value, {
+      notesContent: notesContent.value,
+      notesVisibility: notesVisibility.value
+    })
+    autoSaveStatus.value = 'saved'
+    toast.success('Catatan agenda berhasil disimpan.')
+    setTimeout(() => {
+      if (autoSaveStatus.value === 'saved') {
+        autoSaveStatus.value = 'idle'
+      }
+    }, 2500)
+  } catch (err: any) {
+    autoSaveStatus.value = 'error'
     toast.error('Gagal menyimpan catatan: ' + (err.message || 'Terjadi kesalahan'))
   } finally {
     isSavingNotes.value = false
