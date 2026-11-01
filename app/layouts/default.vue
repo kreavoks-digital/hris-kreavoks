@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-background text-foreground overflow-x-hidden w-full max-w-full">
+  <div class="min-h-screen bg-background text-foreground overflow-x-clip w-full max-w-full">
 
     <!-- Mobile Overlay -->
     <Transition name="fade">

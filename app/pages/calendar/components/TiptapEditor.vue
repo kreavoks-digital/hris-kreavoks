@@ -1,207 +1,374 @@
 <template>
   <div ref="editorContainerRef" class="relative w-full rounded-2xl border border-border bg-card transition-colors">
-    <!-- Toolbar (Hanya aktif jika editable) -->
+    <!-- Sticky Toolbar Container (Mengikuti scroll canvas di bawah navbar h-16) -->
     <div
       v-if="editable"
-      class="flex flex-wrap items-center gap-1 p-1.5 sm:px-2.5 sm:py-2 bg-muted/40 border-b border-border select-none rounded-t-2xl"
+      class="sticky top-16 z-20 bg-card/95 backdrop-blur-md border-b border-border select-none rounded-t-2xl shadow-xs transition-all"
     >
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleBold().run()"
-        :class="btnClass(editor?.isActive('bold') ?? false)"
-        title="Tebal (Ctrl+B)"
+      <!-- Main Toolbar -->
+      <div
+        class="flex flex-wrap items-center gap-1 p-1.5 sm:px-2.5 sm:py-2"
       >
-        <Bold class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleBold().run()"
+          :class="btnClass(editor?.isActive('bold') ?? false)"
+          title="Tebal (Ctrl+B)"
+        >
+          <Bold class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleItalic().run()"
-        :class="btnClass(editor?.isActive('italic') ?? false)"
-        title="Miring (Ctrl+I)"
-      >
-        <Italic class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleItalic().run()"
+          :class="btnClass(editor?.isActive('italic') ?? false)"
+          title="Miring (Ctrl+I)"
+        >
+          <Italic class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleStrike().run()"
-        :class="btnClass(editor?.isActive('strike') ?? false)"
-        title="Coret"
-      >
-        <Strikethrough class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleStrike().run()"
+          :class="btnClass(editor?.isActive('strike') ?? false)"
+          title="Coret"
+        >
+          <Strikethrough class="w-3.5 h-3.5" />
+        </button>
 
-      <div class="h-3.5 w-px bg-border mx-0.5" />
+        <div class="h-3.5 w-px bg-border mx-0.5" />
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
-        :class="btnClass(editor?.isActive('heading', { level: 1 }) ?? false)"
-        title="Heading 1 (Judul Utama)"
-      >
-        <Heading1 class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
+          :class="btnClass(editor?.isActive('heading', { level: 1 }) ?? false)"
+          title="Heading 1 (Judul Utama)"
+        >
+          <Heading1 class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
-        :class="btnClass(editor?.isActive('heading', { level: 2 }) ?? false)"
-        title="Heading 2 (Sub-judul)"
-      >
-        <Heading2 class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
+          :class="btnClass(editor?.isActive('heading', { level: 2 }) ?? false)"
+          title="Heading 2 (Sub-judul)"
+        >
+          <Heading2 class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
-        :class="btnClass(editor?.isActive('heading', { level: 3 }) ?? false)"
-        title="Heading 3 (Rincian)"
-      >
-        <Heading3 class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
+          :class="btnClass(editor?.isActive('heading', { level: 3 }) ?? false)"
+          title="Heading 3 (Rincian)"
+        >
+          <Heading3 class="w-3.5 h-3.5" />
+        </button>
 
-      <div class="h-3.5 w-px bg-border mx-0.5" />
+        <div class="h-3.5 w-px bg-border mx-0.5" />
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleBulletList().run()"
-        :class="btnClass(editor?.isActive('bulletList') ?? false)"
-        title="Daftar Poin"
-      >
-        <List class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleBulletList().run()"
+          :class="btnClass(editor?.isActive('bulletList') ?? false)"
+          title="Daftar Poin"
+        >
+          <List class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleOrderedList().run()"
-        :class="btnClass(editor?.isActive('orderedList') ?? false)"
-        title="Daftar Angka"
-      >
-        <ListOrdered class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleOrderedList().run()"
+          :class="btnClass(editor?.isActive('orderedList') ?? false)"
+          title="Daftar Angka"
+        >
+          <ListOrdered class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleTaskList().run()"
-        :class="btnClass(editor?.isActive('taskList') ?? false)"
-        title="Daftar Tugas / Checklist"
-      >
-        <CheckSquare class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleTaskList().run()"
+          :class="btnClass(editor?.isActive('taskList') ?? false)"
+          title="Daftar Tugas / Checklist"
+        >
+          <CheckSquare class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().toggleBlockquote().run()"
-        :class="btnClass(editor?.isActive('blockquote') ?? false)"
-        title="Kutipan / Catatan Penting"
-      >
-        <Quote class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleBlockquote().run()"
+          :class="btnClass(editor?.isActive('blockquote') ?? false)"
+          title="Kutipan / Catatan Penting"
+        >
+          <Quote class="w-3.5 h-3.5" />
+        </button>
 
-      <div class="h-3.5 w-px bg-border mx-0.5" />
+        <div class="h-3.5 w-px bg-border mx-0.5" />
 
-      <!-- Tombol Link -->
-      <button
-        type="button"
-        @click="openLinkModal"
-        :class="btnClass(editor?.isActive('link') ?? false)"
-        title="Sisipkan / Edit Tautan (Link)"
-      >
-        <Link2 class="w-3.5 h-3.5" />
-      </button>
+        <!-- Tombol Link -->
+        <button
+          type="button"
+          @click="openLinkModal"
+          :class="btnClass(editor?.isActive('link') ?? false)"
+          title="Sisipkan / Edit Tautan (Link)"
+        >
+          <Link2 class="w-3.5 h-3.5" />
+        </button>
 
-      <!-- Tombol Tabel -->
-      <button
-        type="button"
-        @click="insertTable"
-        :class="btnClass(editor?.isActive('table') ?? false)"
-        title="Sisipkan Tabel (3x3)"
-      >
-        <TableIcon class="w-3.5 h-3.5" />
-      </button>
+        <!-- Tombol Tabel -->
+        <button
+          type="button"
+          @click="insertTable"
+          :class="btnClass(editor?.isActive('table') ?? false)"
+          title="Sisipkan Tabel (3x3)"
+        >
+          <TableIcon class="w-3.5 h-3.5" />
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().setHorizontalRule().run()"
-        class="p-1.5 rounded-lg text-xs transition-colors border cursor-pointer flex items-center justify-center bg-background hover:bg-muted text-foreground border-border"
-        title="Garis Pembatas (Divider)"
-      >
-        <Minus class="w-3.5 h-3.5" />
-      </button>
+        <!-- Tombol Gambar -->
+        <button
+          type="button"
+          @click="triggerImageUpload"
+          class="p-1.5 rounded-lg text-xs transition-colors border cursor-pointer flex items-center justify-center bg-background hover:bg-muted text-foreground border-border"
+          title="Sisipkan Gambar (atau tekan Ctrl+V langsung)"
+        >
+          <ImageIcon class="w-3.5 h-3.5" />
+        </button>
 
-      <div class="h-3.5 w-px bg-border mx-0.5" />
+        <!-- Hidden file input untuk upload gambar -->
+        <input
+          ref="fileInputRef"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="onFileSelected"
+        />
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().unsetAllMarks().clearNodes().run()"
-        class="px-2 py-1 text-xs rounded-lg font-medium border border-border bg-background hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
-        title="Hapus Format"
-      >
-        <RemoveFormatting class="w-3.5 h-3.5" />
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().setHorizontalRule().run()"
+          class="p-1.5 rounded-lg text-xs transition-colors border cursor-pointer flex items-center justify-center bg-background hover:bg-muted text-foreground border-border"
+          title="Garis Pembatas (Divider)"
+        >
+          <Minus class="w-3.5 h-3.5" />
+        </button>
 
-      <!-- Petunjuk Menu Format pada Toolbar -->
-      <div class="ml-auto hidden sm:flex items-center gap-1.5 text-[11px] text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-md border border-border/40 select-none">
-        <span class="font-mono font-bold bg-background px-1 rounded text-kv-primary border border-border/60">/</span>
-        <span>Ketik / untuk menu format</span>
+        <div class="h-3.5 w-px bg-border mx-0.5" />
+
+        <button
+          type="button"
+          @click="editor?.chain().focus().unsetAllMarks().clearNodes().run()"
+          class="px-2 py-1 text-xs rounded-lg font-medium border border-border bg-background hover:bg-muted text-muted-foreground transition-colors cursor-pointer"
+          title="Hapus Format"
+        >
+          <RemoveFormatting class="w-3.5 h-3.5" />
+        </button>
+
+        <!-- Petunjuk Menu Format pada Toolbar -->
+        <div class="ml-auto hidden sm:flex items-center gap-1.5 text-[11px] text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-md border border-border/40 select-none">
+          <span class="font-mono font-bold bg-background px-1 rounded text-kv-primary border border-border/60">/</span>
+          <span>Ketik / untuk menu format</span>
+        </div>
       </div>
-    </div>
 
-    <!-- Table Action Toolbar Bar (Aktif ketika kursor ada di dalam tabel) -->
-    <div
-      v-if="editable && editor?.isActive('table')"
-      class="flex flex-wrap items-center gap-1 px-2.5 py-1 bg-kv-primary/5 border-b border-border text-[11px] text-foreground select-none"
-    >
-      <span class="font-semibold text-kv-primary flex items-center gap-1 mr-1">
-        <TableIcon class="w-3 h-3" />
-        <span>Menu Tabel:</span>
-      </span>
-
-      <button
-        type="button"
-        @click="editor?.chain().focus().addColumnAfter().run()"
-        class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
-        title="Tambah Kolom Kanan"
+      <!-- Table Action Toolbar Bar (Aktif ketika kursor ada di dalam tabel) -->
+      <div
+        v-if="editor?.isActive('table')"
+        class="flex flex-wrap items-center gap-1.5 px-3 py-1.5 bg-muted/60 border-t border-border text-[11px] text-foreground select-none"
       >
-        + Kolom
-      </button>
+        <span class="font-semibold text-kv-primary flex items-center gap-1 mr-1">
+          <TableIcon class="w-3.5 h-3.5" />
+          <span>Tabel:</span>
+        </span>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().addRowAfter().run()"
-        class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
-        title="Tambah Baris Bawah"
-      >
-        + Baris
-      </button>
+        <!-- Kolom -->
+        <button
+          type="button"
+          @click="editor?.chain().focus().addColumnBefore().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Sisipkan Kolom di Kiri"
+        >
+          + Kolom Kiri
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().deleteColumn().run()"
-        class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
-        title="Hapus Kolom Saat Ini"
-      >
-        - Kolom
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().addColumnAfter().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Sisipkan Kolom di Kanan"
+        >
+          + Kolom Kanan
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().deleteRow().run()"
-        class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
-        title="Hapus Baris Saat Ini"
-      >
-        - Baris
-      </button>
+        <button
+          type="button"
+          @click="editor?.chain().focus().deleteColumn().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Hapus Kolom Ini"
+        >
+          - Kolom
+        </button>
 
-      <button
-        type="button"
-        @click="editor?.chain().focus().deleteTable().run()"
-        class="px-2 py-0.5 rounded-md border border-destructive/30 bg-background hover:bg-destructive/10 text-destructive transition-colors ml-auto font-medium"
-        title="Hapus Seluruh Tabel"
-      >
-        Hapus Tabel
-      </button>
+        <div class="h-3 w-px bg-border mx-0.5" />
+
+        <!-- Baris -->
+        <button
+          type="button"
+          @click="editor?.chain().focus().addRowBefore().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Sisipkan Baris di Atas"
+        >
+          + Baris Atas
+        </button>
+
+        <button
+          type="button"
+          @click="editor?.chain().focus().addRowAfter().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Sisipkan Baris di Bawah"
+        >
+          + Baris Bawah
+        </button>
+
+        <button
+          type="button"
+          @click="editor?.chain().focus().deleteRow().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Hapus Baris Ini"
+        >
+          - Baris
+        </button>
+
+        <div class="h-3 w-px bg-border mx-0.5" />
+
+        <!-- Sel & Header -->
+        <button
+          type="button"
+          @click="editor?.chain().focus().mergeCells().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Gabungkan Sel yang Terseleksi (Merge)"
+        >
+          Gabung Sel
+        </button>
+
+        <button
+          type="button"
+          @click="editor?.chain().focus().splitCell().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Pisahkan Sel yang Digabung (Split)"
+        >
+          Pisah Sel
+        </button>
+
+        <button
+          type="button"
+          @click="editor?.chain().focus().toggleHeaderRow().run()"
+          class="px-2 py-0.5 rounded-md border border-border bg-background hover:bg-muted text-foreground transition-colors"
+          title="Aktifkan/Nonaktifkan Baris Header"
+        >
+          Header Baris
+        </button>
+
+        <div class="h-3 w-px bg-border mx-0.5" />
+
+        <!-- Ukuran Lebar Tabel -->
+        <span class="text-muted-foreground ml-1">Ukuran:</span>
+        <button
+          type="button"
+          @click="setTableWidth('100%')"
+          :class="[
+            'px-1.5 py-0.5 rounded text-xs font-medium border transition-colors',
+            (editor?.getAttributes('table').tableWidth || '100%') === '100%'
+              ? 'bg-kv-primary text-white border-kv-primary'
+              : 'border-border bg-background hover:bg-muted text-foreground'
+          ]"
+          title="Lebar Penuh (100%)"
+        >
+          100%
+        </button>
+
+        <button
+          type="button"
+          @click="setTableWidth('75%')"
+          :class="[
+            'px-1.5 py-0.5 rounded text-[10px] font-medium border transition-colors',
+            editor?.getAttributes('table').tableWidth === '75%'
+              ? 'bg-kv-primary text-white border-kv-primary'
+              : 'border-border bg-background hover:bg-muted text-foreground'
+          ]"
+          title="Lebar Sedang (75%)"
+        >
+          75%
+        </button>
+
+        <button
+          type="button"
+          @click="setTableWidth('50%')"
+          :class="[
+            'px-1.5 py-0.5 rounded text-[10px] font-medium border transition-colors',
+            editor?.getAttributes('table').tableWidth === '50%'
+              ? 'bg-kv-primary text-white border-kv-primary'
+              : 'border-border bg-background hover:bg-muted text-foreground'
+          ]"
+          title="Lebar Separuh (50%)"
+        >
+          50%
+        </button>
+
+        <button
+          type="button"
+          @click="setTableWidth('fit-content')"
+          :class="[
+            'px-1.5 py-0.5 rounded text-[10px] font-medium border transition-colors',
+            editor?.getAttributes('table').tableWidth === 'fit-content'
+              ? 'bg-kv-primary text-white border-kv-primary'
+              : 'border-border bg-background hover:bg-muted text-foreground'
+          ]"
+          title="Pas Sesuai Isi Konten"
+        >
+          Pas Konten
+        </button>
+
+        <div class="h-3 w-px bg-border mx-0.5" />
+
+        <!-- Posisi Rata Tabel -->
+        <button
+          type="button"
+          @click="setTableAlignment('left')"
+          :class="[
+            'px-1.5 py-0.5 rounded text-[10px] font-medium border transition-colors',
+            (editor?.getAttributes('table').alignment || 'left') === 'left'
+              ? 'bg-kv-primary text-white border-kv-primary'
+              : 'border-border bg-background hover:bg-muted text-foreground'
+          ]"
+          title="Rata Kiri"
+        >
+          Kiri
+        </button>
+
+        <button
+          type="button"
+          @click="setTableAlignment('center')"
+          :class="[
+            'px-1.5 py-0.5 rounded text-[10px] font-medium border transition-colors',
+            editor?.getAttributes('table').alignment === 'center'
+              ? 'bg-kv-primary text-white border-kv-primary'
+              : 'border-border bg-background hover:bg-muted text-foreground'
+          ]"
+          title="Rata Tengah"
+        >
+          Tengah
+        </button>
+
+        <button
+          type="button"
+          @click="editor?.chain().focus().deleteTable().run()"
+          class="px-2 py-0.5 rounded-md border border-destructive/30 bg-background hover:bg-destructive/10 text-destructive transition-colors ml-auto font-medium"
+          title="Hapus Seluruh Tabel"
+        >
+          Hapus Tabel
+        </button>
+      </div>
     </div>
 
     <!-- Read-Only Banner saat tidak bisa mengedit -->
@@ -328,14 +495,69 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onBeforeUnmount, nextTick } from 'vue'
-import { useEditor, EditorContent } from '@tiptap/vue-3'
+import { useEditor, EditorContent, VueNodeViewRenderer } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import Link from '@tiptap/extension-link'
+import { Image } from '@tiptap/extension-image'
+import ResizableImageView from './ResizableImageView.vue'
 import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import { onClickOutside } from '@vueuse/core'
+
+const ResizableImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: '100%',
+        renderHTML: (attributes) => {
+          if (!attributes.width) return {}
+          return {
+            width: attributes.width,
+            style: `width: ${attributes.width}`
+          }
+        }
+      },
+      alignment: {
+        default: 'center',
+        renderHTML: (attributes) => ({
+          'data-alignment': attributes.alignment || 'center'
+        })
+      }
+    }
+  },
+  addNodeView() {
+    return VueNodeViewRenderer(ResizableImageView)
+  }
+})
+
+const CustomTable = Table.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      tableWidth: {
+        default: '100%',
+        parseHTML: (element) => element.getAttribute('data-table-width') || (element.style.width ? element.style.width : '100%'),
+        renderHTML: (attributes) => {
+          if (!attributes.tableWidth) return {}
+          return {
+            'data-table-width': attributes.tableWidth,
+            style: `width: ${attributes.tableWidth};`
+          }
+        }
+      },
+      alignment: {
+        default: 'left',
+        parseHTML: (element) => element.getAttribute('data-alignment') || 'left',
+        renderHTML: (attributes) => ({
+          'data-alignment': attributes.alignment || 'left'
+        })
+      }
+    }
+  }
+})
 import {
   Bold,
   Italic,
@@ -353,6 +575,7 @@ import {
   Lock,
   Link2,
   Table as TableIcon,
+  Image as ImageIcon,
   X
 } from 'lucide-vue-next'
 
@@ -378,6 +601,7 @@ const emit = defineEmits<{
 const editorContainerRef = ref<HTMLDivElement | null>(null)
 const slashMenuRef = ref<HTMLDivElement | null>(null)
 const linkInputRef = ref<HTMLInputElement | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const showSlashMenu = ref(false)
 const slashQuery = ref('')
@@ -386,6 +610,26 @@ const menuPosition = ref({ top: '40px', left: '20px' })
 
 const showLinkModal = ref(false)
 const linkUrl = ref('')
+
+const triggerImageUpload = () => {
+  fileInputRef.value?.click()
+}
+
+const onFileSelected = (e: Event) => {
+  const target = e.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (file) {
+    const reader = new FileReader()
+    reader.onload = (ev) => {
+      const src = ev.target?.result as string
+      if (src && editor.value) {
+        editor.value.chain().focus().setImage({ src }).run()
+      }
+    }
+    reader.readAsDataURL(file)
+    target.value = ''
+  }
+}
 
 interface SlashMenuItem {
   id: string
@@ -398,6 +642,14 @@ interface SlashMenuItem {
 
 const insertTable = () => {
   editor.value?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+}
+
+const setTableWidth = (width: string) => {
+  editor.value?.chain().focus().updateAttributes('table', { tableWidth: width }).run()
+}
+
+const setTableAlignment = (alignment: string) => {
+  editor.value?.chain().focus().updateAttributes('table', { alignment }).run()
 }
 
 const openLinkModal = () => {
@@ -516,6 +768,14 @@ const slashMenuItems: SlashMenuItem[] = [
     shortcut: 'link',
     icon: Link2,
     action: () => openLinkModal()
+  },
+  {
+    id: 'image',
+    title: 'Gambar (Image)',
+    description: 'Sisipkan atau paste gambar visual (Ctrl+V)',
+    shortcut: 'img',
+    icon: ImageIcon,
+    action: () => triggerImageUpload()
   },
   {
     id: 'quote',
@@ -664,8 +924,16 @@ const editor = useEditor({
         class: 'text-kv-primary underline font-medium hover:opacity-80 transition-opacity'
       }
     }),
-    Table.configure({
-      resizable: true
+    ResizableImage.configure({
+      inline: false,
+      allowBase64: true
+    }),
+    CustomTable.configure({
+      resizable: true,
+      lastColumnResizable: true,
+      allowTableNodeSelection: true,
+      handleWidth: 6,
+      cellMinWidth: 40
     }),
     TableRow,
     TableHeader,
@@ -679,6 +947,50 @@ const editor = useEditor({
     attributes: {
       class:
         'px-4 py-3 sm:px-5 sm:py-4 text-sm text-foreground focus:outline-none leading-relaxed prose prose-slate dark:prose-invert max-w-none select-text'
+    },
+    handlePaste: (_view, event) => {
+      const items = event.clipboardData?.items
+      if (!items) return false
+
+      for (const item of items) {
+        if (item.type.startsWith('image/')) {
+          const file = item.getAsFile()
+          if (file) {
+            const reader = new FileReader()
+            reader.onload = (e) => {
+              const src = e.target?.result as string
+              if (src && editor.value) {
+                editor.value.chain().focus().setImage({ src }).run()
+              }
+            }
+            reader.readAsDataURL(file)
+            return true
+          }
+        }
+      }
+      return false
+    },
+    handleDrop: (view, event, _slice, moved) => {
+      if (!moved && event.dataTransfer?.files?.length) {
+        const file = event.dataTransfer.files[0]
+        if (file && file.type.startsWith('image/')) {
+          const reader = new FileReader()
+          reader.onload = (e) => {
+            const src = e.target?.result as string
+            if (src && editor.value) {
+              const coordinates = view.posAtCoords({ left: event.clientX, top: event.clientY })
+              if (coordinates) {
+                editor.value.chain().focus().setTextSelection(coordinates.pos).setImage({ src }).run()
+              } else {
+                editor.value.chain().focus().setImage({ src }).run()
+              }
+            }
+          }
+          reader.readAsDataURL(file)
+          return true
+        }
+      }
+      return false
     },
     handleKeyDown: (_view, event) => {
       if (showSlashMenu.value && filteredMenuItems.value.length > 0) {
@@ -817,36 +1129,79 @@ onBeforeUnmount(() => {
   margin: 1rem 0;
 }
 
-/* Tabel Styling */
+/* Tabel & Resizable Styling (Docs Style yang Jelas & Tegas) */
+:deep(.tiptap .tableWrapper) {
+  overflow-x: auto;
+  margin: 1.25rem 0;
+  padding: 4px 1px;
+}
+
 :deep(.tiptap table) {
-  border-collapse: collapse;
-  margin: 1rem 0;
-  overflow: hidden;
+  border-collapse: collapse !important;
   table-layout: fixed;
-  width: 100%;
+  border: 2px solid #334155 !important;
   border-radius: 0.5rem;
-  border: 1px solid var(--border);
+  max-width: 100%;
+  margin: 1.25rem 0;
+}
+
+:deep(.tiptap table[data-alignment="center"]) {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+:deep(.tiptap table[data-alignment="right"]) {
+  margin-left: auto !important;
+  margin-right: 0 !important;
+}
+
+:deep(.tiptap table[data-alignment="left"]) {
+  margin-left: 0 !important;
+  margin-right: auto !important;
+}
+
+.dark :deep(.tiptap table) {
+  border: 2px solid #64748b !important;
 }
 
 :deep(.tiptap table td),
 :deep(.tiptap table th) {
-  border: 1px solid var(--border);
-  box-sizing: border-box;
-  min-width: 1em;
-  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #64748b !important;
+  box-sizing: border-box !important;
+  min-width: 60px;
+  min-height: 40px;
+  padding: 0.625rem 0.875rem !important;
   position: relative;
   vertical-align: top;
   text-align: left;
 }
 
+.dark :deep(.tiptap table td),
+.dark :deep(.tiptap table th) {
+  border: 1.5px solid #475569 !important;
+}
+
 :deep(.tiptap table th) {
-  background-color: rgba(64, 130, 230, 0.08);
-  font-weight: 600;
-  color: var(--foreground);
+  background-color: #f1f5f9 !important;
+  font-weight: 600 !important;
+  color: var(--foreground) !important;
+  border-bottom: 2.5px solid #1e293b !important;
+}
+
+.dark :deep(.tiptap table th) {
+  background-color: #1e293b !important;
+  border-bottom: 2.5px solid #64748b !important;
+}
+
+:deep(.tiptap table td > p),
+:deep(.tiptap table th > p) {
+  margin: 0 !important;
+  min-height: 1.25rem;
 }
 
 :deep(.tiptap table .selectedCell:after) {
-  background: rgba(64, 130, 230, 0.12);
+  background: rgba(64, 130, 230, 0.15) !important;
+  border: 1.5px solid #3b82f6 !important;
   content: "";
   left: 0;
   right: 0;
@@ -855,6 +1210,23 @@ onBeforeUnmount(() => {
   pointer-events: none;
   position: absolute;
   z-index: 2;
+}
+
+/* Handle Resize Garis Kolom (Tiptap / ProseMirror) */
+:deep(.tiptap .column-resize-handle) {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #3b82f6 !important;
+  pointer-events: none;
+  z-index: 20;
+}
+
+:deep(.tiptap.resize-cursor),
+:deep(.resize-cursor) {
+  cursor: col-resize !important;
 }
 
 /* Checklist / Task List Styling */
@@ -892,5 +1264,16 @@ onBeforeUnmount(() => {
 :deep(ul[data-type="taskList"] li[data-checked="true"] > div) {
   text-decoration: line-through;
   color: var(--muted-foreground);
+}
+
+/* Image Styling */
+:deep(.tiptap img) {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  border: 1px solid var(--border);
+  margin: 0.75rem 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  display: block;
 }
 </style>
