@@ -1,240 +1,283 @@
 <template>
-  <DialogRoot :open="open" @update:open="(val) => emit('update:open', val)">
-    <DialogPortal>
-      <!-- Subtle transparent overlay: Tidak ada overlay hitam pekat, kalender tetap terlihat jelas -->
-      <DialogOverlay class="fixed inset-0 z-50 bg-black/10 transition-opacity" />
-
-      <!-- Popover Card Event Details bergaya Microsoft Teams -->
-      <DialogContent
-        v-if="event"
-        class="fixed z-50 top-16 sm:top-24 left-1/2 -translate-x-1/2 sm:left-[55%] w-[94vw] max-w-[420px] bg-card border border-border rounded-2xl shadow-2xl p-5 duration-150 outline-none max-h-[85vh] flex flex-col gap-3.5 animate-in fade-in-0 zoom-in-95"
-      >
-        <!-- Top Bar: Category & Close Icon -->
-        <div class="flex items-center justify-between text-xs text-muted-foreground shrink-0">
-          <Badge :variant="typeStyle.variant" size="sm" class="text-[11px] font-medium">
+  <Dialog :open="open" @update:open="(val) => emit('update:open', val)">
+    <DialogContent v-if="event" class="max-w-2xl bg-card border border-border rounded-3xl p-6 overflow-hidden max-h-[92vh] flex flex-col">
+      <DialogHeader class="pb-3 border-b border-border shrink-0">
+        <div class="flex items-center justify-between gap-2 mb-2">
+          <span
+            class="text-xs font-semibold px-3 py-1 rounded-2xl"
+            :class="typeStyle.badge"
+          >
             {{ typeStyle.label }}
-          </Badge>
+          </span>
 
-          <DialogClose
-            class="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-            title="Tutup"
-          >
-            <X class="w-4 h-4" />
-            <span class="sr-only">Close</span>
-          </DialogClose>
-        </div>
-
-        <!-- Multiple Events on this Day Switcher -->
-        <div v-if="dayEvents && dayEvents.length > 1" class="space-y-1.5 pb-1 border-b border-border shrink-0">
-          <p class="text-[11px] font-medium text-muted-foreground">
-            {{ dayEvents.length }} Acara pada tanggal ini:
-          </p>
-          <div class="flex items-center gap-1.5 overflow-x-auto pb-1">
-            <button
-              v-for="ev in dayEvents"
-              :key="ev.id"
-              type="button"
-              @click="emit('select-event', ev)"
-              :class="[
-                'px-2.5 py-1 rounded-xl text-xs font-semibold transition-all shrink-0 border cursor-pointer',
-                event?.id === ev.id
-                  ? 'bg-kv-primary text-white border-kv-primary shadow-xs'
-                  : 'bg-muted/40 hover:bg-muted text-muted-foreground border-border'
-              ]"
+          <div v-if="isOrganizerOrAdmin" class="flex items-center gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              @click="emit('edit', event)"
+              class="h-8 px-3 rounded-2xl text-xs border-border hover:bg-muted"
             >
-              {{ ev.title }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Title & Time -->
-        <div class="space-y-1 shrink-0">
-          <h3 class="text-lg font-bold text-foreground leading-snug">
-            {{ event.title }}
-          </h3>
-          <p class="text-xs text-muted-foreground font-medium">
-            {{ formattedDate }} &bull; {{ formattedTime }}
-          </p>
-        </div>
-
-        <!-- Action Buttons: Join & Edit (Tanpa tombol Hapus) -->
-        <div class="flex items-center gap-2 pt-0.5 shrink-0">
-          <a
-            v-if="event.eventUrl"
-            :href="event.eventUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="flex-1"
-          >
-            <Button variant="primary" size="sm" class="w-full gap-1.5 font-medium">
-              <Video class="w-4 h-4" />
-              <span>Join</span>
+              Edit Jadwal
             </Button>
-          </a>
-
-          <Button
-            v-if="isOrganizerOrAdmin"
-            variant="outline"
-            size="sm"
-            class="gap-1.5 font-medium min-w-[76px]"
-            @click="emit('edit', event)"
-          >
-            <Pencil class="w-3.5 h-3.5" />
-            <span>Edit</span>
-          </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              @click="emit('cancel', event.id)"
+              class="h-8 px-3 rounded-2xl text-xs"
+            >
+              Batalkan
+            </Button>
+          </div>
         </div>
 
-        <!-- Detail Information Rows (Teams Style) -->
-        <div class="space-y-3.5 pt-2 border-t border-border/70 overflow-y-auto pr-1 text-xs text-foreground">
-          <!-- Lokasi -->
-          <div class="flex items-center gap-3">
-            <MapPin class="w-4 h-4 text-muted-foreground shrink-0" />
-            <span class="font-medium truncate">{{ event.location || 'Online' }}</span>
-          </div>
+        <DialogTitle class="text-xl font-bold text-foreground leading-snug">
+          {{ event.title }}
+        </DialogTitle>
+      </DialogHeader>
 
-          <!-- Tautan Meeting & Copy Button -->
-          <div v-if="event.eventUrl" class="flex items-center justify-between gap-2">
-            <div class="flex items-center gap-3 min-w-0 flex-1">
-              <Link2 class="w-4 h-4 text-muted-foreground shrink-0" />
-              <a
-                :href="event.eventUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-kv-primary hover:underline truncate"
-              >
-                {{ event.eventUrl }}
-              </a>
+      <!-- Tabs Navigation (Detail vs Notes) -->
+      <Tabs v-model="activeTab" class="flex-1 flex flex-col overflow-hidden pt-2">
+        <TabsList class="w-full max-w-xs grid grid-cols-2 rounded-2xl p-1 bg-muted/60 mb-3 shrink-0">
+          <TabsTrigger value="detail" class="rounded-xl text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground shadow-none">
+            Detail Agenda
+          </TabsTrigger>
+          <TabsTrigger value="notes" class="rounded-xl text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground shadow-none">
+            Catatan / Notes
+          </TabsTrigger>
+        </TabsList>
+
+        <!-- TAB 1: DETAIL AGENDA -->
+        <TabsContent value="detail" class="space-y-4 py-2 overflow-y-auto pr-1 flex-1 focus:outline-none">
+          <!-- Date, Time & Location Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="p-3.5 rounded-2xl bg-muted/30 border border-border">
+              <p class="text-xs text-muted-foreground mb-1">Waktu Pelaksanaan</p>
+              <p class="font-semibold text-foreground">{{ formattedDate }}</p>
+              <p class="text-xs text-muted-foreground mt-0.5">{{ formattedTime }}</p>
             </div>
-            <button
-              @click="copyLink(event.eventUrl)"
-              class="p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors shrink-0"
-              title="Salin Tautan"
-            >
-              <Copy class="w-3.5 h-3.5" />
-            </button>
-          </div>
 
-          <!-- Catatan / Deskripsi -->
-          <div v-if="event.description" class="flex items-start gap-3">
-            <AlignLeft class="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-            <p class="whitespace-pre-wrap leading-relaxed text-muted-foreground flex-1">
-              {{ event.description }}
-            </p>
-          </div>
-
-          <!-- Penyelenggara -->
-          <div class="flex items-center gap-3">
-            <User class="w-4 h-4 text-muted-foreground shrink-0" />
-            <div class="min-w-0">
-              <p class="font-medium text-foreground truncate">
-                {{ event.createdBy?.profile?.fullName || event.createdBy?.email }}
+            <div class="p-3.5 rounded-2xl bg-muted/30 border border-border">
+              <p class="text-xs text-muted-foreground mb-1">Lokasi Agenda</p>
+              <p class="font-semibold text-foreground">{{ event.location || 'Online / Remote' }}</p>
+              <p v-if="event.eventUrl" class="text-xs text-kv-primary truncate mt-0.5">
+                Tautan Tersedia
               </p>
-              <p class="text-[11px] text-muted-foreground">Penyelenggara</p>
             </div>
           </div>
 
-          <!-- Peserta & Status RSVP -->
-          <div class="flex items-start gap-3 pt-0.5">
-            <Users class="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between mb-1.5">
-                <span class="font-medium text-foreground">Peserta ({{ event.attendees.length }})</span>
-                <span class="text-[11px] text-muted-foreground">
-                  <span class="text-emerald-600 font-medium">{{ acceptedCount }} Hadir</span> &bull; 
-                  <span class="text-rose-600 font-medium">{{ declinedCount }} Menolak</span>
+          <!-- Meeting Link Button -->
+          <div v-if="event.eventUrl" class="pt-1">
+            <a
+              :href="event.eventUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-3xl bg-kv-primary hover:bg-kv-primary/90 text-white font-medium text-sm transition-colors text-center"
+            >
+              <span>Buka Link Meeting / Tautan Acara</span>
+              <svg class="w-4 h-4 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
+          </div>
+
+          <!-- Description -->
+          <div v-if="event.description" class="space-y-1.5">
+            <p class="text-xs font-semibold text-muted-foreground">Catatan / Detail Agenda</p>
+            <div class="p-3.5 rounded-2xl bg-muted/20 border border-border text-sm text-foreground whitespace-pre-wrap leading-relaxed">
+              {{ event.description }}
+            </div>
+          </div>
+
+          <!-- Organizer -->
+          <div class="p-3.5 rounded-2xl bg-muted/20 border border-border flex items-center gap-3">
+            <div class="w-9 h-9 rounded-full bg-kv-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
+              {{ (event.createdBy.profile?.fullName || event.createdBy.email).substring(0, 2) }}
+            </div>
+            <div class="min-w-0 flex-1 text-sm">
+              <p class="text-xs text-muted-foreground">Penyelenggara</p>
+              <p class="font-semibold text-foreground truncate">
+                {{ event.createdBy.profile?.fullName || event.createdBy.email.split('@')[0] }}
+              </p>
+            </div>
+          </div>
+
+          <!-- RSVP Status & Actions (for attendee) -->
+          <div v-if="myAttendance" class="p-4 rounded-3xl bg-accent/40 border border-border space-y-2.5">
+            <div class="flex items-center justify-between">
+              <p class="text-xs font-semibold text-foreground">Status Kehadiran Kamu</p>
+              <span
+                class="text-xs font-semibold px-2.5 py-0.5 rounded-xl"
+                :class="rsvpBadge(myAttendance.status)"
+              >
+                {{ rsvpLabel(myAttendance.status) }}
+              </span>
+            </div>
+
+            <div class="flex items-center gap-2 pt-1">
+              <Button
+                size="sm"
+                :variant="myAttendance.status === 'ACCEPTED' ? 'default' : 'outline'"
+                @click="emit('rsvp', event.id, 'ACCEPTED')"
+                :disabled="isLoading"
+                class="flex-1 rounded-2xl text-xs h-9"
+                :class="myAttendance.status === 'ACCEPTED' ? 'bg-emerald-600 hover:bg-emerald-700 text-white' : ''"
+              >
+                Hadir
+              </Button>
+              <Button
+                size="sm"
+                :variant="myAttendance.status === 'TENTATIVE' ? 'default' : 'outline'"
+                @click="emit('rsvp', event.id, 'TENTATIVE')"
+                :disabled="isLoading"
+                class="flex-1 rounded-2xl text-xs h-9"
+                :class="myAttendance.status === 'TENTATIVE' ? 'bg-amber-500 hover:bg-amber-600 text-white' : ''"
+              >
+                Ragu-ragu
+              </Button>
+              <Button
+                size="sm"
+                :variant="myAttendance.status === 'DECLINED' ? 'default' : 'outline'"
+                @click="emit('rsvp', event.id, 'DECLINED')"
+                :disabled="isLoading"
+                class="flex-1 rounded-2xl text-xs h-9"
+                :class="myAttendance.status === 'DECLINED' ? 'bg-rose-600 hover:bg-rose-700 text-white' : ''"
+              >
+                Tidak Hadir
+              </Button>
+            </div>
+          </div>
+
+          <!-- Attendees List -->
+          <div class="space-y-2 pt-1">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-semibold text-muted-foreground">
+                Daftar Peserta ({{ event.attendees.length }})
+              </span>
+              <div class="flex items-center gap-2 text-muted-foreground">
+                <span class="text-emerald-600 font-medium">{{ acceptedCount }} Hadir</span>
+                <span>&bull;</span>
+                <span class="text-rose-600 font-medium">{{ declinedCount }} Menolak</span>
+              </div>
+            </div>
+
+            <div class="border border-border rounded-3xl divide-y divide-border/60 max-h-48 overflow-y-auto bg-muted/10">
+              <div
+                v-for="att in event.attendees"
+                :key="att.id"
+                class="px-3.5 py-2.5 flex items-center justify-between text-sm hover:bg-accent/30 transition-colors"
+              >
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <div class="w-7 h-7 rounded-full bg-muted flex items-center justify-center font-semibold text-xs text-foreground shrink-0 border border-border">
+                    {{ (att.user.profile?.fullName || att.user.email).substring(0, 2) }}
+                  </div>
+                  <div class="min-w-0">
+                    <p class="font-medium text-foreground text-xs truncate">
+                      {{ att.user.profile?.fullName || att.user.email.split('@')[0] }}
+                    </p>
+                    <p class="text-[11px] text-muted-foreground truncate">{{ att.user.email }}</p>
+                  </div>
+                </div>
+
+                <span
+                  class="text-[11px] font-medium px-2 py-0.5 rounded-xl shrink-0"
+                  :class="rsvpBadge(att.status)"
+                >
+                  {{ rsvpLabel(att.status) }}
                 </span>
               </div>
 
-              <!-- Attendees List Scroll -->
-              <div v-if="event.attendees.length > 0" class="max-h-28 overflow-y-auto space-y-1.5 pr-1">
-                <div
-                  v-for="att in event.attendees"
-                  :key="att.id"
-                  class="flex items-center justify-between text-[11px] p-1.5 rounded-lg bg-muted/20 border border-border/50"
-                >
-                  <span class="truncate font-medium text-foreground">
-                    {{ att.user.profile?.fullName || att.user.email }}
-                  </span>
-                  <Badge :variant="rsvpBadgeVariant(att.status)" size="sm" class="text-[10px] py-0 px-1.5">
-                    {{ rsvpLabel(att.status) }}
-                  </Badge>
-                </div>
+              <div v-if="event.attendees.length === 0" class="p-4 text-center text-xs text-muted-foreground">
+                Tidak ada peserta spesifik yang ditugaskan (Acara terbuka untuk umum).
               </div>
-              <p v-else class="text-[11px] text-muted-foreground">
-                Acara terbuka untuk semua rekan kerja.
+            </div>
+          </div>
+        </TabsContent>
+
+        <!-- TAB 2: NOTES (WYSIWYG TIPTAP) -->
+        <TabsContent value="notes" class="space-y-3 py-2 overflow-y-auto pr-1 flex-1 focus:outline-none">
+          <!-- Visibility Setting (Hanya Penyelenggara/Admin) -->
+          <div class="p-3.5 rounded-2xl bg-muted/30 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div class="text-xs">
+              <p class="font-semibold text-foreground">Pengaturan Visibilitas Catatan</p>
+              <p class="text-muted-foreground mt-0.5">
+                {{ visibilityDescription }}
               </p>
             </div>
+
+            <select
+              v-if="isOrganizerOrAdmin"
+              v-model="localNotesVisibility"
+              class="h-9 px-3 rounded-2xl border border-border bg-background text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-kv-primary shrink-0"
+            >
+              <option value="ORGANIZER_ONLY">Hanya Penyelenggara</option>
+              <option value="ATTENDEES_VIEW">Peserta Hanya Lihat (View-Only)</option>
+              <option value="ATTENDEES_EDIT">Peserta Boleh Mengedit (Kolaboratif)</option>
+            </select>
+
+            <span
+              v-else
+              class="text-xs font-semibold px-2.5 py-1 rounded-xl bg-accent text-accent-foreground border border-border shrink-0 self-start sm:self-auto"
+            >
+              {{ visibilityBadgeLabel }}
+            </span>
           </div>
 
-          <!-- RSVP Action (Khusus Peserta yang Diundang) -->
-          <div v-if="myAttendance" class="pt-2.5 border-t border-border/70 flex items-center justify-between gap-2">
-            <span class="text-xs text-muted-foreground font-medium">Status Kehadiran:</span>
-            <div class="flex items-center gap-2">
-              <button
-                type="button"
-                :disabled="isLoading"
-                @click="emit('rsvp', event.id, 'ACCEPTED')"
-                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-medium transition-all duration-150 border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="[
-                  myAttendance.status === 'ACCEPTED'
-                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 shadow-xs ring-1 ring-emerald-500/20 font-semibold'
-                    : 'bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/15 hover:border-emerald-500/30'
-                ]"
-              >
-                <Check class="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
-                <span>Hadir</span>
-              </button>
-              <button
-                type="button"
-                :disabled="isLoading"
-                @click="emit('rsvp', event.id, 'DECLINED')"
-                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-medium transition-all duration-150 border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                :class="[
-                  myAttendance.status === 'DECLINED'
-                    ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 shadow-xs ring-1 ring-rose-500/20 font-semibold'
-                    : 'bg-rose-500/5 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/15 hover:border-rose-500/30'
-                ]"
-              >
-                <X class="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
-                <span>Tidak Hadir</span>
-              </button>
-            </div>
+          <!-- Rich Text Editor -->
+          <TiptapEditor
+            v-model="localNotesContent"
+            :editable="canEditNotes"
+            placeholder="Tuliskan poin hasil meeting, keputusan, atau daftar tugas tim di sini..."
+            min-height="280px"
+          />
+
+          <!-- Action Save Notes Button -->
+          <div v-if="canEditNotes" class="flex items-center justify-between pt-1">
+            <p class="text-xs text-muted-foreground">
+              Perubahan disimpan sebagai catatan resmi acara ini.
+            </p>
+            <Button
+              size="sm"
+              @click="saveNotes"
+              :disabled="isSavingNotes"
+              class="rounded-2xl bg-kv-primary hover:bg-kv-primary/90 text-white text-xs px-4 h-9"
+            >
+              {{ isSavingNotes ? 'Menyimpan...' : 'Simpan Catatan' }}
+            </Button>
           </div>
-        </div>
-      </DialogContent>
-    </DialogPortal>
-  </DialogRoot>
+        </TabsContent>
+      </Tabs>
+
+      <DialogFooter class="pt-3 border-t border-border flex items-center justify-end shrink-0">
+        <Button
+          variant="outline"
+          @click="emit('update:open', false)"
+          class="rounded-3xl text-sm"
+        >
+          Tutup
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
 import {
-  DialogRoot,
-  DialogPortal,
-  DialogOverlay,
+  Dialog,
   DialogContent,
-  DialogClose
-} from 'reka-ui'
-import {
-  X,
-  Check,
-  Video,
-  Pencil,
-  MapPin,
-  Link2,
-  Copy,
-  AlignLeft,
-  User,
-  Users
-} from 'lucide-vue-next'
-import { Button } from '@kreavoks/kreaui'
-import { Badge } from '~/components/ui/badge'
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from '~/components/ui/dialog'
+import { Button } from '~/components/ui/button'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
+import TiptapEditor from './TiptapEditor.vue'
+import { useCalendarApi } from '../api/calendar.api'
+import type { CalendarEventItem, AttendeeStatus, NotesVisibility } from '../types/calendar.types'
 import { toast } from 'vue-sonner'
-import type { CalendarEventItem, AttendeeStatus } from '../types/calendar.types'
 
 const props = defineProps<{
   open: boolean
   event?: CalendarEventItem | null
-  dayEvents?: CalendarEventItem[]
   isLoading?: boolean
 }>()
 
@@ -243,16 +286,70 @@ const emit = defineEmits<{
   'edit': [event: CalendarEventItem]
   'cancel': [eventId: number]
   'rsvp': [eventId: number, status: AttendeeStatus]
-  'select-event': [event: CalendarEventItem]
+  'notes-updated': [event: CalendarEventItem]
 }>()
 
 const { user } = useAuth()
+const api = useCalendarApi()
+
+const activeTab = ref('detail')
+const localNotesContent = ref('')
+const localNotesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
+const isSavingNotes = ref(false)
+
+watch(() => props.event, (ev) => {
+  if (ev) {
+    localNotesContent.value = ev.notesContent || ''
+    localNotesVisibility.value = ev.notesVisibility || 'ATTENDEES_VIEW'
+  }
+}, { immediate: true })
 
 const isOrganizerOrAdmin = computed(() => {
   if (!props.event || !user.value) return false
-  const roleName = user.value.role?.name || user.value.role
-  return roleName === 'ADMIN' || props.event.createdById === user.value.id
+  return user.value.role === 'ADMIN' || props.event.createdById === user.value.id
 })
+
+const canEditNotes = computed(() => {
+  if (!props.event) return false
+  if (isOrganizerOrAdmin.value) return true
+  return props.event.notesVisibility === 'ATTENDEES_EDIT'
+})
+
+const visibilityBadgeLabel = computed(() => {
+  if (props.event?.notesVisibility === 'ATTENDEES_EDIT') return 'Kolaboratif (Bisa Edit)'
+  if (props.event?.notesVisibility === 'ORGANIZER_ONLY') return 'Hanya Penyelenggara'
+  return 'Hanya Baca (View-Only)'
+})
+
+const visibilityDescription = computed(() => {
+  if (localNotesVisibility.value === 'ATTENDEES_EDIT') {
+    return 'Semua peserta yang terdaftar dapat membaca dan menulis catatan bersama.'
+  }
+  if (localNotesVisibility.value === 'ORGANIZER_ONLY') {
+    return 'Catatan terkunci dan hanya dapat dibaca oleh Anda sebagai penyelenggara.'
+  }
+  return 'Peserta hanya dapat membaca catatan tanpa izin mengedit isi dokumen.'
+})
+
+const saveNotes = async () => {
+  if (!props.event) return
+  isSavingNotes.value = true
+  try {
+    await api.updateNotes(props.event.id, {
+      notesContent: localNotesContent.value,
+      notesVisibility: isOrganizerOrAdmin.value ? localNotesVisibility.value : undefined
+    })
+    toast.success('Catatan agenda berhasil disimpan')
+    if (props.event) {
+      props.event.notesContent = localNotesContent.value
+      props.event.notesVisibility = localNotesVisibility.value
+    }
+  } catch (err: any) {
+    toast.error('Gagal menyimpan catatan: ' + (err.message || 'Terjadi kesalahan'))
+  } finally {
+    isSavingNotes.value = false
+  }
+}
 
 const myAttendance = computed(() => {
   if (!props.event || !user.value) return null
@@ -267,28 +364,18 @@ const declinedCount = computed(() => {
   return props.event?.attendees.filter(a => a.status === 'DECLINED').length || 0
 })
 
-interface EventTypeStyle {
-  label: string
-  variant: 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'outline'
+const typeLabels: Record<string, { label: string; badge: string }> = {
+  MEETING: { label: 'Meeting / Rapat', badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' },
+  WORKSHOP: { label: 'Workshop & Mentoring', badge: 'bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300' },
+  PROJECT_DEADLINE: { label: 'Batas Waktu Proyek', badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300' },
+  TASK: { label: 'Penugasan', badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300' },
+  COMPANY_EVENT: { label: 'Agenda Seluruh Kantor', badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300' },
+  OTHER: { label: 'Agenda Lainnya', badge: 'bg-muted text-muted-foreground' }
 }
 
-const defaultTypeStyle: EventTypeStyle = {
-  label: 'Acara',
-  variant: 'secondary'
-}
-
-const typeLabels: Record<string, EventTypeStyle> = {
-  MEETING: { label: 'Meeting', variant: 'primary' },
-  WORKSHOP: { label: 'Workshop', variant: 'info' },
-  PROJECT_DEADLINE: { label: 'Batas Waktu Proyek', variant: 'error' },
-  TASK: { label: 'Tugas', variant: 'warning' },
-  COMPANY_EVENT: { label: 'Acara Kantor', variant: 'success' },
-  OTHER: { label: 'Lainnya', variant: 'secondary' }
-}
-
-const typeStyle = computed<EventTypeStyle>(() => {
-  if (!props.event?.type) return defaultTypeStyle
-  return typeLabels[props.event.type] ?? defaultTypeStyle
+const typeStyle = computed(() => {
+  if (!props.event) return { label: 'Acara', badge: 'bg-muted text-muted-foreground' }
+  return typeLabels[props.event.type] || typeLabels.OTHER
 })
 
 const formattedDate = computed(() => {
@@ -311,18 +398,9 @@ const formattedTime = computed(() => {
     }).format(new Date(d))
 
   const start = formatTime(props.event.startDate)
-  return props.event.endDate ? `${start} - ${formatTime(props.event.endDate)} WIB` : `${start} WIB`
+  const end = props.event.endDate ? formatTime(props.event.endDate) : ''
+  return end ? (start + ' - ' + end + ' WIB') : (start + ' WIB')
 })
-
-const copyLink = async (url?: string | null) => {
-  if (!url) return
-  try {
-    await navigator.clipboard.writeText(url)
-    toast.success('Tautan berhasil disalin')
-  } catch {
-    toast.error('Gagal menyalin tautan')
-  }
-}
 
 const rsvpLabel = (status: AttendeeStatus) => {
   switch (status) {
@@ -334,13 +412,13 @@ const rsvpLabel = (status: AttendeeStatus) => {
   }
 }
 
-const rsvpBadgeVariant = (status: AttendeeStatus): 'success' | 'error' | 'warning' | 'primary' | 'secondary' => {
+const rsvpBadge = (status: AttendeeStatus) => {
   switch (status) {
-    case 'ACCEPTED': return 'success'
-    case 'DECLINED': return 'error'
-    case 'TENTATIVE': return 'warning'
-    case 'ORGANIZER': return 'primary'
-    default: return 'secondary'
+    case 'ACCEPTED': return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
+    case 'DECLINED': return 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'
+    case 'TENTATIVE': return 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+    case 'ORGANIZER': return 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
+    default: return 'bg-muted text-muted-foreground'
   }
 }
 </script>

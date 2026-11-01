@@ -84,6 +84,17 @@ export const useCalendarApi = () => {
     return [] as CandidateUser[]
   }
 
+  const updateNotes = async (
+    eventId: number,
+    payload: { notesContent?: string | null; notesVisibility?: string }
+  ) => {
+    const res = await api(\`/events/\${eventId}/notes\`, {
+      method: "PATCH",
+      body: payload
+    })
+    return res.data
+  }
+
   return {
     getEvents,
     getEventById,
@@ -91,6 +102,7 @@ export const useCalendarApi = () => {
     updateEvent,
     deleteEvent,
     updateRsvp,
+    updateNotes,
     getCandidates
   }
 }

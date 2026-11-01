@@ -8,6 +8,8 @@ export type EventType =
 
 export type AttendeeStatus = 'INVITED' | 'ACCEPTED' | 'DECLINED' | 'TENTATIVE' | 'ORGANIZER'
 
+export type NotesVisibility = 'ORGANIZER_ONLY' | 'ATTENDEES_VIEW' | 'ATTENDEES_EDIT'
+
 export interface EventAttendeeItem {
   id: number
   userId: number
@@ -51,6 +53,8 @@ export interface CalendarEventItem {
     } | null
   }
   attendees: EventAttendeeItem[]
+  notesContent?: string | null
+  notesVisibility: NotesVisibility
   myRsvpStatus?: AttendeeStatus | null
   totalAttendees?: number
   acceptedCount?: number
@@ -83,4 +87,6 @@ export interface CreateEventPayload {
   color?: string
   attendeeIds?: number[]
   assignRole?: 'KREAGEN' | 'INTERN' | 'MENTOR' | 'ADMIN' | 'ALL'
+  notesContent?: string | null
+  notesVisibility?: NotesVisibility
 }
