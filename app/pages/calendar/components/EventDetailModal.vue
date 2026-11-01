@@ -167,27 +167,37 @@
           </div>
 
           <!-- RSVP Action (Khusus Peserta yang Diundang) -->
-          <div v-if="myAttendance" class="pt-2 border-t border-border/70 flex items-center justify-between gap-2">
+          <div v-if="myAttendance" class="pt-2.5 border-t border-border/70 flex items-center justify-between gap-2">
             <span class="text-xs text-muted-foreground font-medium">Status Kehadiran:</span>
-            <div class="flex items-center gap-1.5">
-              <Button
-                size="sm"
-                :variant="myAttendance.status === 'ACCEPTED' ? 'primary' : 'outline'"
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
                 :disabled="isLoading"
                 @click="emit('rsvp', event.id, 'ACCEPTED')"
-                class="h-7 text-xs px-2.5"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-medium transition-all duration-150 border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="[
+                  myAttendance.status === 'ACCEPTED'
+                    ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 shadow-xs ring-1 ring-emerald-500/20 font-semibold'
+                    : 'bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/15 hover:border-emerald-500/30'
+                ]"
               >
-                Hadir
-              </Button>
-              <Button
-                size="sm"
-                :variant="myAttendance.status === 'DECLINED' ? 'danger' : 'outline'"
+                <Check class="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
+                <span>Hadir</span>
+              </button>
+              <button
+                type="button"
                 :disabled="isLoading"
                 @click="emit('rsvp', event.id, 'DECLINED')"
-                class="h-7 text-xs px-2.5"
+                class="inline-flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-medium transition-all duration-150 border cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                :class="[
+                  myAttendance.status === 'DECLINED'
+                    ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 shadow-xs ring-1 ring-rose-500/20 font-semibold'
+                    : 'bg-rose-500/5 text-rose-600 dark:text-rose-400 border-rose-500/20 hover:bg-rose-500/15 hover:border-rose-500/30'
+                ]"
               >
-                Tidak Hadir
-              </Button>
+                <X class="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
+                <span>Tidak Hadir</span>
+              </button>
             </div>
           </div>
         </div>
@@ -206,6 +216,7 @@ import {
 } from 'reka-ui'
 import {
   X,
+  Check,
   Video,
   Pencil,
   MapPin,
@@ -267,7 +278,7 @@ const defaultTypeStyle: EventTypeStyle = {
 }
 
 const typeLabels: Record<string, EventTypeStyle> = {
-  MEETING: { label: 'Rapat Tim', variant: 'primary' },
+  MEETING: { label: 'Meeting', variant: 'primary' },
   WORKSHOP: { label: 'Workshop', variant: 'info' },
   PROJECT_DEADLINE: { label: 'Batas Waktu Proyek', variant: 'error' },
   TASK: { label: 'Tugas', variant: 'warning' },

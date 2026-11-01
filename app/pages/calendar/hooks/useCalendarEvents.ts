@@ -172,13 +172,67 @@ export const useCalendarEvents = () => {
     }
   }
 
+  const openDetailById = async (id: number) => {
+    const existing = events.value.find(e => e.id === id)
+    if (existing) {
+      openDetailModal(existing)
+      return
+    }
+
+    try {
+      const full = await api.getEventById(id)
+      if (full) {
+        selectedEvent.value = full
+        selectedDayEvents.value = [full]
+        isDetailModalOpen.value = true
+
+        if (full.startDate) {
+          const d = new Date(full.startDate)
+          if (
+            d.getFullYear() !== currentDate.value.getFullYear() ||
+            d.getMonth() !== currentDate.value.getMonth()
+          ) {
+            currentDate.value = d
+            loadEvents()
+          }
+        }
+      }
+    } catch (err: any) {
+      console.warn('[Calendar] Event with id ' + id + ' not found or inaccessible:', err.message)
+    }
+  }
+
+  const route = useRoute()
+
+  const checkRouteQueryEvent = async () => {
+    const eventIdParam = route.query.eventId || route.query.event
+    if (eventIdParam) {
+      const id = Number(eventIdParam)
+      if (!isNaN(id)) {
+        await openDetailById(id)
+      }
+    }
+  }
+
   watch([filterType, filterView, selectedDateRange], () => {
     loadEvents()
   })
 
-  onMounted(() => {
-    loadEvents()
-    loadCandidates()
+  watch(
+    () => route.query.eventId || route.query.event,
+    (newVal) => {
+      if (newVal) {
+        const id = Number(newVal)
+        if (!isNaN(id)) {
+          openDetailById(id)
+        }
+      }
+    }
+  )
+
+  onMounted(async () => {
+    await Promise.all([loadEvents(), loadCandidates()])
+    await checkRouteQueryEvent()
   })
 
   return {
@@ -205,6 +259,7 @@ export const useCalendarEvents = () => {
     openCreateModal,
     openEditModal,
     openDetailModal,
+    openDetailById,
     submitEvent,
     cancelEvent,
     submitRsvp

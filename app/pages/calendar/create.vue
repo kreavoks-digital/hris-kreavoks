@@ -545,7 +545,7 @@ watch([startDateOnly, startTimeOnly, endDateOnly, endTimeOnly, () => form.value.
 })
 
 const eventTypeOptions = [
-  { value: 'MEETING', label: 'Rapat Tim' },
+  { value: 'MEETING', label: 'Meeting' },
   { value: 'WORKSHOP', label: 'Workshop' },
   { value: 'PROJECT_DEADLINE', label: 'Batas Waktu Proyek' },
   { value: 'TASK', label: 'Tugas' },
