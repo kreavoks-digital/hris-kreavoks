@@ -10,23 +10,34 @@
             {{ typeStyle.label }}
           </span>
 
-          <div v-if="isOrganizerOrAdmin" class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5">
             <Button
               size="sm"
               variant="outline"
-              @click="emit('edit', event)"
-              class="h-8 px-3 rounded-2xl text-xs border-border hover:bg-muted"
+              @click="isShareOpen = true"
+              class="h-8 px-2.5 rounded-2xl text-xs border-border hover:bg-muted flex items-center gap-1.5"
             >
-              Edit Jadwal
+              <Share2 class="w-3.5 h-3.5 text-kv-primary" />
+              <span>Bagikan</span>
             </Button>
-            <Button
-              size="sm"
-              variant="destructive"
-              @click="emit('cancel', event.id)"
-              class="h-8 px-3 rounded-2xl text-xs"
-            >
-              Batalkan
-            </Button>
+            <template v-if="isOrganizerOrAdmin">
+              <Button
+                size="sm"
+                variant="outline"
+                @click="emit('edit', event)"
+                class="h-8 px-3 rounded-2xl text-xs border-border hover:bg-muted"
+              >
+                Edit Jadwal
+              </Button>
+              <Button
+                size="sm"
+                variant="destructive"
+                @click="emit('cancel', event.id)"
+                class="h-8 px-3 rounded-2xl text-xs"
+              >
+                Batalkan
+              </Button>
+            </template>
           </div>
         </div>
 
@@ -264,6 +275,15 @@
         </Button>
       </DialogFooter>
     </DialogContent>
+
+    <!-- Figma Style Share Modal -->
+    <ShareModal
+      v-if="event"
+      v-model:open="isShareOpen"
+      :event="event"
+      :can-manage-settings="isOrganizerOrAdmin"
+      @updated="emit('updated')"
+    />
   </Dialog>
 </template>
 
@@ -279,6 +299,8 @@ import { Button } from '~/components/ui/button'
 import { Tabs } from '@kreavoks/kreaui'
 import type { TabItem } from '@kreavoks/kreaui'
 import TiptapEditor from './TiptapEditor.vue'
+import ShareModal from './ShareModal.vue'
+import { Share2 } from 'lucide-vue-next'
 import { useCalendarApi } from '../api/calendar.api'
 import type { CalendarEventItem, AttendeeStatus, NotesVisibility } from '../types/calendar.types'
 import { toast } from 'vue-sonner'
@@ -295,12 +317,14 @@ const emit = defineEmits<{
   'cancel': [eventId: number]
   'rsvp': [eventId: number, status: AttendeeStatus]
   'notes-updated': [event: CalendarEventItem]
+  'updated': []
 }>()
 
 const { user } = useAuth()
 const api = useCalendarApi()
 
 const activeTab = ref('detail')
+const isShareOpen = ref(false)
 const tabsList = computed<TabItem[]>(() => {
   const items: TabItem[] = [
     { id: 'detail', label: 'Detail Agenda' }

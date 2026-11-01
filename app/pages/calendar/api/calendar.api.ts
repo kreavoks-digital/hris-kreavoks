@@ -95,6 +95,21 @@ export const useCalendarApi = () => {
     return res.data
   }
 
+  const shareEvent = async (
+    eventId: number,
+    payload: {
+      attendeeIds?: number[]
+      email?: string
+      notesVisibility?: string
+    }
+  ) => {
+    const res = await api(`/events/${eventId}/share`, {
+      method: "POST",
+      body: payload
+    })
+    return res.data
+  }
+
   return {
     getEvents,
     getEventById,
@@ -103,6 +118,7 @@ export const useCalendarApi = () => {
     deleteEvent,
     updateRsvp,
     updateNotes,
+    shareEvent,
     getCandidates
   }
 }

@@ -539,6 +539,7 @@
       @edit="(ev) => navigateTo(`/calendar/edit/${ev.id}`)"
       @cancel="cancelEvent"
       @rsvp="submitRsvp"
+      @updated="loadEvents"
     />
 
     <!-- Floating Action Button (FAB) for Mobile: Buat Jadwal -->
@@ -732,10 +733,27 @@ const timelineHours = Array.from({ length: 18 }, (_, i) => i + 6) // 06:00 to 23
 const currentTime = ref(new Date())
 let timeInterval: any = null
 
-onMounted(() => {
+onMounted(async () => {
   timeInterval = setInterval(() => {
     currentTime.value = new Date()
   }, 60000)
+
+  // Auto-open modal jika URL membawa query ?event=123 (dari copy share link)
+  const route = useRoute()
+  if (route.query.event) {
+    const eventIdParam = Number(route.query.event)
+    if (!isNaN(eventIdParam)) {
+      try {
+        const ev = await calendarApi.getEventById(eventIdParam)
+        if (ev) {
+          selectedEvent.value = ev
+          isDetailModalOpen.value = true
+        }
+      } catch (e) {
+        console.error('Failed to open shared event:', e)
+      }
+    }
+  }
 })
 
 onUnmounted(() => {
