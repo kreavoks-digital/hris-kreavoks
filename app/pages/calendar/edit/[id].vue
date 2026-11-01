@@ -7,16 +7,29 @@
         <p class="text-muted-foreground text-xs sm:text-sm mt-0.5 truncate">Perbarui detail acara atau penugasan peserta.</p>
       </div>
 
-      <Button
-        type="button"
-        variant="link"
-        size="sm"
-        :icon-left="Trash2"
-        label="Hapus Jadwal"
-        class="text-rose-500 hover:text-rose-600 underline hover:underline underline-offset-4 shrink-0 font-medium"
-        :disabled="isSubmitting || isDeleting || isLoadingData"
-        @click="showDeleteConfirm = true"
-      />
+      <div class="flex items-center gap-2 shrink-0">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          :icon-left="Share2"
+          label="Bagikan"
+          class="rounded-2xl text-xs h-9 px-3 border-border hover:bg-muted"
+          :disabled="isLoadingData"
+          @click="showShareModal = true"
+        />
+
+        <Button
+          type="button"
+          variant="link"
+          size="sm"
+          :icon-left="Trash2"
+          label="Hapus Jadwal"
+          class="text-rose-500 hover:text-rose-600 underline hover:underline underline-offset-4 font-medium"
+          :disabled="isSubmitting || isDeleting || isLoadingData"
+          @click="showDeleteConfirm = true"
+        />
+      </div>
     </div>
 
     <!-- Skeleton Shimmer Loading State -->
@@ -653,6 +666,15 @@
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+
+    <!-- Figma Style Share Modal -->
+    <ShareModal
+      v-if="rawEventData"
+      v-model:open="showShareModal"
+      :event="rawEventData"
+      :can-manage-settings="true"
+      @updated="loadEventDetail"
+    />
   </div>
 </template>
 
@@ -670,11 +692,13 @@ import {
   Tag,
   Palette,
   Globe,
-  Trash2
+  Trash2,
+  Share2
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
 import { Badge, Tabs } from '@kreavoks/kreaui'
 import type { TabItem } from '@kreavoks/kreaui'
+import ShareModal from '../components/ShareModal.vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import {
   AlertDialog,
@@ -729,6 +753,8 @@ const searchQuery = ref('')
 const selectedAttendeeIds = ref<number[]>([])
 const activeRolePreset = ref<'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN' | null>(null)
 const currentTab = ref('detail')
+const rawEventData = ref<CalendarEventItem | null>(null)
+const showShareModal = ref(false)
 const tabsList: TabItem[] = [
   { id: 'detail', label: 'Detail Agenda', icon: Calendar },
   { id: 'notes', label: 'Notes', icon: FileText }
@@ -828,6 +854,7 @@ const loadEventDetail = async () => {
   isLoadingData.value = true
   try {
     const ev: CalendarEventItem = await calendarApi.getEventById(eventId.value)
+    rawEventData.value = ev
     form.value.title = ev.title
     form.value.description = ev.description || ''
     form.value.type = ev.type

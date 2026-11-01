@@ -539,7 +539,6 @@
       @edit="(ev) => navigateTo(`/calendar/edit/${ev.id}`)"
       @cancel="cancelEvent"
       @rsvp="submitRsvp"
-      @updated="loadEvents"
     />
 
     <!-- Floating Action Button (FAB) for Mobile: Buat Jadwal -->
