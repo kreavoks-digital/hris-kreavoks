@@ -35,19 +35,18 @@
         </DialogTitle>
       </DialogHeader>
 
-      <!-- Tabs Navigation (Detail vs Notes) -->
-      <Tabs v-model="activeTab" class="flex-1 flex flex-col overflow-hidden pt-2">
-        <TabsList class="w-full max-w-xs grid grid-cols-2 rounded-2xl p-1 bg-muted/60 mb-3 shrink-0">
-          <TabsTrigger value="detail" class="rounded-xl text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground shadow-none">
-            Detail Agenda
-          </TabsTrigger>
-          <TabsTrigger value="notes" class="rounded-xl text-xs font-semibold data-[state=active]:bg-background data-[state=active]:text-foreground shadow-none">
-            Catatan / Notes
-          </TabsTrigger>
-        </TabsList>
+      <!-- Tabs Navigation (Detail vs Notes) using KreaUI underline variant -->
+      <Tabs
+        v-model="activeTab"
+        :items="tabsList"
+        variant="underline"
+        size="sm"
+        class="mb-3 shrink-0"
+      />
 
+      <div class="flex-1 flex flex-col overflow-hidden">
         <!-- TAB 1: DETAIL AGENDA -->
-        <TabsContent value="detail" class="space-y-4 py-2 overflow-y-auto pr-1 flex-1 focus:outline-none">
+        <div v-show="activeTab === 'detail'" class="space-y-4 py-2 overflow-y-auto pr-1 flex-1">
           <!-- Date, Time & Location Cards -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <div class="p-3.5 rounded-2xl bg-muted/30 border border-border">
@@ -191,10 +190,10 @@
               </div>
             </div>
           </div>
-        </TabsContent>
+        </div>
 
         <!-- TAB 2: NOTES (WYSIWYG TIPTAP) -->
-        <TabsContent value="notes" class="space-y-3 py-2 overflow-y-auto pr-1 flex-1 focus:outline-none">
+        <div v-show="activeTab === 'notes'" class="space-y-3 py-2 overflow-y-auto pr-1 flex-1">
           <!-- Visibility Setting (Hanya Penyelenggara/Admin) -->
           <div class="p-3.5 rounded-2xl bg-muted/30 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div class="text-xs">
@@ -244,8 +243,8 @@
               {{ isSavingNotes ? 'Menyimpan...' : 'Simpan Catatan' }}
             </Button>
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+      </div>
 
       <DialogFooter class="pt-3 border-t border-border flex items-center justify-end shrink-0">
         <Button
@@ -269,7 +268,8 @@ import {
   DialogFooter
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '~/components/ui/tabs'
+import { Tabs } from '@kreavoks/kreaui'
+import type { TabItem } from '@kreavoks/kreaui'
 import TiptapEditor from './TiptapEditor.vue'
 import { useCalendarApi } from '../api/calendar.api'
 import type { CalendarEventItem, AttendeeStatus, NotesVisibility } from '../types/calendar.types'
@@ -293,6 +293,10 @@ const { user } = useAuth()
 const api = useCalendarApi()
 
 const activeTab = ref('detail')
+const tabsList: TabItem[] = [
+  { id: 'detail', label: 'Detail Agenda' },
+  { id: 'notes', label: 'Catatan / Notes' }
+]
 const localNotesContent = ref('')
 const localNotesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
 const isSavingNotes = ref(false)

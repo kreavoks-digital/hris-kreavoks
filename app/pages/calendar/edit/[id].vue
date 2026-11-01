@@ -111,33 +111,15 @@
       </div>
     </div>
 
-    <!-- Navigation Tabs (Detail vs Notes) -->
-    <div v-if="!isLoadingData" class="flex items-center gap-2 border-b border-border pb-3">
-      <button
-        type="button"
-        @click="currentTab = 'detail'"
-        :class="[
-          'px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all',
-          currentTab === 'detail'
-            ? 'bg-kv-primary text-white'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-        ]"
-      >
-        Detail Agenda
-      </button>
-      <button
-        type="button"
-        @click="currentTab = 'notes'"
-        :class="[
-          'px-4 py-2 rounded-2xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-2',
-          currentTab === 'notes'
-            ? 'bg-kv-primary text-white'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-        ]"
-      >
-        <FileText class="w-4 h-4" />
-        <span>Catatan / Notes</span>
-      </button>
+    <!-- Navigation Tabs (Detail vs Notes) using KreaUI underline variant -->
+    <div v-if="!isLoadingData" class="w-full">
+      <Tabs
+        v-model="currentTab"
+        :items="tabsList"
+        variant="underline"
+        size="md"
+        class="mb-6"
+      />
     </div>
 
     <!-- TAB 1: Detail Agenda Layout -->
@@ -689,7 +671,8 @@ import {
   Trash2
 } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
-import { Badge } from '@kreavoks/kreaui'
+import { Badge, Tabs } from '@kreavoks/kreaui'
+import type { TabItem } from '@kreavoks/kreaui'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
 import {
   AlertDialog,
@@ -743,7 +726,11 @@ const candidates = ref<CandidateUser[]>([])
 const searchQuery = ref('')
 const selectedAttendeeIds = ref<number[]>([])
 const activeRolePreset = ref<'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN' | null>(null)
-const currentTab = ref<'detail' | 'notes'>('detail')
+const currentTab = ref('detail')
+const tabsList: TabItem[] = [
+  { id: 'detail', label: 'Detail Agenda', icon: Calendar },
+  { id: 'notes', label: 'Catatan / Notes', icon: FileText }
+]
 const notesContent = ref('')
 const notesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
 const isSavingNotes = ref(false)
