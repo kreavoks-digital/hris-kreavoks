@@ -718,7 +718,7 @@ import { TimePicker } from '~/components/ui/time-picker'
 import { useCalendarApi } from '../api/calendar.api'
 import type { CandidateUser, CreateEventPayload, EventType, CalendarEventItem } from '../types/calendar.types'
 import { Skeleton } from '~/components/ui/skeleton'
-import TiptapEditor from '../../components/TiptapEditor.vue'
+import TiptapEditor from '../components/TiptapEditor.vue'
 import type { NotesVisibility } from '../types/calendar.types'
 import { toast } from 'vue-sonner'
 

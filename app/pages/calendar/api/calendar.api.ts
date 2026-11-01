@@ -88,7 +88,7 @@ export const useCalendarApi = () => {
     eventId: number,
     payload: { notesContent?: string | null; notesVisibility?: string }
   ) => {
-    const res = await api(\`/events/\${eventId}/notes\`, {
+    const res = await api(`/events/${eventId}/notes`, {
       method: "PATCH",
       body: payload
     })
