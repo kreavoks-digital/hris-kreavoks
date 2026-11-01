@@ -1,16 +1,16 @@
 <template>
   <Dialog :open="open" @update:open="(val) => emit('update:open', val)">
-    <DialogContent v-if="event" class="max-w-2xl bg-card border border-border rounded-3xl p-6 overflow-hidden max-h-[92vh] flex flex-col">
+    <DialogContent v-if="event" class="w-[95vw] sm:max-w-2xl bg-card border border-border rounded-3xl p-4 sm:p-6 overflow-hidden max-h-[92vh] flex flex-col">
       <DialogHeader class="pb-3 border-b border-border shrink-0">
-        <div class="flex items-center justify-between gap-2 mb-2">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
           <span
-            class="text-xs font-semibold px-3 py-1 rounded-2xl"
+            class="text-xs font-semibold px-2.5 sm:px-3 py-1 rounded-2xl"
             :class="typeStyle.badge"
           >
             {{ typeStyle.label }}
           </span>
 
-          <div class="flex items-center gap-1.5">
+          <div class="flex items-center gap-1.5 flex-wrap">
             <Button
               size="sm"
               variant="outline"
@@ -25,7 +25,7 @@
                 size="sm"
                 variant="outline"
                 @click="emit('edit', event)"
-                class="h-8 px-3 rounded-2xl text-xs border-border hover:bg-muted"
+                class="h-8 px-2.5 sm:px-3 rounded-2xl text-xs border-border hover:bg-muted"
               >
                 Edit Jadwal
               </Button>
@@ -33,7 +33,7 @@
                 size="sm"
                 variant="destructive"
                 @click="emit('cancel', event.id)"
-                class="h-8 px-3 rounded-2xl text-xs"
+                class="h-8 px-2.5 sm:px-3 rounded-2xl text-xs"
               >
                 Batalkan
               </Button>
@@ -41,7 +41,7 @@
           </div>
         </div>
 
-        <DialogTitle class="text-xl font-bold text-foreground leading-snug">
+        <DialogTitle class="text-lg sm:text-xl font-bold text-foreground leading-snug break-words">
           {{ event.title }}
         </DialogTitle>
       </DialogHeader>
@@ -221,15 +221,19 @@
               </p>
             </div>
 
-            <select
-              v-if="isOrganizerOrAdmin"
-              v-model="localNotesVisibility"
-              class="h-9 px-3 rounded-2xl border border-border bg-background text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-kv-primary shrink-0"
-            >
-              <option value="ORGANIZER_ONLY">Hanya Penyelenggara</option>
-              <option value="ATTENDEES_VIEW">Peserta Hanya Lihat (View-Only)</option>
-              <option value="ATTENDEES_EDIT">Peserta Boleh Mengedit (Kolaboratif)</option>
-            </select>
+            <!-- Reusable Select Component -->
+            <div v-if="isOrganizerOrAdmin" class="w-full sm:w-auto shrink-0">
+              <Select v-model="localNotesVisibility">
+                <SelectTrigger class="h-9 w-full sm:w-[220px] rounded-2xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary">
+                  <SelectValue placeholder="Pilih visibilitas" />
+                </SelectTrigger>
+                <SelectContent class="rounded-2xl">
+                  <SelectItem value="ORGANIZER_ONLY" class="text-xs">Hanya Penyelenggara</SelectItem>
+                  <SelectItem value="ATTENDEES_VIEW" class="text-xs">Peserta Hanya Lihat (View-Only)</SelectItem>
+                  <SelectItem value="ATTENDEES_EDIT" class="text-xs">Peserta Boleh Mengedit (Kolaboratif)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <span
               v-else
@@ -248,15 +252,15 @@
           />
 
           <!-- Action Save Notes Button -->
-          <div v-if="canEditNotes" class="flex items-center justify-between pt-1">
-            <p class="text-xs text-muted-foreground">
+          <div v-if="canEditNotes" class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+            <p class="text-xs text-muted-foreground order-2 sm:order-1">
               Perubahan disimpan sebagai catatan resmi acara ini.
             </p>
             <Button
               size="sm"
               @click="saveNotes"
               :disabled="isSavingNotes"
-              class="rounded-2xl bg-kv-primary hover:bg-kv-primary/90 text-white text-xs px-4 h-9"
+              class="rounded-2xl bg-kv-primary hover:bg-kv-primary/90 text-white text-xs px-4 h-9 w-full sm:w-auto order-1 sm:order-2"
             >
               {{ isSavingNotes ? 'Menyimpan...' : 'Simpan Catatan' }}
             </Button>
@@ -296,6 +300,13 @@ import {
   DialogFooter
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '~/components/ui/select'
 import { Tabs } from '@kreavoks/kreaui'
 import type { TabItem } from '@kreavoks/kreaui'
 import TiptapEditor from './TiptapEditor.vue'
@@ -330,7 +341,7 @@ const tabsList = computed<TabItem[]>(() => {
     { id: 'detail', label: 'Detail Agenda' }
   ]
   if (canViewNotes.value) {
-    items.push({ id: 'notes', label: 'Catatan / Notes' })
+    items.push({ id: 'notes', label: 'Notes' })
   }
   return items
 })

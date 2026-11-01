@@ -565,14 +565,16 @@
           <!-- Visibility Control -->
           <div class="flex items-center gap-2 shrink-0">
             <Label class="text-xs font-semibold text-muted-foreground">Visibilitas Peserta:</Label>
-            <select
-              v-model="notesVisibility"
-              class="h-9 px-3 rounded-2xl border border-border bg-background text-xs font-medium text-foreground focus:outline-none focus:ring-1 focus:ring-kv-primary"
-            >
-              <option value="ORGANIZER_ONLY">Hanya Penyelenggara</option>
-              <option value="ATTENDEES_VIEW">Peserta Hanya Lihat (View-Only)</option>
-              <option value="ATTENDEES_EDIT">Peserta Boleh Mengedit (Kolaboratif)</option>
-            </select>
+            <Select v-model="notesVisibility">
+              <SelectTrigger class="h-9 min-w-[200px] rounded-2xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary">
+                <SelectValue placeholder="Pilih visibilitas" />
+              </SelectTrigger>
+              <SelectContent class="rounded-2xl">
+                <SelectItem value="ORGANIZER_ONLY" class="text-xs">Hanya Penyelenggara</SelectItem>
+                <SelectItem value="ATTENDEES_VIEW" class="text-xs">Peserta Hanya Lihat (View-Only)</SelectItem>
+                <SelectItem value="ATTENDEES_EDIT" class="text-xs">Peserta Boleh Mengedit (Kolaboratif)</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -729,7 +731,7 @@ const activeRolePreset = ref<'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN' | null>(null)
 const currentTab = ref('detail')
 const tabsList: TabItem[] = [
   { id: 'detail', label: 'Detail Agenda', icon: Calendar },
-  { id: 'notes', label: 'Catatan / Notes', icon: FileText }
+  { id: 'notes', label: 'Notes', icon: FileText }
 ]
 const notesContent = ref('')
 const notesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')

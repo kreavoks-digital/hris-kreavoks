@@ -1,6 +1,6 @@
 <template>
   <Dialog :open="open" @update:open="(val) => emit('update:open', val)">
-    <DialogContent class="sm:max-w-md bg-card border-border rounded-3xl p-6 shadow-none">
+    <DialogContent class="w-[95vw] sm:max-w-md bg-card border-border rounded-3xl p-4 sm:p-6 shadow-none">
       <DialogHeader class="space-y-1 pb-3 border-b border-border">
         <div class="flex items-center justify-between">
           <DialogTitle class="text-base font-bold text-foreground flex items-center gap-2">
@@ -69,9 +69,9 @@
 
         <!-- General / Scope Access Settings (Figma Style) -->
         <div class="p-3.5 rounded-2xl bg-muted/30 border border-border space-y-2.5">
-          <div class="flex items-center justify-between">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div class="flex items-center gap-2">
-              <Globe class="w-4 h-4 text-muted-foreground" />
+              <Globe class="w-4 h-4 text-muted-foreground shrink-0" />
               <div>
                 <p class="text-xs font-semibold text-foreground">Akses Anggota Terdaftar</p>
                 <p class="text-[11px] text-muted-foreground">
@@ -80,17 +80,23 @@
               </div>
             </div>
 
-            <!-- Permission Dropdown -->
-            <select
-              v-model="currentVisibility"
-              @change="handleVisibilityChange"
-              :disabled="!canManageSettings"
-              class="text-xs rounded-xl bg-card border border-border px-2.5 py-1.5 font-medium text-foreground focus:outline-none focus:border-kv-primary"
-            >
-              <option value="ATTENDEES_VIEW">Hanya Lihat (Can view)</option>
-              <option value="ATTENDEES_EDIT">Bisa Mengedit (Can edit)</option>
-              <option value="ORGANIZER_ONLY">Terkunci (Hanya Penyelenggara)</option>
-            </select>
+            <!-- Permission Select Dropdown -->
+            <div class="w-full sm:w-auto shrink-0">
+              <Select
+                v-model="currentVisibility"
+                :disabled="!canManageSettings"
+                @update:model-value="handleVisibilityChange"
+              >
+                <SelectTrigger class="h-9 w-full sm:w-[190px] rounded-2xl border-border bg-card text-xs font-medium text-foreground focus:ring-kv-primary">
+                  <SelectValue placeholder="Pilih izin" />
+                </SelectTrigger>
+                <SelectContent class="rounded-2xl">
+                  <SelectItem value="ATTENDEES_VIEW" class="text-xs">Hanya Lihat (Can view)</SelectItem>
+                  <SelectItem value="ATTENDEES_EDIT" class="text-xs">Bisa Mengedit (Can edit)</SelectItem>
+                  <SelectItem value="ORGANIZER_ONLY" class="text-xs">Terkunci (Organizer only)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
@@ -175,6 +181,13 @@ import {
   DialogFooter
 } from '~/components/ui/dialog'
 import { Button } from '~/components/ui/button'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '~/components/ui/select'
 import { Share2, Link2, Globe, Search } from 'lucide-vue-next'
 import { useCalendarApi } from '../api/calendar.api'
 import type { CalendarEventItem, CandidateUser, NotesVisibility } from '../types/calendar.types'
@@ -274,8 +287,11 @@ const handleAddParticipant = async () => {
   }
 }
 
-const handleVisibilityChange = async () => {
+const handleVisibilityChange = async (val?: any) => {
   if (!props.event) return
+  if (val && typeof val === 'string') {
+    currentVisibility.value = val as NotesVisibility
+  }
   try {
     await calendarApi.updateNotes(props.event.id, {
       notesVisibility: currentVisibility.value
