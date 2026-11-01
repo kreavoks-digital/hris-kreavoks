@@ -194,7 +194,14 @@
 
         <!-- TAB 2: NOTES (WYSIWYG TIPTAP) -->
         <div v-show="activeTab === 'notes'" class="space-y-3 py-2 overflow-y-auto pr-1 flex-1">
-          <!-- Visibility Setting (Hanya Penyelenggara/Admin) -->
+          <!-- Akses Dibatasi -->
+          <div v-if="!canViewNotes" class="p-8 text-center text-muted-foreground border border-dashed border-border rounded-2xl">
+            <p class="text-sm font-semibold">Catatan Terkunci</p>
+            <p class="text-xs mt-1">Catatan agenda ini disetel khusus untuk Penyelenggara.</p>
+          </div>
+
+          <template v-else>
+            <!-- Visibility Setting (Hanya Penyelenggara/Admin) -->
           <div class="p-3.5 rounded-2xl bg-muted/30 border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
             <div class="text-xs">
               <p class="font-semibold text-foreground">Pengaturan Visibilitas Catatan</p>
@@ -243,6 +250,7 @@
               {{ isSavingNotes ? 'Menyimpan...' : 'Simpan Catatan' }}
             </Button>
           </div>
+          </template>
         </div>
       </div>
 
@@ -293,10 +301,15 @@ const { user } = useAuth()
 const api = useCalendarApi()
 
 const activeTab = ref('detail')
-const tabsList: TabItem[] = [
-  { id: 'detail', label: 'Detail Agenda' },
-  { id: 'notes', label: 'Catatan / Notes' }
-]
+const tabsList = computed<TabItem[]>(() => {
+  const items: TabItem[] = [
+    { id: 'detail', label: 'Detail Agenda' }
+  ]
+  if (canViewNotes.value) {
+    items.push({ id: 'notes', label: 'Catatan / Notes' })
+  }
+  return items
+})
 const localNotesContent = ref('')
 const localNotesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
 const isSavingNotes = ref(false)
@@ -311,6 +324,12 @@ watch(() => props.event, (ev) => {
 const isOrganizerOrAdmin = computed(() => {
   if (!props.event || !user.value) return false
   return user.value.role === 'ADMIN' || props.event.createdById === user.value.id
+})
+
+const canViewNotes = computed(() => {
+  if (!props.event) return false
+  if (isOrganizerOrAdmin.value) return true
+  return props.event.notesVisibility !== 'ORGANIZER_ONLY'
 })
 
 const canEditNotes = computed(() => {
