@@ -9,11 +9,23 @@
         v-if="event"
         class="fixed z-50 top-16 sm:top-24 left-1/2 -translate-x-1/2 sm:left-[55%] w-[94vw] max-w-[420px] bg-card border border-border rounded-2xl shadow-2xl p-5 duration-150 outline-none max-h-[85vh] flex flex-col gap-3.5 animate-in fade-in-0 zoom-in-95"
       >
-        <!-- Top Bar: Category & Close Icon -->
+        <!-- Top Bar: Category, Share Link & Close Icon -->
         <div class="flex items-center justify-between text-xs text-muted-foreground shrink-0">
-          <Badge :variant="typeStyle.variant" size="sm" class="text-[11px] font-medium">
-            {{ typeStyle.label }}
-          </Badge>
+          <div class="flex items-center gap-2">
+            <Badge :variant="typeStyle.variant" size="sm" class="text-[11px] font-medium">
+              {{ typeStyle.label }}
+            </Badge>
+
+            <button
+              type="button"
+              class="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline font-medium cursor-pointer transition-colors"
+              title="Bagikan Agenda & Catatan"
+              @click="showShareModal = true"
+            >
+              <Share2 class="w-3.5 h-3.5 text-muted-foreground" />
+              <span>Bagikan</span>
+            </button>
+          </div>
 
           <DialogClose
             class="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
@@ -92,15 +104,6 @@
             class="shrink-0 text-kv-primary hover:text-kv-primary"
             title="Catatan Agenda"
             @click="navigateTo(`/calendar/edit/${event.id}?tab=notes`)"
-          />
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            :icon-left="Share2"
-            label="Bagikan"
-            @click="showShareModal = true"
           />
         </div>
 
