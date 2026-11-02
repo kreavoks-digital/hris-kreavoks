@@ -869,7 +869,7 @@ const checkSlashCommand = () => {
   }
 
   // Harus di awal baris atau didahului whitespace
-  if (lastSlashIndex > 0 && !/\s/.test(textBefore[lastSlashIndex - 1])) {
+  if (lastSlashIndex > 0 && !/\s/.test(textBefore.charAt(lastSlashIndex - 1))) {
     closeSlashMenu()
     return
   }
@@ -1041,7 +1041,7 @@ watch(
   (newVal) => {
     const isSame = editor.value?.getHTML() === newVal
     if (isSame) return
-    editor.value?.commands.setContent(newVal || '', false)
+    editor.value?.commands.setContent(newVal || '', { emitUpdate: false })
   }
 )
 

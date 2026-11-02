@@ -12,66 +12,8 @@
       </div>
 
       <div v-if="!isAccessDenied" class="flex items-center gap-2.5 shrink-0 flex-wrap">
-        <!-- Profile User Sedang View / Peserta (Avatar Stack dengan Tooltip Hover) -->
-        <div v-if="activeViewers.length > 0" class="flex items-center gap-1.5 mr-1">
-          <div class="flex items-center -space-x-2 py-0.5">
-            <div
-              v-for="viewer in displayedViewers"
-              :key="viewer.id"
-              class="relative group cursor-pointer transition-transform hover:z-30 hover:scale-105"
-            >
-              <!-- Avatar Circle -->
-              <Avatar class="w-8 h-8 rounded-full border-2 border-background ring-1 ring-border/50 shadow-2xs overflow-hidden">
-                <AvatarImage :src="viewer.profilePicture" :alt="viewer.name" class="w-full h-full object-cover" />
-                <AvatarFallback class="text-[10px] font-bold bg-kv-primary/10 text-kv-primary">
-                  {{ getInitials(viewer.name) }}
-                </AvatarFallback>
-              </Avatar>
-
-              <!-- Online / Active Viewing Dot -->
-              <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-background ring-1 ring-emerald-500/20" />
-
-              <!-- Tooltip on Hover (Terbuka ke Bawah agar Tidak Terpotong) -->
-              <div class="absolute top-full mt-2 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col items-center z-50 pointer-events-none transition-all">
-                <div class="w-2 h-2 bg-popover border-l border-t border-border rotate-45 -mb-1 z-10 shadow-xs"></div>
-                <div class="bg-popover text-popover-foreground border border-border shadow-xl px-2.5 py-1.5 rounded-xl text-center whitespace-nowrap min-w-[120px] max-w-[200px]">
-                  <p class="font-semibold text-xs text-foreground truncate">{{ viewer.name }}</p>
-                  <p class="text-xs text-muted-foreground truncate">{{ viewer.position }}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Overlapping +N Counter jika lebih dari 4 -->
-            <div
-              v-if="remainingViewersCount > 0"
-              class="relative group cursor-pointer transition-transform hover:z-30 hover:scale-105"
-            >
-              <div class="w-8 h-8 rounded-full border-2 border-background bg-muted text-muted-foreground font-semibold text-[11px] flex items-center justify-center shadow-2xs ring-1 ring-border/50">
-                +{{ remainingViewersCount }}
-              </div>
-
-              <!-- Tooltip on Hover for Remaining Viewers (Terbuka ke Bawah) -->
-              <div class="absolute top-full mt-2 right-0 hidden group-hover:flex flex-col items-end z-50 pointer-events-none transition-all">
-                <div class="w-2 h-2 bg-popover border-l border-t border-border rotate-45 -mb-1 mr-3 z-10 shadow-xs"></div>
-                <div class="bg-popover text-popover-foreground border border-border shadow-xl p-2.5 rounded-xl text-left min-w-[160px] max-w-[230px] space-y-1.5">
-                  <p class="text-[10px] font-semibold text-muted-foreground pb-1 border-b border-border/50">
-                    +{{ remainingViewersCount }} peserta lainnya
-                  </p>
-                  <div v-for="viewer in remainingViewersList" :key="viewer.id" class="flex items-center gap-2 py-0.5">
-                    <Avatar class="w-5 h-5 rounded-full shrink-0 border border-border">
-                      <AvatarImage :src="viewer.profilePicture" :alt="viewer.name" class="w-full h-full object-cover" />
-                      <AvatarFallback class="text-[8px]">{{ getInitials(viewer.name) }}</AvatarFallback>
-                    </Avatar>
-                    <div class="min-w-0 flex-1">
-                      <p class="font-medium text-xs text-foreground truncate">{{ viewer.name }}</p>
-                      <p class="text-[10px] text-muted-foreground truncate">{{ viewer.position }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <!-- Profile User Sedang View / Peserta (Avatar Stack) -->
+        <EventHeaderViewers :viewers="activeViewers" />
 
         <Button
           v-if="isOrganizerOrAdmin || notesVisibility !== 'ORGANIZER_ONLY'"
@@ -98,655 +40,148 @@
       </div>
     </div>
 
-    <!-- Skeleton Shimmer Loading State -->
-    <div v-if="isLoadingData" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start animate-pulse">
-      <!-- LEFT COLUMN SKELETON (7 Cols) -->
-      <div class="lg:col-span-7">
-        <Card class="border border-border bg-card/60 rounded-3xl p-6 space-y-6">
-          <div class="flex items-center justify-between pb-4 border-b border-border">
-            <div class="flex items-center gap-2.5">
-              <Skeleton class="h-5 w-5 rounded-md" />
-              <div class="space-y-1.5">
-                <Skeleton class="h-4 w-28 rounded" />
-                <Skeleton class="h-3 w-40 rounded" />
-              </div>
-            </div>
-            <Skeleton class="h-6 w-20 rounded-full" />
+    <!-- 1. Skeleton Loading State -->
+    <EventEditSkeleton v-if="isLoadingData" />
+
+    <!-- 2. Empty State: Akses Catatan Terkunci -->
+    <EventAccessDenied v-else-if="isAccessDenied" />
+
+    <!-- 3. Main Content: Tabs Navigation & Views -->
+    <template v-else>
+      <!-- Navigation Tabs with inline Notes Action Bar -->
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b border-border/60 pb-1">
+        <Tabs
+          v-model="currentTab"
+          :items="tabsList"
+          variant="underline"
+          size="md"
+          class="mb-0"
+        />
+
+        <!-- Action & Status di sebelah kanan pojok sejajar tab notes -->
+        <div v-if="currentTab === 'notes'" class="flex items-center gap-2.5 shrink-0">
+          <span v-if="autoSaveStatus === 'saving'" class="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-xl transition-all">
+            <Loader2 class="w-3.5 h-3.5 animate-spin text-kv-primary" />
+            <span class="hidden md:inline">Menyimpan otomatis...</span>
+          </span>
+          <span v-else-if="autoSaveStatus === 'saved'" class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-xl transition-all">
+            <Check class="w-3.5 h-3.5 text-emerald-500" />
+            <span class="hidden md:inline">Tersimpan</span>
+          </span>
+          <span v-else-if="autoSaveStatus === 'error'" class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 px-2.5 py-1 rounded-xl transition-all">
+            <AlertCircle class="w-3.5 h-3.5 text-rose-500" />
+            <span class="hidden md:inline">Gagal simpan</span>
+          </span>
+
+          <!-- Akses Peserta Selector -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs text-muted-foreground hidden lg:inline">Akses:</span>
+            <Select v-model="notesVisibility" :disabled="!isOrganizerOrAdmin">
+              <SelectTrigger :disabled="!isOrganizerOrAdmin" class="h-8 min-w-[150px] sm:min-w-[180px] rounded-xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary disabled:opacity-60 disabled:cursor-not-allowed">
+                <SelectValue placeholder="Pilih akses" />
+              </SelectTrigger>
+              <SelectContent class="rounded-xl">
+                <SelectItem value="ORGANIZER_ONLY" class="text-xs">Hanya Penyelenggara</SelectItem>
+                <SelectItem value="ATTENDEES_VIEW" class="text-xs">Peserta Hanya Lihat</SelectItem>
+                <SelectItem value="ATTENDEES_EDIT" class="text-xs">Peserta Boleh Mengedit</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
-          <!-- Title Skeleton -->
-          <div class="space-y-2">
-            <Skeleton class="h-4 w-24 rounded" />
-            <Skeleton class="h-11 w-full rounded-2xl" />
-          </div>
-
-          <!-- Time Skeleton -->
-          <div class="space-y-2">
-            <Skeleton class="h-4 w-32 rounded" />
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Skeleton class="h-11 w-full rounded-2xl" />
-              <Skeleton class="h-11 w-full rounded-2xl" />
-            </div>
-          </div>
-
-          <!-- Category & Location -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="space-y-2">
-              <Skeleton class="h-4 w-24 rounded" />
-              <Skeleton class="h-11 w-full rounded-2xl" />
-            </div>
-            <div class="space-y-2">
-              <Skeleton class="h-4 w-24 rounded" />
-              <Skeleton class="h-11 w-full rounded-2xl" />
-            </div>
-          </div>
-
-          <!-- URL & Notes -->
-          <div class="space-y-2">
-            <Skeleton class="h-4 w-24 rounded" />
-            <Skeleton class="h-11 w-full rounded-2xl" />
-          </div>
-
-          <div class="space-y-2">
-            <Skeleton class="h-4 w-20 rounded" />
-            <Skeleton class="h-24 w-full rounded-2xl" />
-          </div>
-        </Card>
+          <!-- Tombol Simpan Manual (KreaUI Icon Button) -->
+          <KreaButton
+            v-if="canEditNotes"
+            type="button"
+            variant="outline"
+            size="sm"
+            :icon="true"
+            :icon-left="Save"
+            :loading="isSavingNotes"
+            class="shrink-0"
+            @click="handleSaveNotes"
+          />
+        </div>
       </div>
 
-      <!-- RIGHT COLUMN SKELETON (5 Cols) -->
-      <div class="lg:col-span-5 space-y-6">
-        <Card class="border border-border bg-card/60 rounded-3xl p-6 space-y-5">
-          <div class="flex items-center justify-between pb-4 border-b border-border">
-            <div class="flex items-center gap-2.5">
-              <Skeleton class="h-5 w-5 rounded-md" />
-              <Skeleton class="h-4 w-28 rounded" />
-            </div>
-            <Skeleton class="h-5 w-16 rounded-full" />
-          </div>
+      <!-- TAB 1: Detail Agenda Layout -->
+      <div v-if="currentTab === 'detail'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div class="lg:col-span-7">
+          <EventDetailFormCard
+            :form="form"
+            v-model:start-date-only="startDateOnly"
+            v-model:start-time-only="startTimeOnly"
+            v-model:end-date-only="endDateOnly"
+            v-model:end-time-only="endTimeOnly"
+            :active-duration-minutes="activeDurationMinutes"
+            :duration-presets="durationPresets"
+            :preset-colors="presetColors"
+            :event-type-options="eventTypeOptions"
+            @apply-duration-preset="applyDurationPreset"
+          />
+        </div>
 
-          <!-- Quick Filter Tabs -->
-          <div class="flex gap-2">
-            <Skeleton class="h-8 w-20 rounded-full" />
-            <Skeleton class="h-8 w-20 rounded-full" />
-            <Skeleton class="h-8 w-20 rounded-full" />
-          </div>
-
-          <!-- Search Input -->
-          <Skeleton class="h-10 w-full rounded-xl" />
-
-          <!-- Attendee List Rows -->
-          <div class="space-y-2.5 pt-1">
-            <div v-for="i in 5" :key="i" class="flex items-center gap-3 p-3 rounded-2xl border border-border/50">
-              <Skeleton class="h-8 w-8 rounded-full shrink-0" />
-              <div class="flex-1 space-y-1.5">
-                <Skeleton class="h-3.5 w-32 rounded" />
-                <Skeleton class="h-2.5 w-24 rounded" />
-              </div>
-              <Skeleton class="h-4 w-4 rounded-md shrink-0" />
-            </div>
-          </div>
-        </Card>
+        <div class="lg:col-span-5 space-y-6">
+          <EventAttendeePickerCard
+            :selected-attendee-ids="selectedAttendeeIds"
+            :candidates="candidates"
+            :filtered-candidates="filteredCandidates"
+            :displayed-candidates="displayedCandidates"
+            :selected-users-list="selectedUsersList"
+            :active-role-preset="activeRolePreset"
+            v-model:search-query="searchQuery"
+            :is-loading-candidates="isLoadingCandidates"
+            :all-filtered-selected="allFilteredSelected"
+            @assign-role="assignRoleUsers"
+            @reset-attendees="resetAttendees"
+            @toggle-attendee="toggleAttendee"
+            @remove-attendee="removeAttendee"
+            @toggle-select-all-filtered="toggleSelectAllFiltered"
+            @scroll-candidates="onCandidatesScroll"
+          />
+        </div>
       </div>
-    </div>
 
-    <!-- Empty State: Akses Catatan Terkunci / Tautan Tidak Valid -->
-    <div
-      v-if="!isLoadingData && isAccessDenied"
-      class="rounded-3xl border border-border bg-card p-8 sm:p-12 text-center max-w-lg mx-auto my-12 flex flex-col items-center"
-    >
-      <div class="w-24 h-24 sm:w-28 sm:h-28 mb-5 flex items-center justify-center">
-        <img
-          :src="mascotSettle"
-          alt="Maskot Kreavoks"
-          class="w-full h-full object-contain pointer-events-none"
+      <!-- TAB 2: Notes / Meeting Minutes -->
+      <div v-if="currentTab === 'notes' && (isOrganizerOrAdmin || notesVisibility !== 'ORGANIZER_ONLY')" class="w-full pb-8">
+        <TiptapEditor
+          v-model="notesContent"
+          :editable="canEditNotes"
+          placeholder="Ketik '/' untuk menu format, atau mulai menulis catatan rapat..."
+          min-height="650px"
         />
       </div>
 
-      <h2 class="text-lg sm:text-xl font-semibold text-foreground">
-        Tautan Catatan Tidak Valid
-      </h2>
-
-      <p class="text-sm text-muted-foreground mt-2 mb-6 max-w-sm leading-relaxed">
-        Catatan agenda ini dikunci khusus untuk penyelenggara. Anda tidak memiliki izin untuk melihat atau mengedit notulensi ini.
-      </p>
-
-      <Button
-        variant="primary"
-        size="sm"
-        :icon-left="ArrowLeft"
-        label="Kembali ke Kalender"
-        class="w-full sm:w-auto"
-        @click="navigateTo('/calendar')"
-      />
-    </div>
-
-    <!-- Navigation Tabs (Detail vs Notes) with inline Notes Action Bar -->
-    <div v-else-if="!isLoadingData" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b border-border/60 pb-1">
-      <Tabs
-        v-model="currentTab"
-        :items="tabsList"
-        variant="underline"
-        size="md"
-        class="mb-0"
-      />
-
-      <!-- Action & Status di sebelah kanan pojok sejajar tab notes -->
-      <div v-if="currentTab === 'notes'" class="flex items-center gap-2.5 shrink-0">
-        <!-- Status Auto-save halus -->
-        <span v-if="autoSaveStatus === 'saving'" class="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 px-2.5 py-1 rounded-xl transition-all">
-          <Loader2 class="w-3.5 h-3.5 animate-spin text-kv-primary" />
-          <span class="hidden md:inline">Menyimpan otomatis...</span>
-        </span>
-        <span v-else-if="autoSaveStatus === 'saved'" class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2.5 py-1 rounded-xl transition-all">
-          <Check class="w-3.5 h-3.5 text-emerald-500" />
-          <span class="hidden md:inline">Tersimpan</span>
-        </span>
-        <span v-else-if="autoSaveStatus === 'error'" class="inline-flex items-center gap-1.5 text-xs font-medium text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/30 px-2.5 py-1 rounded-xl transition-all">
-          <AlertCircle class="w-3.5 h-3.5 text-rose-500" />
-          <span class="hidden md:inline">Gagal simpan</span>
-        </span>
-
-        <!-- Akses Peserta Selector -->
-        <div class="flex items-center gap-1.5">
-          <span class="text-xs text-muted-foreground hidden lg:inline">Akses:</span>
-          <Select v-model="notesVisibility" :disabled="!isOrganizerOrAdmin">
-            <SelectTrigger :disabled="!isOrganizerOrAdmin" class="h-8 min-w-[150px] sm:min-w-[180px] rounded-xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary disabled:opacity-60 disabled:cursor-not-allowed">
-              <SelectValue placeholder="Pilih akses" />
-            </SelectTrigger>
-            <SelectContent class="rounded-xl">
-              <SelectItem value="ORGANIZER_ONLY" class="text-xs">Hanya Penyelenggara</SelectItem>
-              <SelectItem value="ATTENDEES_VIEW" class="text-xs">Peserta Hanya Lihat</SelectItem>
-              <SelectItem value="ATTENDEES_EDIT" class="text-xs">Peserta Boleh Mengedit</SelectItem>
-            </SelectContent>
-          </Select>
+      <!-- Fixed Bottom Action Bar -->
+      <div
+        v-if="currentTab === 'detail' && isOrganizerOrAdmin"
+        :class="[
+          'fixed bottom-0 right-0 z-30 transition-all duration-300 ease-in-out border-t border-border bg-background/95 backdrop-blur-md px-4 py-3 sm:px-8 sm:py-3.5 shadow-lg',
+          isSidebarCollapsed ? 'left-0 lg:left-[76px]' : 'left-0 lg:left-[240px]'
+        ]"
+      >
+        <div class="max-w-7xl mx-auto flex items-center justify-end gap-2">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            :disabled="isSubmitting || isDeleting"
+            @click="navigateTo('/calendar')"
+          >
+            Batal
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            :loading="isSubmitting"
+            :disabled="isLoadingData || isDeleting"
+            @click="handleSubmit"
+          >
+            Simpan Perubahan
+          </Button>
         </div>
-
-        <!-- Tombol Simpan Manual sejajar kanan pojok -->
-        <Button
-          v-if="canEditNotes"
-          type="button"
-          variant="outline"
-          size="sm"
-          class="h-8 text-xs rounded-xl"
-          :loading="isSavingNotes"
-          @click="handleSaveNotes"
-        >
-          Simpan Manual
-        </Button>
       </div>
-    </div>
-
-    <!-- TAB 1: Detail Agenda Layout -->
-    <div v-if="!isLoadingData && !isAccessDenied && currentTab === 'detail'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      
-      <!-- LEFT COLUMN: Event Details (7 Cols - Teams Style) -->
-      <div class="lg:col-span-7">
-        <Card class="border border-border overflow-hidden bg-card/60 backdrop-blur-sm rounded-3xl">
-          <CardHeader class="bg-muted/30 border-b border-border pb-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2.5">
-                <Calendar class="h-5 w-5 text-kv-primary" />
-                <div>
-                  <CardTitle class="text-base font-semibold text-foreground">Detail Agenda</CardTitle>
-                  <CardDescription class="text-muted-foreground text-sm">Zona waktu: (UTC+07:00) WIB - Jakarta</CardDescription>
-                </div>
-              </div>
-              <Badge variant="secondary" size="sm">
-                {{ form.isAllDay ? 'Sepanjang Hari' : (activeDurationMinutes ? `${activeDurationMinutes} menit` : 'Kustom') }}
-              </Badge>
-            </div>
-          </CardHeader>
-
-          <CardContent class="p-6 space-y-6">
-            <!-- 1. Title Row -->
-            <div class="space-y-2">
-              <div class="flex items-center gap-2">
-                <PenLine class="w-4 h-4 text-muted-foreground shrink-0" />
-                <Label for="title" class="text-sm font-medium text-foreground">
-                  Judul Agenda <span class="text-rose-500">*</span>
-                </Label>
-              </div>
-              <Input
-                id="title"
-                v-model="form.title"
-                placeholder="Tambahkan judul agenda..."
-                class="h-11 rounded-2xl border-border focus:ring-kv-primary text-sm font-medium"
-                required
-              />
-            </div>
-
-            <!-- 2. Date & Time Studio Row -->
-            <div class="space-y-4">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <Clock class="w-4 h-4 text-muted-foreground shrink-0" />
-                  <Label class="text-sm font-medium text-foreground">
-                    Waktu Pelaksanaan <span class="text-rose-500">*</span>
-                  </Label>
-                </div>
-                <!-- All Day Toggle -->
-                <div class="flex items-center gap-2">
-                  <Checkbox
-                    id="isAllDay"
-                    :checked="form.isAllDay"
-                    @update:checked="(val) => form.isAllDay = val === true"
-                    class="rounded-md"
-                  />
-                  <Label for="isAllDay" class="text-sm text-muted-foreground font-medium cursor-pointer select-none">
-                    Sepanjang hari
-                  </Label>
-                </div>
-              </div>
-
-              <!-- Start & End Date-Time Separated Studio -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Mulai -->
-                <div class="space-y-2">
-                  <Label class="text-sm text-muted-foreground font-medium">Mulai</Label>
-                  <div class="grid" :class="form.isAllDay ? 'grid-cols-1' : 'grid-cols-12 gap-2.5'">
-                    <div :class="form.isAllDay ? 'col-span-1' : 'col-span-7'">
-                      <DatePicker
-                        v-model="startDateOnly"
-                        placeholder="Pilih tanggal mulai"
-                      />
-                    </div>
-                    <div v-if="!form.isAllDay" class="col-span-5">
-                      <TimePicker
-                        v-model="startTimeOnly"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Selesai -->
-                <div class="space-y-2">
-                  <Label class="text-sm text-muted-foreground font-medium">Selesai</Label>
-                  <div class="grid" :class="form.isAllDay ? 'grid-cols-1' : 'grid-cols-12 gap-2.5'">
-                    <div :class="form.isAllDay ? 'col-span-1' : 'col-span-7'">
-                      <DatePicker
-                        v-model="endDateOnly"
-                        placeholder="Pilih tanggal selesai"
-                      />
-                    </div>
-                    <div v-if="!form.isAllDay" class="col-span-5">
-                      <TimePicker
-                        v-model="endTimeOnly"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Quick Duration Presets (Teams-like chips) -->
-              <div v-if="!form.isAllDay" class="flex items-center gap-2 flex-wrap pt-1">
-                <span class="text-sm text-muted-foreground font-medium mr-1">Durasi Cepat:</span>
-                <Badge
-                  v-for="preset in durationPresets"
-                  :key="preset.minutes"
-                  :variant="activeDurationMinutes === preset.minutes ? 'primary' : 'secondary'"
-                  class="cursor-pointer transition-colors"
-                  @click="applyDurationPreset(preset.minutes)"
-                >
-                  {{ preset.label }}
-                </Badge>
-              </div>
-            </div>
-
-            <!-- 3. Category & Label Color Row -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                  <Tag class="w-4 h-4 text-muted-foreground shrink-0" />
-                  <Label for="category" class="text-sm font-medium text-foreground">Kategori</Label>
-                </div>
-                <Select v-model="form.type">
-                  <SelectTrigger class="rounded-2xl h-11 border-border focus:ring-kv-primary bg-background text-sm">
-                    <SelectValue placeholder="Pilih Kategori" />
-                  </SelectTrigger>
-                  <SelectContent class="rounded-2xl">
-                    <SelectItem v-for="item in eventTypeOptions" :key="item.value" :value="item.value" class="text-sm">
-                      {{ item.label }}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                  <Palette class="w-4 h-4 text-muted-foreground shrink-0" />
-                  <Label class="text-sm font-medium text-foreground">Warna Label</Label>
-                </div>
-                <div class="flex items-center gap-2 pt-0.5 flex-wrap">
-                  <button
-                    v-for="color in presetColors"
-                    :key="color.value"
-                    type="button"
-                    @click="form.color = color.value"
-                    :style="{ backgroundColor: color.value }"
-                    :class="[
-                      'w-7 h-7 rounded-full transition-all border',
-                      form.color === color.value ? 'ring-2 ring-kv-primary ring-offset-2 ring-offset-background scale-110 border-white' : 'border-black/10 hover:scale-105'
-                    ]"
-                    :title="color.label"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <!-- 4. Location & Online Link Row -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                  <MapPin class="w-4 h-4 text-muted-foreground shrink-0" />
-                  <Label for="location" class="text-sm font-medium text-foreground">Lokasi Ruangan</Label>
-                </div>
-                <Input
-                  id="location"
-                  v-model="form.location"
-                  placeholder="Contoh: Ruang Meeting A / Kantor"
-                  class="h-11 rounded-2xl border-border focus:ring-kv-primary text-sm font-medium"
-                />
-              </div>
-              <div class="space-y-2">
-                <div class="flex items-center gap-2">
-                  <Globe class="w-4 h-4 text-muted-foreground shrink-0" />
-                  <Label for="eventUrl" class="text-sm font-medium text-foreground">Tautan Daring</Label>
-                </div>
-                <Input
-                  id="eventUrl"
-                  v-model="form.eventUrl"
-                  placeholder="https://teams.microsoft.com/..."
-                  class="h-11 rounded-2xl border-border focus:ring-kv-primary text-sm font-medium"
-                />
-              </div>
-            </div>
-
-            <!-- 5. Notes & Details Row -->
-            <div class="space-y-2">
-              <div class="flex items-center gap-2">
-                <FileText class="w-4 h-4 text-muted-foreground shrink-0" />
-                <Label for="description" class="text-sm font-medium text-foreground">Catatan</Label>
-              </div>
-              <Textarea
-                id="description"
-                v-model="form.description"
-                rows="4"
-                placeholder="Ketik poin pembahasan atau catatan penting untuk peserta..."
-                class="border-border focus:ring-kv-primary rounded-2xl text-sm"
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <!-- RIGHT COLUMN: Assignees & Attendees (5 Cols) -->
-      <div class="lg:col-span-5 space-y-6">
-        <Card class="border border-border overflow-hidden bg-card/60 backdrop-blur-sm rounded-3xl">
-          <CardHeader class="bg-muted/30 border-b border-border pb-4">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <Users class="h-5 w-5 text-kv-primary" />
-                <CardTitle class="text-base font-semibold text-foreground">Peserta Acara</CardTitle>
-              </div>
-              <Badge variant="secondary" size="sm">
-                {{ selectedAttendeeIds.length }} Terpilih
-              </Badge>
-            </div>
-            <CardDescription class="text-muted-foreground text-sm">Tugaskan karyawan yang perlu hadir.</CardDescription>
-          </CardHeader>
-          <CardContent class="p-6 space-y-4">
-            
-            <!-- Quick Preset Assign Buttons -->
-            <div class="space-y-2">
-              <p class="text-sm text-muted-foreground font-medium">Pilih Cepat:</p>
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <Badge
-                  :variant="activeRolePreset === 'ALL' ? 'primary' : 'secondary'"
-                  class="cursor-pointer transition-colors"
-                  @click="assignRoleUsers('ALL')"
-                >
-                  Semua
-                </Badge>
-                <Badge
-                  :variant="activeRolePreset === 'INTERN' ? 'primary' : 'secondary'"
-                  class="cursor-pointer transition-colors"
-                  @click="assignRoleUsers('INTERN')"
-                >
-                  Intern
-                </Badge>
-                <Badge
-                  :variant="activeRolePreset === 'MENTOR' ? 'primary' : 'secondary'"
-                  class="cursor-pointer transition-colors"
-                  @click="assignRoleUsers('MENTOR')"
-                >
-                  Mentor
-                </Badge>
-                <Badge
-                  :variant="activeRolePreset === 'ADMIN' ? 'primary' : 'secondary'"
-                  class="cursor-pointer transition-colors"
-                  @click="assignRoleUsers('ADMIN')"
-                >
-                  Admin
-                </Badge>
-                <button
-                  v-if="selectedAttendeeIds.length > 0"
-                  type="button"
-                  @click="resetAttendees"
-                  class="px-2 py-1 text-sm text-rose-500 hover:underline ml-auto font-medium"
-                >
-                  Reset
-                </button>
-              </div>
-            </div>
-
-            <!-- Live Search Input -->
-            <div class="relative">
-              <Search class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                v-model="searchQuery"
-                placeholder="Cari nama, posisi, divisi, atau email..."
-                class="h-11 pl-9 pr-8 rounded-2xl border-border focus:ring-kv-primary text-sm font-medium"
-              />
-              <button
-                v-if="searchQuery"
-                type="button"
-                @click="searchQuery = ''"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-              >
-                <X class="w-4 h-4" />
-              </button>
-            </div>
-
-            <!-- Selected Attendees Chips -->
-            <div v-if="selectedUsersList.length > 0" class="space-y-2 pt-1">
-              <p class="text-sm font-semibold text-muted-foreground">
-                Peserta Terpilih ({{ selectedUsersList.length }}):
-              </p>
-              <div class="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2 border border-border rounded-2xl bg-muted/20">
-                <span
-                  v-for="u in selectedUsersList"
-                  :key="u.id"
-                  class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-card text-foreground text-sm border border-border font-medium"
-                >
-                  <Avatar class="h-5 w-5 rounded-full">
-                    <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.fullName || u.email)}`" />
-                    <AvatarFallback class="text-xs">{{ (u.fullName || u.email).charAt(0) }}</AvatarFallback>
-                  </Avatar>
-                  <span class="truncate max-w-[130px]">{{ u.fullName }}</span>
-                  <button
-                    type="button"
-                    @click="removeAttendee(u.id)"
-                    class="text-muted-foreground hover:text-rose-500 transition-colors ml-0.5"
-                    title="Hapus"
-                  >
-                    <X class="w-3.5 h-3.5" />
-                  </button>
-                </span>
-              </div>
-            </div>
-
-            <!-- Candidate Users List -->
-            <div class="space-y-2 pt-1">
-              <div class="flex items-center justify-between text-sm text-muted-foreground">
-                <div class="flex items-center gap-2">
-                  <span>Daftar Karyawan:</span>
-                  <span class="font-medium text-foreground">
-                    ({{ filteredCandidates.length }})
-                  </span>
-                </div>
-                <div class="flex items-center gap-3">
-                  <button
-                    v-if="filteredCandidates.length > 0"
-                    type="button"
-                    @click="toggleSelectAllFiltered"
-                    class="text-xs text-kv-primary hover:underline font-medium"
-                  >
-                    {{ allFilteredSelected ? 'Batal Pilih Semua' : 'Pilih Semua yang Tampil' }}
-                  </button>
-                  <span v-if="isLoadingCandidates" class="text-xs text-muted-foreground">
-                    Memuat data...
-                  </span>
-                </div>
-              </div>
-
-              <div
-                class="border border-border rounded-2xl max-h-[380px] overflow-y-auto divide-y divide-border bg-card"
-                @scroll="onCandidatesScroll"
-              >
-                <div
-                  v-for="u in displayedCandidates"
-                  :key="u.id"
-                  @click="!isUserDisabled(u) && toggleAttendee(u.id)"
-                  :class="[
-                    'px-3.5 py-3 flex items-center justify-between text-sm transition-colors',
-                    isUserDisabled(u)
-                      ? 'opacity-40 grayscale bg-muted/40 cursor-not-allowed select-none'
-                      : selectedAttendeeIds.includes(u.id)
-                        ? 'bg-muted/60 cursor-pointer hover:bg-muted/70'
-                        : 'hover:bg-muted/30 cursor-pointer'
-                  ]"
-                  :title="isUserDisabled(u) ? `Akun ${getUserStatusLabel(u)} - Tidak dapat ditambahkan ke agenda` : ''"
-                >
-                  <!-- Left: Avatar & Details -->
-                  <div class="flex items-center gap-3 min-w-0 pr-2">
-                    <Avatar class="h-10 w-10 rounded-full border border-border shrink-0" :class="{ 'opacity-60': isUserDisabled(u) }">
-                      <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.fullName || u.email)}`" />
-                      <AvatarFallback class="bg-muted text-muted-foreground font-bold text-sm">
-                        {{ (u.fullName || u.email).charAt(0).toUpperCase() }}
-                      </AvatarFallback>
-                    </Avatar>
-
-                    <div class="min-w-0">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <p
-                          class="font-medium text-foreground text-sm truncate leading-tight"
-                          :class="{ 'line-through text-muted-foreground': isUserDisabled(u) }"
-                        >
-                          {{ u.fullName }}
-                        </p>
-                        <Badge
-                          v-if="isUserDisabled(u)"
-                          variant="secondary"
-                          size="sm"
-                          class="font-medium text-[10px] py-0 px-1.5 bg-muted text-muted-foreground border border-border/80"
-                        >
-                          {{ getUserStatusLabel(u) }}
-                        </Badge>
-                        <Badge
-                          v-else-if="u.position"
-                          variant="secondary"
-                          size="sm"
-                          class="font-normal text-xs"
-                        >
-                          {{ u.position }}
-                        </Badge>
-                      </div>
-                      <p class="text-sm text-muted-foreground truncate leading-tight mt-0.5">
-                        {{ u.email }}
-                      </p>
-                      <div class="flex items-center gap-1.5 mt-1 text-sm text-muted-foreground font-medium">
-                        <span>{{ u.division || u.department || 'Umum' }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Right: Checkbox -->
-                  <div class="flex items-center shrink-0">
-                    <Checkbox
-                      :checked="selectedAttendeeIds.includes(u.id)"
-                      :disabled="isUserDisabled(u)"
-                      class="rounded-md pointer-events-none"
-                    />
-                  </div>
-                </div>
-
-                <div v-if="filteredCandidates.length === 0 && !isLoadingCandidates" class="p-6 text-center text-sm text-muted-foreground">
-                  Karyawan tidak ditemukan.
-                </div>
-
-                <!-- Load More / Pagination indicator -->
-                <div
-                  v-if="filteredCandidates.length > displayedCandidates.length"
-                  class="p-3 text-center bg-muted/20 border-t border-border"
-                >
-                  <button
-                    type="button"
-                    @click="loadMoreCandidates"
-                    class="text-sm text-kv-primary hover:underline font-medium"
-                  >
-                    Muat lebih banyak ({{ displayedCandidates.length }} dari {{ filteredCandidates.length }})
-                  </button>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-    </div>
-
-    <!-- TAB 2: Notes / Meeting Minutes (1 Lembar Dokumen Halaman Lebar Penuh) -->
-    <div v-if="!isLoadingData && !isAccessDenied && currentTab === 'notes' && (isOrganizerOrAdmin || notesVisibility !== 'ORGANIZER_ONLY')" class="w-full pb-8">
-      <!-- 1 Lembar Dokumen Catatan Lebar Penuh (Tiptap Editor) -->
-      <TiptapEditor
-        v-model="notesContent"
-        :editable="canEditNotes"
-        placeholder="Ketik '/' untuk menu format, atau mulai menulis catatan rapat..."
-        min-height="650px"
-      />
-    </div>
-
-    <!-- Fixed Bottom Action Bar -->
-    <div
-      v-if="currentTab === 'detail' && isOrganizerOrAdmin"
-      :class="[
-        'fixed bottom-0 right-0 z-30 transition-all duration-300 ease-in-out border-t border-border bg-background/95 backdrop-blur-md px-4 py-3 sm:px-8 sm:py-3.5 shadow-lg',
-        isSidebarCollapsed ? 'left-0 lg:left-[76px]' : 'left-0 lg:left-[240px]'
-      ]"
-    >
-      <div class="max-w-7xl mx-auto flex items-center justify-end gap-2">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          :disabled="isSubmitting || isDeleting"
-          @click="navigateTo('/calendar')"
-        >
-          Batal
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          :loading="isSubmitting"
-          :disabled="isLoadingData || isDeleting"
-          @click="handleSubmit"
-        >
-          Simpan Perubahan
-        </Button>
-      </div>
-    </div>
+    </template>
 
     <!-- Delete Confirmation Dialog -->
     <AlertDialog :open="showDeleteConfirm" @update:open="(val: boolean) => showDeleteConfirm = val">
@@ -782,33 +217,17 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter, useRoute, navigateTo } from '#imports'
-import {
-  Calendar,
-  Clock,
-  MapPin,
-  Users,
-  X,
-  Search,
-  FileText,
-  PenLine,
-  Tag,
-  Palette,
-  Globe,
-  Trash2,
-  Share2,
-  Check,
-  Loader2,
-  AlertCircle,
-  ArrowLeft
-} from 'lucide-vue-next'
-import mascotSettle from '~/assets/maskot/settle.svg'
-import { useDebounceFn } from '@vueuse/core'
+import { definePageMeta, navigateTo } from '#imports'
+import { Share2, Trash2, Loader2, Check, AlertCircle, Save } from 'lucide-vue-next'
 import { Button } from '~/components/ui/button'
-import { Badge, Tabs } from '@kreavoks/kreaui'
-import type { TabItem } from '@kreavoks/kreaui'
-import ShareModal from '../components/ShareModal.vue'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card'
+import { Button as KreaButton, Tabs } from '@kreavoks/kreaui'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '~/components/ui/select'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -819,618 +238,66 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '~/components/ui/alert-dialog'
-import { Input } from '~/components/ui/input'
-import { Label } from '~/components/ui/label'
-import { Textarea } from '~/components/ui/textarea'
-import { Checkbox } from '~/components/ui/checkbox'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '~/components/ui/select'
-import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar'
-import { DatePicker } from '~/components/ui/date-picker'
-import { TimePicker } from '~/components/ui/time-picker'
-import { useCalendarApi } from '../api/calendar.api'
-import type { CandidateUser, CreateEventPayload, EventType, CalendarEventItem } from '../types/calendar.types'
-import { Skeleton } from '~/components/ui/skeleton'
+import ShareModal from '../components/ShareModal.vue'
 import TiptapEditor from '../components/TiptapEditor.vue'
-import type { NotesVisibility } from '../types/calendar.types'
-import { toast } from 'vue-sonner'
+import EventHeaderViewers from '../components/EventHeaderViewers.vue'
+import EventEditSkeleton from '../components/EventEditSkeleton.vue'
+import EventAccessDenied from '../components/EventAccessDenied.vue'
+import EventDetailFormCard from '../components/EventDetailFormCard.vue'
+import EventAttendeePickerCard from '../components/EventAttendeePickerCard.vue'
+import { useEventEdit } from '../hooks/useEventEdit'
 
 definePageMeta({
   layout: 'default',
   middleware: 'auth'
 })
 
-const router = useRouter()
-const route = useRoute()
-const calendarApi = useCalendarApi()
-const { user } = useAuth()
-
-const eventId = computed(() => Number(route.params.id))
-
-const isSidebarCollapsed = useState<boolean>('sidebar_is_collapsed', () => false)
-const showDeleteConfirm = ref(false)
-const isDeleting = ref(false)
-const isSubmitting = ref(false)
-const isLoadingData = ref(true)
-const isLoadingCandidates = ref(false)
-const candidates = ref<CandidateUser[]>([])
-const searchQuery = ref('')
-const selectedAttendeeIds = ref<number[]>([])
-const activeRolePreset = ref<'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN' | null>(null)
-const currentTab = ref(route.query.tab === 'notes' ? 'notes' : 'detail')
-const rawEventData = ref<CalendarEventItem | null>(null)
-const showShareModal = ref(false)
-const notesContent = ref('')
-const notesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
-const isSavingNotes = ref(false)
-const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'error'>('idle')
-const isInitialLoaded = ref(false)
-
-const isOrganizerOrAdmin = computed(() => {
-  if (!rawEventData.value || !user.value) return false
-  const roleName = user.value.role?.name || user.value.role
-  return roleName === 'ADMIN' || roleName === 'SUPERADMIN' || rawEventData.value.createdById === user.value.id
-})
-
-const isAccessDenied = computed(() => {
-  if (isLoadingData.value || !rawEventData.value) return false
-  return !isOrganizerOrAdmin.value && notesVisibility.value === 'ORGANIZER_ONLY'
-})
-
-const tabsList = computed<TabItem[]>(() => {
-  const tabs: TabItem[] = []
-  if (isOrganizerOrAdmin.value) {
-    tabs.push({ id: 'detail', label: 'Detail Agenda', icon: Calendar })
-  }
-  if (isOrganizerOrAdmin.value || notesVisibility.value !== 'ORGANIZER_ONLY') {
-    tabs.push({ id: 'notes', label: 'Notes', icon: FileText })
-  }
-  return tabs
-})
-
-const canEditNotes = computed(() => {
-  if (isOrganizerOrAdmin.value) return true
-  return notesVisibility.value === 'ATTENDEES_EDIT'
-})
-
-watch(
-  () => route.query.tab,
-  (newTab) => {
-    if (newTab === 'notes') {
-      if (isAccessDenied.value) {
-        return
-      }
-      currentTab.value = 'notes'
-    } else if (newTab === 'detail') {
-      if (isOrganizerOrAdmin.value) {
-        currentTab.value = 'detail'
-      }
-    }
-  }
-)
-
-// Viewer Profiles logic for active viewers avatar stack in header
-interface ActiveViewer {
-  id: number
-  name: string
-  position: string
-  profilePicture?: string | null
-}
-
-const getInitials = (name: string) => {
-  if (!name) return '?'
-  const parts = name.trim().split(/\s+/)
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-}
-
-const activeViewers = computed<ActiveViewer[]>(() => {
-  const list: ActiveViewer[] = []
-  const seenIds = new Set<number>()
-
-  // 1. Penyelenggara Agenda (Organizer / Creator)
-  if (rawEventData.value?.createdBy) {
-    const creator = rawEventData.value.createdBy
-    seenIds.add(creator.id)
-    const cand = candidates.value.find(c => c.id === creator.id)
-    const name = creator.profile?.fullName || cand?.fullName || creator.email || 'Penyelenggara'
-    const position = cand?.position || creator.profile?.division || cand?.division || 'Penyelenggara Agenda'
-    list.push({
-      id: creator.id,
-      name,
-      position,
-      profilePicture:
-        creator.profile?.profilePicture ||
-        cand?.profilePicture ||
-        `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
-    })
-  }
-
-  // 2. Peserta Terdaftar (Attendees dari Database)
-  if (rawEventData.value?.attendees && rawEventData.value.attendees.length > 0) {
-    for (const a of rawEventData.value.attendees) {
-      if (seenIds.has(a.userId)) continue
-      seenIds.add(a.userId)
-      const cand = candidates.value.find(c => c.id === a.userId)
-      const name = a.user?.profile?.fullName || cand?.fullName || a.user?.email || 'Peserta'
-      const position =
-        cand?.position ||
-        a.user?.profile?.division ||
-        cand?.division ||
-        a.user?.customRole?.displayName ||
-        cand?.customRole ||
-        a.user?.role ||
-        'Peserta'
-      list.push({
-        id: a.userId,
-        name,
-        position,
-        profilePicture:
-          a.user?.profile?.profilePicture ||
-          cand?.profilePicture ||
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
-      })
-    }
-  } else if (selectedAttendeeIds.value.length > 0) {
-    for (const id of selectedAttendeeIds.value) {
-      if (seenIds.has(id)) continue
-      seenIds.add(id)
-      const c = candidates.value.find(cand => cand.id === id)
-      if (c) {
-        const name = c.fullName || c.email || 'Peserta'
-        const position = c.position || c.division || c.customRole || c.role || 'Peserta'
-        list.push({
-          id: c.id,
-          name,
-          position,
-          profilePicture:
-            c.profilePicture ||
-            `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`
-        })
-      }
-    }
-  }
-
-  return list
-})
-
-const displayedViewers = computed(() => activeViewers.value.slice(0, 4))
-const remainingViewersCount = computed(() => Math.max(0, activeViewers.value.length - 4))
-const remainingViewersList = computed(() => activeViewers.value.slice(4))
-
-// Separated date & time picker states
-const startDateOnly = ref('')
-const startTimeOnly = ref('09:00')
-const endDateOnly = ref('')
-const endTimeOnly = ref('10:00')
-
-const form = ref({
-  title: '',
-  description: '',
-  type: 'MEETING' as EventType,
-  location: '',
-  eventUrl: '',
-  startDate: '',
-  endDate: '',
-  isAllDay: false,
-  color: '#4082E6'
-})
-
-// Sync separated dates into form payload
-const syncFormDates = () => {
-  if (!startDateOnly.value) {
-    form.value.startDate = ''
-  } else if (form.value.isAllDay) {
-    form.value.startDate = `${startDateOnly.value}T00:00:00`
-  } else {
-    form.value.startDate = `${startDateOnly.value}T${startTimeOnly.value || '09:00'}:00`
-  }
-
-  if (!endDateOnly.value) {
-    form.value.endDate = ''
-  } else if (form.value.isAllDay) {
-    form.value.endDate = `${endDateOnly.value}T23:59:59`
-  } else {
-    form.value.endDate = `${endDateOnly.value}T${endTimeOnly.value || '10:00'}:00`
-  }
-}
-
-watch([startDateOnly, startTimeOnly, endDateOnly, endTimeOnly, () => form.value.isAllDay], () => {
-  syncFormDates()
-})
-
-const eventTypeOptions = [
-  { value: 'MEETING', label: 'Meeting' },
-  { value: 'WORKSHOP', label: 'Workshop' },
-  { value: 'PROJECT_DEADLINE', label: 'Batas Waktu Proyek' },
-  { value: 'TASK', label: 'Tugas' },
-  { value: 'COMPANY_EVENT', label: 'Acara Kantor' },
-  { value: 'OTHER', label: 'Lainnya' }
-]
-
-const presetColors = [
-  { value: '#4082E6', label: 'Biru' },
-  { value: '#10B981', label: 'Hijau' },
-  { value: '#8B5CF6', label: 'Ungu' },
-  { value: '#F59E0B', label: 'Kuning' },
-  { value: '#EF4444', label: 'Merah' },
-  { value: '#6366F1', label: 'Indigo' }
-]
-
-const durationPresets = [
-  { label: '30 menit', minutes: 30 },
-  { label: '45 menit', minutes: 45 },
-  { label: '1 jam', minutes: 60 },
-  { label: '2 jam', minutes: 120 }
-]
-
-onMounted(async () => {
-  await Promise.all([loadCandidateUsers(), loadEventDetail()])
-})
-
-const loadCandidateUsers = async () => {
-  isLoadingCandidates.value = true
-  try {
-    candidates.value = await calendarApi.getCandidates()
-  } catch (err: any) {
-    console.error('Failed to load candidate users:', err)
-  } finally {
-    isLoadingCandidates.value = false
-    checkActiveRolePreset()
-  }
-}
-
-const loadEventDetail = async () => {
-  if (!eventId.value) {
-    navigateTo('/calendar')
-    return
-  }
-
-  isLoadingData.value = true
-  try {
-    const ev: CalendarEventItem = await calendarApi.getEventById(eventId.value)
-    rawEventData.value = ev
-    form.value.title = ev.title
-    form.value.description = ev.description || ''
-    form.value.type = ev.type
-    form.value.location = ev.location || ''
-    form.value.eventUrl = ev.eventUrl || ''
-    form.value.color = ev.color || '#4082E6'
-    form.value.isAllDay = ev.isAllDay
-    notesContent.value = ev.notesContent || ''
-    notesVisibility.value = ev.notesVisibility || 'ATTENDEES_VIEW'
-    setTimeout(() => {
-      isInitialLoaded.value = true
-    }, 400)
-
-    const pad = (n: number) => String(n).padStart(2, '0')
-
-    if (ev.startDate) {
-      const s = new Date(ev.startDate)
-      startDateOnly.value = `${s.getFullYear()}-${pad(s.getMonth() + 1)}-${pad(s.getDate())}`
-      startTimeOnly.value = `${pad(s.getHours())}:${pad(s.getMinutes())}`
-    }
-
-    if (ev.endDate) {
-      const e = new Date(ev.endDate)
-      endDateOnly.value = `${e.getFullYear()}-${pad(e.getMonth() + 1)}-${pad(e.getDate())}`
-      endTimeOnly.value = `${pad(e.getHours())}:${pad(e.getMinutes())}`
-    } else {
-      endDateOnly.value = startDateOnly.value
-      endTimeOnly.value = startTimeOnly.value
-    }
-
-    syncFormDates()
-
-    selectedAttendeeIds.value = ev.attendees ? ev.attendees.map(a => a.userId) : []
-    checkActiveRolePreset()
-
-    if (!isOrganizerOrAdmin.value) {
-      if (ev.notesVisibility === 'ORGANIZER_ONLY') {
-        return
-      }
-      currentTab.value = 'notes'
-    } else if (route.query.tab === 'notes') {
-      currentTab.value = 'notes'
-    }
-  } catch (err: any) {
-    toast.error('Gagal memuat data agenda: ' + (err.message || 'Terjadi kesalahan'))
-    navigateTo('/calendar')
-  } finally {
-    isLoadingData.value = false
-  }
-}
-
-const activeDurationMinutes = computed(() => {
-  if (!startDateOnly.value || !endDateOnly.value || form.value.isAllDay) return null
-  const [sy, sm, sd] = startDateOnly.value.split('-').map(Number)
-  const [sh, smin] = (startTimeOnly.value || '00:00').split(':').map(Number)
-  const [ey, em, ed] = endDateOnly.value.split('-').map(Number)
-  const [eh, emin] = (endTimeOnly.value || '00:00').split(':').map(Number)
-
-  if (!sy || !sm || !sd || !ey || !em || !ed) return null
-  const start = new Date(sy, sm - 1, sd, sh || 0, smin || 0).getTime()
-  const end = new Date(ey, em - 1, ed, eh || 0, emin || 0).getTime()
-  const diffMinutes = Math.round((end - start) / (60 * 1000))
-  return diffMinutes > 0 ? diffMinutes : null
-})
-
-const applyDurationPreset = (minutes: number) => {
-  if (!startDateOnly.value) return
-  const [y, m, d] = startDateOnly.value.split('-').map(Number)
-  const [h, min] = (startTimeOnly.value || '09:00').split(':').map(Number)
-  if (!y || !m || !d) return
-
-  const start = new Date(y, m - 1, d, h || 0, min || 0)
-  const end = new Date(start.getTime() + minutes * 60 * 1000)
-
-  const pad = (n: number) => String(n).padStart(2, '0')
-  endDateOnly.value = `${end.getFullYear()}-${pad(end.getMonth() + 1)}-${pad(end.getDate())}`
-  endTimeOnly.value = `${pad(end.getHours())}:${pad(end.getMinutes())}`
-}
-
-const displayLimit = ref(30)
-
-watch(searchQuery, () => {
-  displayLimit.value = 30
-})
-
-const filteredCandidates = computed(() => {
-  const q = searchQuery.value.toLowerCase().trim()
-  if (!q) return candidates.value
-
-  return candidates.value.filter(u => {
-    return (
-      u.fullName.toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q) ||
-      (u.position && u.position.toLowerCase().includes(q)) ||
-      (u.division && u.division.toLowerCase().includes(q)) ||
-      (u.department && u.department.toLowerCase().includes(q)) ||
-      (u.customRole && u.customRole.toLowerCase().includes(q)) ||
-      (u.role && u.role.toLowerCase().includes(q))
-    )
-  })
-})
-
-const displayedCandidates = computed(() => {
-  return filteredCandidates.value.slice(0, displayLimit.value)
-})
-
-const loadMoreCandidates = () => {
-  displayLimit.value += 30
-}
-
-const onCandidatesScroll = (e: Event) => {
-  const target = e.target as HTMLElement
-  if (target.scrollTop + target.clientHeight >= target.scrollHeight - 60) {
-    if (displayLimit.value < filteredCandidates.value.length) {
-      displayLimit.value += 30
-    }
-  }
-}
-
-const isUserDisabled = (u: CandidateUser) => {
-  if (u.isActive === false) return true
-  const st = (u.status || '').toUpperCase()
-  return ['TERMINATED', 'SUSPENDED', 'RESIGNED'].includes(st)
-}
-
-const getUserStatusLabel = (u: CandidateUser) => {
-  const st = (u.status || '').toUpperCase()
-  if (st === 'TERMINATED') return 'Terminated'
-  if (st === 'SUSPENDED') return 'Suspended'
-  if (st === 'RESIGNED') return 'Resigned'
-  if (u.isActive === false) return 'Nonaktif'
-  return null
-}
-
-const allFilteredSelected = computed(() => {
-  const selectable = filteredCandidates.value.filter(u => !isUserDisabled(u))
-  if (selectable.length === 0) return false
-  return selectable.every(u => selectedAttendeeIds.value.includes(u.id))
-})
-
-const toggleSelectAllFiltered = () => {
-  const selectable = filteredCandidates.value.filter(u => !isUserDisabled(u))
-  if (selectable.length === 0) return
-
-  if (allFilteredSelected.value) {
-    const idsToRemove = new Set(selectable.map(u => u.id))
-    selectedAttendeeIds.value = selectedAttendeeIds.value.filter(id => !idsToRemove.has(id))
-  } else {
-    const current = new Set(selectedAttendeeIds.value)
-    selectable.forEach(u => current.add(u.id))
-    selectedAttendeeIds.value = Array.from(current)
-  }
-  checkActiveRolePreset()
-}
-
-const selectedUsersList = computed(() => {
-  return candidates.value.filter(u => selectedAttendeeIds.value.includes(u.id))
-})
-
-const checkActiveRolePreset = () => {
-  const activeCandidates = candidates.value.filter(u => !isUserDisabled(u))
-  if (activeCandidates.length === 0 || selectedAttendeeIds.value.length === 0) {
-    activeRolePreset.value = null
-    return
-  }
-
-  const allIds = activeCandidates.map(u => u.id)
-  if (allIds.length > 0 && selectedAttendeeIds.value.length === allIds.length && allIds.every(id => selectedAttendeeIds.value.includes(id))) {
-    activeRolePreset.value = 'ALL'
-    return
-  }
-
-  const roles = ['INTERN', 'MENTOR', 'ADMIN'] as const
-  for (const r of roles) {
-    const roleIds = activeCandidates.filter(u => u.role?.toUpperCase() === r).map(u => u.id)
-    if (roleIds.length > 0 && roleIds.length === selectedAttendeeIds.value.length && roleIds.every(id => selectedAttendeeIds.value.includes(id))) {
-      activeRolePreset.value = r
-      return
-    }
-  }
-
-  activeRolePreset.value = null
-}
-
-const toggleAttendee = (userId: number) => {
-  const user = candidates.value.find(u => u.id === userId)
-  if (user && isUserDisabled(user)) return
-
-  const idx = selectedAttendeeIds.value.indexOf(userId)
-  if (idx > -1) {
-    selectedAttendeeIds.value.splice(idx, 1)
-  } else {
-    selectedAttendeeIds.value.push(userId)
-  }
-  checkActiveRolePreset()
-}
-
-const removeAttendee = (userId: number) => {
-  const idx = selectedAttendeeIds.value.indexOf(userId)
-  if (idx > -1) {
-    selectedAttendeeIds.value.splice(idx, 1)
-  }
-  checkActiveRolePreset()
-}
-
-const resetAttendees = () => {
-  selectedAttendeeIds.value = []
-  activeRolePreset.value = null
-}
-
-const assignRoleUsers = (roleType: 'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN') => {
-  if (activeRolePreset.value === roleType) {
-    selectedAttendeeIds.value = []
-    activeRolePreset.value = null
-    return
-  }
-
-  activeRolePreset.value = roleType
-  const activeCandidates = candidates.value.filter(u => !isUserDisabled(u))
-  if (roleType === 'ALL') {
-    selectedAttendeeIds.value = activeCandidates.map(u => u.id)
-  } else {
-    selectedAttendeeIds.value = activeCandidates
-      .filter(u => u.role?.toUpperCase() === roleType)
-      .map(u => u.id)
-  }
-}
-
-const debouncedAutoSave = useDebounceFn(async () => {
-  if (!eventId.value || !isInitialLoaded.value || !canEditNotes.value) return
-  autoSaveStatus.value = 'saving'
-  try {
-    const payload: any = {
-      notesContent: notesContent.value
-    }
-    if (isOrganizerOrAdmin.value) {
-      payload.notesVisibility = notesVisibility.value
-    }
-
-    await calendarApi.updateNotes(eventId.value, payload)
-    autoSaveStatus.value = 'saved'
-    setTimeout(() => {
-      if (autoSaveStatus.value === 'saved') {
-        autoSaveStatus.value = 'idle'
-      }
-    }, 2500)
-  } catch (err: any) {
-    autoSaveStatus.value = 'error'
-    console.error('Auto-save error:', err)
-  }
-}, 1200)
-
-watch([notesContent, notesVisibility], () => {
-  if (isInitialLoaded.value && canEditNotes.value) {
-    autoSaveStatus.value = 'saving'
-    debouncedAutoSave()
-  }
-})
-
-const handleSaveNotes = async () => {
-  if (!eventId.value || !canEditNotes.value) return
-  isSavingNotes.value = true
-  autoSaveStatus.value = 'saving'
-  try {
-    const payload: any = {
-      notesContent: notesContent.value
-    }
-    if (isOrganizerOrAdmin.value) {
-      payload.notesVisibility = notesVisibility.value
-    }
-
-    await calendarApi.updateNotes(eventId.value, payload)
-    autoSaveStatus.value = 'saved'
-    toast.success('Catatan agenda berhasil disimpan.')
-    setTimeout(() => {
-      if (autoSaveStatus.value === 'saved') {
-        autoSaveStatus.value = 'idle'
-      }
-    }, 2500)
-  } catch (err: any) {
-    autoSaveStatus.value = 'error'
-    toast.error('Gagal menyimpan catatan: ' + (err.message || 'Terjadi kesalahan'))
-  } finally {
-    isSavingNotes.value = false
-  }
-}
-
-const handleSubmit = async () => {
-  if (!form.value.title.trim()) {
-    toast.error('Judul agenda wajib diisi.')
-    return
-  }
-
-  if (!form.value.startDate) {
-    toast.error('Waktu mulai agenda wajib diisi.')
-    return
-  }
-
-  isSubmitting.value = true
-  try {
-    const payload: Partial<CreateEventPayload> = {
-      title: form.value.title.trim(),
-      description: form.value.description.trim() || undefined,
-      type: form.value.type,
-      location: form.value.location.trim() || undefined,
-      eventUrl: form.value.eventUrl.trim() || undefined,
-      startDate: new Date(form.value.startDate).toISOString(),
-      endDate: form.value.endDate ? new Date(form.value.endDate).toISOString() : undefined,
-      isAllDay: form.value.isAllDay,
-      color: form.value.color,
-      attendeeIds: selectedAttendeeIds.value
-    }
-
-    await calendarApi.updateEvent(eventId.value, payload)
-    toast.success('Jadwal berhasil diperbarui.')
-    navigateTo('/calendar')
-  } catch (err: any) {
-    toast.error('Gagal memperbarui jadwal: ' + (err.message || 'Terjadi kesalahan'))
-  } finally {
-    isSubmitting.value = false
-  }
-}
-
-const handleDelete = async () => {
-  if (!eventId.value) return
-
-  isDeleting.value = true
-  try {
-    await calendarApi.deleteEvent(eventId.value)
-    toast.success('Jadwal berhasil dihapus.')
-    showDeleteConfirm.value = false
-    navigateTo('/calendar')
-  } catch (err: any) {
-    toast.error('Gagal menghapus jadwal: ' + (err.message || 'Terjadi kesalahan'))
-  } finally {
-    isDeleting.value = false
-  }
-}
+const {
+  isSidebarCollapsed,
+  showDeleteConfirm,
+  showShareModal,
+  isDeleting,
+  isSubmitting,
+  isLoadingData,
+  currentTab,
+  rawEventData,
+  isOrganizerOrAdmin,
+  isAccessDenied,
+  tabsList,
+  canEditNotes,
+  activeViewers,
+  form,
+  startDateOnly,
+  startTimeOnly,
+  endDateOnly,
+  endTimeOnly,
+  activeDurationMinutes,
+  durationPresets,
+  presetColors,
+  eventTypeOptions,
+  applyDurationPreset,
+  candidates,
+  isLoadingCandidates,
+  searchQuery,
+  selectedAttendeeIds,
+  activeRolePreset,
+  filteredCandidates,
+  displayedCandidates,
+  selectedUsersList,
+  allFilteredSelected,
+  toggleAttendee,
+  removeAttendee,
+  resetAttendees,
+  assignRoleUsers,
+  toggleSelectAllFiltered,
+  onCandidatesScroll,
+  notesContent,
+  notesVisibility,
+  isSavingNotes,
+  autoSaveStatus,
+  handleSaveNotes,
+  loadEventDetail,
+  handleSubmit,
+  handleDelete
+} = useEventEdit()
 </script>

@@ -15,8 +15,8 @@
       </DialogHeader>
 
       <div class="space-y-4 py-2">
-        <!-- Invite Input Section with Floating Autocomplete -->
-        <div class="space-y-1.5" ref="searchContainerRef">
+        <!-- Invite Input Section with Floating Autocomplete (Khusus Penyelenggara/Admin) -->
+        <div v-if="canManageSettings" class="space-y-1.5" ref="searchContainerRef">
           <label class="text-xs font-semibold text-foreground">Undang Anggota Tim</label>
           <div class="relative flex items-center gap-2.5 min-w-0">
             <!-- Standard Input without overrides -->
@@ -192,13 +192,7 @@
                 <Badge
                   variant="outline"
                   size="sm"
-                  :class="[
-                    'text-[10px] px-2 py-0 h-5 font-normal flex items-center gap-1 shrink-0 rounded-full',
-                    att.status === 'ACCEPTED' ? 'text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30' :
-                    att.status === 'DECLINED' ? 'text-rose-600 border-rose-200 bg-rose-50 dark:bg-rose-950/30' :
-                    att.status === 'TENTATIVE' ? 'text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-950/30' :
-                    'text-muted-foreground border-border bg-muted/30'
-                  ]"
+                  :class="getRsvpBadgeClass(att.status)"
                 >
                   <span class="w-1.5 h-1.5 rounded-full" :class="[
                     att.status === 'ACCEPTED' ? 'bg-emerald-500' :
@@ -449,6 +443,20 @@ const handleVisibilityChange = async (val?: any) => {
     emit('updated')
   } catch (err: any) {
     toast.error('Gagal mengubah pengaturan izin: ' + (err.message || 'Error'))
+  }
+}
+
+const getRsvpBadgeClass = (status: AttendeeStatus) => {
+  const base = 'text-xs px-2 py-0 h-5 font-normal flex items-center gap-1 shrink-0 rounded-full'
+  switch (status) {
+    case 'ACCEPTED':
+      return `${base} text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30`
+    case 'DECLINED':
+      return `${base} text-rose-600 border-rose-200 bg-rose-50 dark:bg-rose-950/30`
+    case 'TENTATIVE':
+      return `${base} text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-950/30`
+    default:
+      return `${base} text-muted-foreground border-border bg-muted/30`
   }
 }
 
