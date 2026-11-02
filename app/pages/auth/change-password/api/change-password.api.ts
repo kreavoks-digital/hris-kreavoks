@@ -1,7 +1,12 @@
-import type { ChangePasswordData, ApiResponse } from '~/types/auth'
+import type { ApiResponse } from '~/types/auth'
+
+export interface ChangePasswordPayload {
+  oldPassword: string
+  newPassword: string
+}
 
 export const changePasswordApi = {
-  change: async (data: ChangePasswordData): Promise<ApiResponse> => {
+  change: async (data: ChangePasswordPayload): Promise<ApiResponse> => {
     const api = useApi()
     return await api('/auth/change-password' as any, {
       method: 'POST',

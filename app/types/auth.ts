@@ -36,6 +36,7 @@ export interface RegisterData {
 }
 
 export interface ChangePasswordData {
+  oldPassword?: string;
   currentPassword?: string;
   newPassword?: string;
   confirmPassword?: string;
