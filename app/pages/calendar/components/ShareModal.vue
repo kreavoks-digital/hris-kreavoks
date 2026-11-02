@@ -203,16 +203,18 @@
                 </Badge>
 
                 <!-- Remove Attendee Action (for organizers) -->
-                <button
+                <KreaButton
                   v-if="canManageSettings"
                   type="button"
+                  variant="ghost"
+                  size="xs"
+                  :icon="true"
+                  :icon-left="X"
                   :disabled="isRemovingAttendee === att.userId"
-                  @click="handleRemoveAttendee(att.userId)"
-                  class="opacity-70 sm:opacity-0 sm:group-hover:opacity-100 p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
+                  class="opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
                   title="Hapus peserta dari jadwal"
-                >
-                  <X class="w-3.5 h-3.5" />
-                </button>
+                  @click="handleRemoveAttendee(att.userId)"
+                />
               </div>
             </div>
           </div>

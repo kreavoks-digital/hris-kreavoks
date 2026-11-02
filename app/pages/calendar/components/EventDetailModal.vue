@@ -27,12 +27,15 @@
             </button>
           </div>
 
-          <DialogClose
-            class="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
-            title="Tutup"
-          >
-            <X class="w-4 h-4" />
-            <span class="sr-only">Close</span>
+          <DialogClose as-child>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              :icon="true"
+              :icon-left="X"
+              title="Tutup"
+            />
           </DialogClose>
         </div>
 
@@ -102,7 +105,6 @@
             size="sm"
             :icon="true"
             :icon-left="FileText"
-            class="shrink-0 text-kv-primary hover:text-kv-primary"
             title="Catatan Agenda"
             @click="navigateTo(`/calendar/edit/${event.id}?tab=notes`)"
           />
@@ -129,19 +131,23 @@
                 {{ event.eventUrl }}
               </a>
             </div>
-            <button
-              @click="copyLink(event.eventUrl)"
-              class="p-1 text-muted-foreground hover:text-foreground hover:bg-muted/60 rounded transition-colors shrink-0"
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              :icon="true"
               title="Salin Tautan"
+              class="shrink-0 text-muted-foreground hover:text-foreground [&_svg]:!w-3.5 [&_svg]:!h-3.5"
+              @click="copyLink(event.eventUrl)"
             >
               <Copy class="w-3.5 h-3.5" />
-            </button>
+            </Button>
           </div>
 
           <!-- Catatan / Deskripsi -->
           <div v-if="event.description" class="flex items-start gap-3">
             <AlignLeft class="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-            <p class="whitespace-pre-wrap leading-relaxed text-muted-foreground flex-1">
+            <p class="whitespace-pre-wrap text-muted-foreground flex-1">
               {{ event.description }}
             </p>
           </div>
@@ -153,7 +159,7 @@
               <p class="font-medium text-foreground truncate">
                 {{ event.createdBy?.profile?.fullName || event.createdBy?.email }}
               </p>
-              <p class="text-[11px] text-muted-foreground">Penyelenggara</p>
+              <p class="text-xs text-muted-foreground">Penyelenggara</p>
             </div>
           </div>
 
@@ -163,7 +169,7 @@
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-1.5">
                 <span class="font-medium text-foreground">Peserta ({{ event.attendees.length }})</span>
-                <span class="text-[11px] text-muted-foreground">
+                <span class="text-xs text-muted-foreground">
                   <span class="text-emerald-600 font-medium">{{ acceptedCount }} Hadir</span> &bull; 
                   <span class="text-rose-600 font-medium">{{ declinedCount }} Menolak</span>
                 </span>
@@ -174,17 +180,17 @@
                 <div
                   v-for="att in event.attendees"
                   :key="att.id"
-                  class="flex items-center justify-between text-[11px] p-1.5 rounded-lg bg-muted/20 border border-border/50"
+                  class="flex items-center justify-between text-xs p-1.5 rounded-lg bg-muted/20 border border-border/50"
                 >
                   <span class="truncate font-medium text-foreground">
                     {{ att.user.profile?.fullName || att.user.email }}
                   </span>
-                  <Badge :variant="rsvpBadgeVariant(att.status)" size="sm" class="text-[10px] py-0 px-1.5">
+                  <Badge :variant="rsvpBadgeVariant(att.status)" size="sm" class="text-xs py-0 px-1.5">
                     {{ rsvpLabel(att.status) }}
                   </Badge>
                 </div>
               </div>
-              <p v-else class="text-[11px] text-muted-foreground">
+              <p v-else class="text-xs text-muted-foreground">
                 Acara terbuka untuk semua rekan kerja.
               </p>
             </div>

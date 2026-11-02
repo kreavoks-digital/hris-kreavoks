@@ -22,11 +22,12 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
 - **Rounding**:
     - **Universal**: `rounded-3xl` for all primary UI components (Buttons, Sections, Cards, Inputs).
     - **Exception**: `rounded-full` ONLY for circular profile avatars and notification/hint badges.
-    - **Button Component (from `@kreavoks/kreaui`)**:
+    - **Button & Icon Button Component (from `@kreavoks/kreaui`)**:
         - **IMPORT DIRECTLY**: Selalu gunakan komponen resmi KreaUI: `import { Button } from '@kreavoks/kreaui'` (atau `<Button>` via Nuxt auto-import).
         - **DOKUMENTASI RESMI**: Mengacu 100% pada [KreaUI Button Docs](https://kreaui.kreavoks.workers.dev/components/button/).
-        - **Standard Props**: Gunakan prop resmi `variant="primary | secondary | outline | ghost | link | danger"`, `size="xs | sm | md | lg | xl"`, `loading`, `disabled`, `icon`, `label`.
-        - **STRICT FORBIDDEN**: Dilarang meng-override rounded atau warna dasar tombol dengan class ad-hoc di halaman.
+        - **Standard Props**: Gunakan prop resmi `variant="primary | secondary | outline | ghost | link | danger"`, `size="xs | sm | md | lg | xl"`, `loading`, `disabled`, `:icon="true"`, `label`, `:icon-left="Component"`, `:icon-right="Component"`.
+        - **Icon Button (Square 1:1)**: Untuk tombol simbol/ikon saja, selalu gunakan prop `:icon="true"` (atau `icon`). Ukuran standar: `xs` (32x32px), `sm` (36x36px), `md` (40x40px), `lg` (44x44px), `xl` (48x48px).
+        - **STRICT FORBIDDEN**: Dilarang meng-override rounded, width/height (`w-*`, `h-*`, `p-*`), atau warna dasar tombol dengan class ad-hoc di halaman. Serahkan ukuran dan varian ke prop resmi KreaUI agar tampilan konsisten.
     - **Badge Component (from `@kreavoks/kreaui`)**:
         - **IMPORT DIRECTLY**: Selalu gunakan komponen resmi KreaUI: `import { Badge } from '@kreavoks/kreaui'` (atau `<Badge>` via Nuxt auto-import).
         - **DOKUMENTASI RESMI**: Mengacu 100% pada [KreaUI Badge Docs](https://kreaui.kreavoks.workers.dev/components/badge/).
@@ -40,20 +41,26 @@ Follow these rules strictly to ensure consistency and prevent hallucinations.
         - **STRICT FORBIDDEN**: Dilarang membuat custom tab wrapper atau native select kustom secara manual jika sudah didukung KreaUI.
 - **Effects**: Subtle glassmorphism is encouraged for depth. **NEVER** use shadow effects (`shadow-*`). Avoid excessive hover effects like `transform` or `scale` unless it's a critical interactive element.
 
-## 3. Architecture (Simplified FSD)
+## 3. Architecture (Simplified FSD & Clean Separation)
 - **Directory**: `app/pages/[feature]/`
-- **Entry point**: `index.vue`
+- **Page as Pure Entry Point (Golden Rule)**:
+    - Halaman (`index.vue`, `create.vue`, `[id].vue`, dll.) **HANYA BERPERAN SEBAGAI ENTRY POINT / ORCHESTRATOR**.
+    - **TIDAK BOLEH ADA LOGIC APAPUN DI DALAM ENTRY POINT**:
+        - Dilarang menaruh logic data fetching, komputasi matriks/kalender, interval/timers, validasi form, atau state rumit di dalam file page.
+        - Seluruh reactive state, handler event, dan pemanggilan API **WAJIB** dipisahkan ke dalam hooks/composables di folder `hooks/` atau `composables/`.
+        - Seluruh tampilan UI presentasional **WAJIB** dipecah menjadi komponen modular di folder `components/`.
+        - File page `.vue` idealnya ringkas (< 100 baris kode), hanya mengimpor composable dan merangkai komponen modular.
 - **Structure per Feature**:
-    - `api/`: API call definitions.
-    - `components/`: Feature-specific components.
-    - `hooks/`: Feature-specific hooks (Vue logic).
-    - `composables/`: Feature-specific state/logic.
-    - `services/`: Complex business logic services.
-    - `utils/`: Local utility functions.
-    - `types/`: Local TypeScript definitions.
+    - `api/`: API call definitions (menggunakan `useApi()`).
+    - `components/`: Feature-specific presentational components (bebas logic berat).
+    - `hooks/`: Feature-specific Vue hooks/composables (mengelola state, komputasi, dan event handlers).
+    - `composables/`: Feature-specific shared state / SSR composables (`useState`).
+    - `services/`: Complex business logic services jika diperlukan.
+    - `utils/`: Local utility functions & formatting.
+    - `types/`: Local TypeScript interfaces & types.
 - **Separation of Concerns**:
     - DO NOT mix presentational components with business/framework logic.
-    - Keep files small and focused.
+    - Keep files small, focused, and easily maintainable.
 
 ## 4. Nuxt 4 Best Practices
 - **Fetching**: Use `useFetch` (simple) or `useAsyncData` (complex). Use `pick`/`transform`.

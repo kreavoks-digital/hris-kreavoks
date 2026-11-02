@@ -89,7 +89,7 @@
           </div>
 
           <!-- Tombol Simpan Manual (KreaUI Icon Button) -->
-          <KreaButton
+          <Button
             v-if="canEditNotes"
             type="button"
             variant="outline"
@@ -97,6 +97,7 @@
             :icon="true"
             :icon-left="Save"
             :loading="isSavingNotes"
+            title="Simpan Catatan"
             class="shrink-0"
             @click="handleSaveNotes"
           />
@@ -219,8 +220,7 @@
 <script setup lang="ts">
 import { definePageMeta, navigateTo } from '#imports'
 import { Share2, Trash2, Loader2, Check, AlertCircle, Save } from 'lucide-vue-next'
-import { Button } from '~/components/ui/button'
-import { Button as KreaButton, Tabs } from '@kreavoks/kreaui'
+import { Button, Tabs } from '@kreavoks/kreaui'
 import {
   Select,
   SelectContent,
