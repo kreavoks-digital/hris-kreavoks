@@ -214,8 +214,8 @@
         <!-- Akses Peserta Selector -->
         <div class="flex items-center gap-1.5">
           <span class="text-xs text-muted-foreground hidden lg:inline">Akses:</span>
-          <Select v-model="notesVisibility">
-            <SelectTrigger class="h-8 min-w-[150px] sm:min-w-[180px] rounded-xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary">
+          <Select v-model="notesVisibility" :disabled="!isOrganizerOrAdmin">
+            <SelectTrigger :disabled="!isOrganizerOrAdmin" class="h-8 min-w-[150px] sm:min-w-[180px] rounded-xl border-border bg-background text-xs font-medium text-foreground focus:ring-kv-primary disabled:opacity-60 disabled:cursor-not-allowed">
               <SelectValue placeholder="Pilih akses" />
             </SelectTrigger>
             <SelectContent class="rounded-xl">
@@ -228,6 +228,7 @@
 
         <!-- Tombol Simpan Manual sejajar kanan pojok -->
         <Button
+          v-if="canEditNotes"
           type="button"
           variant="outline"
           size="sm"
@@ -674,6 +675,7 @@
       <!-- 1 Lembar Dokumen Catatan Lebar Penuh (Tiptap Editor) -->
       <TiptapEditor
         v-model="notesContent"
+        :editable="canEditNotes"
         placeholder="Ketik '/' untuk menu format, atau mulai menulis catatan rapat..."
         min-height="650px"
       />
@@ -737,7 +739,7 @@
       v-if="rawEventData"
       v-model:open="showShareModal"
       :event="rawEventData"
-      :can-manage-settings="true"
+      :can-manage-settings="isOrganizerOrAdmin"
       @updated="loadEventDetail"
     />
   </div>
@@ -839,6 +841,11 @@ const isOrganizerOrAdmin = computed(() => {
   if (!rawEventData.value || !user.value) return false
   const roleName = user.value.role?.name || user.value.role
   return roleName === 'ADMIN' || roleName === 'SUPERADMIN' || rawEventData.value.createdById === user.value.id
+})
+
+const canEditNotes = computed(() => {
+  if (isOrganizerOrAdmin.value) return true
+  return notesVisibility.value === 'ATTENDEES_EDIT'
 })
 
 watch(
@@ -1255,13 +1262,17 @@ const assignRoleUsers = (roleType: 'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN') => {
 }
 
 const debouncedAutoSave = useDebounceFn(async () => {
-  if (!eventId.value || !isInitialLoaded.value) return
+  if (!eventId.value || !isInitialLoaded.value || !canEditNotes.value) return
   autoSaveStatus.value = 'saving'
   try {
-    await calendarApi.updateNotes(eventId.value, {
-      notesContent: notesContent.value,
-      notesVisibility: notesVisibility.value
-    })
+    const payload: any = {
+      notesContent: notesContent.value
+    }
+    if (isOrganizerOrAdmin.value) {
+      payload.notesVisibility = notesVisibility.value
+    }
+
+    await calendarApi.updateNotes(eventId.value, payload)
     autoSaveStatus.value = 'saved'
     setTimeout(() => {
       if (autoSaveStatus.value === 'saved') {
@@ -1275,21 +1286,25 @@ const debouncedAutoSave = useDebounceFn(async () => {
 }, 1200)
 
 watch([notesContent, notesVisibility], () => {
-  if (isInitialLoaded.value) {
+  if (isInitialLoaded.value && canEditNotes.value) {
     autoSaveStatus.value = 'saving'
     debouncedAutoSave()
   }
 })
 
 const handleSaveNotes = async () => {
-  if (!eventId.value) return
+  if (!eventId.value || !canEditNotes.value) return
   isSavingNotes.value = true
   autoSaveStatus.value = 'saving'
   try {
-    await calendarApi.updateNotes(eventId.value, {
-      notesContent: notesContent.value,
-      notesVisibility: notesVisibility.value
-    })
+    const payload: any = {
+      notesContent: notesContent.value
+    }
+    if (isOrganizerOrAdmin.value) {
+      payload.notesVisibility = notesVisibility.value
+    }
+
+    await calendarApi.updateNotes(eventId.value, payload)
     autoSaveStatus.value = 'saved'
     toast.success('Catatan agenda berhasil disimpan.')
     setTimeout(() => {
