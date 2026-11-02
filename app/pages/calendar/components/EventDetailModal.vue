@@ -97,6 +97,7 @@
           />
 
           <Button
+            v-if="isOrganizerOrAdmin || event.notesVisibility !== 'ORGANIZER_ONLY'"
             variant="outline"
             size="sm"
             :icon="true"

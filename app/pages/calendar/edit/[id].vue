@@ -3,11 +3,15 @@
     <!-- Header Section -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div class="min-w-0">
-        <h1 class="text-xl sm:text-2xl font-semibold text-foreground truncate">Edit Jadwal</h1>
-        <p class="text-muted-foreground text-xs sm:text-sm mt-0.5 truncate">Perbarui detail acara atau penugasan peserta.</p>
+        <h1 class="text-xl sm:text-2xl font-semibold text-foreground truncate">
+          {{ isAccessDenied ? 'Catatan Agenda' : 'Edit Jadwal' }}
+        </h1>
+        <p class="text-muted-foreground text-xs sm:text-sm mt-0.5 truncate">
+          {{ isAccessDenied ? 'Informasi akses dokumen dan catatan pertemuan.' : 'Perbarui detail acara atau penugasan peserta.' }}
+        </p>
       </div>
 
-      <div class="flex items-center gap-2.5 shrink-0 flex-wrap">
+      <div v-if="!isAccessDenied" class="flex items-center gap-2.5 shrink-0 flex-wrap">
         <!-- Profile User Sedang View / Peserta (Avatar Stack dengan Tooltip Hover) -->
         <div v-if="activeViewers.length > 0" class="flex items-center gap-1.5 mr-1">
           <div class="flex items-center -space-x-2 py-0.5">
@@ -70,6 +74,7 @@
         </div>
 
         <Button
+          v-if="isOrganizerOrAdmin || notesVisibility !== 'ORGANIZER_ONLY'"
           type="button"
           variant="outline"
           size="sm"
@@ -185,8 +190,39 @@
       </div>
     </div>
 
+    <!-- Empty State: Akses Catatan Terkunci / Tautan Tidak Valid -->
+    <div
+      v-if="!isLoadingData && isAccessDenied"
+      class="rounded-3xl border border-border bg-card p-8 sm:p-12 text-center max-w-lg mx-auto my-12 flex flex-col items-center"
+    >
+      <div class="w-24 h-24 sm:w-28 sm:h-28 mb-5 flex items-center justify-center">
+        <img
+          :src="mascotSettle"
+          alt="Maskot Kreavoks"
+          class="w-full h-full object-contain pointer-events-none"
+        />
+      </div>
+
+      <h2 class="text-lg sm:text-xl font-semibold text-foreground">
+        Tautan Catatan Tidak Valid
+      </h2>
+
+      <p class="text-sm text-muted-foreground mt-2 mb-6 max-w-sm leading-relaxed">
+        Catatan agenda ini dikunci khusus untuk penyelenggara. Anda tidak memiliki izin untuk melihat atau mengedit notulensi ini.
+      </p>
+
+      <Button
+        variant="primary"
+        size="sm"
+        :icon-left="ArrowLeft"
+        label="Kembali ke Kalender"
+        class="w-full sm:w-auto"
+        @click="navigateTo('/calendar')"
+      />
+    </div>
+
     <!-- Navigation Tabs (Detail vs Notes) with inline Notes Action Bar -->
-    <div v-if="!isLoadingData" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b border-border/60 pb-1">
+    <div v-else-if="!isLoadingData" class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 border-b border-border/60 pb-1">
       <Tabs
         v-model="currentTab"
         :items="tabsList"
@@ -242,7 +278,7 @@
     </div>
 
     <!-- TAB 1: Detail Agenda Layout -->
-    <div v-if="!isLoadingData && currentTab === 'detail'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div v-if="!isLoadingData && !isAccessDenied && currentTab === 'detail'" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
       <!-- LEFT COLUMN: Event Details (7 Cols - Teams Style) -->
       <div class="lg:col-span-7">
@@ -671,7 +707,7 @@
     </div>
 
     <!-- TAB 2: Notes / Meeting Minutes (1 Lembar Dokumen Halaman Lebar Penuh) -->
-    <div v-if="!isLoadingData && currentTab === 'notes'" class="w-full pb-8">
+    <div v-if="!isLoadingData && !isAccessDenied && currentTab === 'notes' && (isOrganizerOrAdmin || notesVisibility !== 'ORGANIZER_ONLY')" class="w-full pb-8">
       <!-- 1 Lembar Dokumen Catatan Lebar Penuh (Tiptap Editor) -->
       <TiptapEditor
         v-model="notesContent"
@@ -763,8 +799,10 @@ import {
   Share2,
   Check,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  ArrowLeft
 } from 'lucide-vue-next'
+import mascotSettle from '~/assets/maskot/settle.svg'
 import { useDebounceFn } from '@vueuse/core'
 import { Button } from '~/components/ui/button'
 import { Badge, Tabs } from '@kreavoks/kreaui'
@@ -827,10 +865,6 @@ const activeRolePreset = ref<'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN' | null>(null)
 const currentTab = ref(route.query.tab === 'notes' ? 'notes' : 'detail')
 const rawEventData = ref<CalendarEventItem | null>(null)
 const showShareModal = ref(false)
-const tabsList: TabItem[] = [
-  { id: 'detail', label: 'Detail Agenda', icon: Calendar },
-  { id: 'notes', label: 'Notes', icon: FileText }
-]
 const notesContent = ref('')
 const notesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
 const isSavingNotes = ref(false)
@@ -843,6 +877,22 @@ const isOrganizerOrAdmin = computed(() => {
   return roleName === 'ADMIN' || roleName === 'SUPERADMIN' || rawEventData.value.createdById === user.value.id
 })
 
+const isAccessDenied = computed(() => {
+  if (isLoadingData.value || !rawEventData.value) return false
+  return !isOrganizerOrAdmin.value && notesVisibility.value === 'ORGANIZER_ONLY'
+})
+
+const tabsList = computed<TabItem[]>(() => {
+  const tabs: TabItem[] = []
+  if (isOrganizerOrAdmin.value) {
+    tabs.push({ id: 'detail', label: 'Detail Agenda', icon: Calendar })
+  }
+  if (isOrganizerOrAdmin.value || notesVisibility.value !== 'ORGANIZER_ONLY') {
+    tabs.push({ id: 'notes', label: 'Notes', icon: FileText })
+  }
+  return tabs
+})
+
 const canEditNotes = computed(() => {
   if (isOrganizerOrAdmin.value) return true
   return notesVisibility.value === 'ATTENDEES_EDIT'
@@ -851,8 +901,15 @@ const canEditNotes = computed(() => {
 watch(
   () => route.query.tab,
   (newTab) => {
-    if (newTab === 'notes' || newTab === 'detail') {
-      currentTab.value = newTab
+    if (newTab === 'notes') {
+      if (isAccessDenied.value) {
+        return
+      }
+      currentTab.value = 'notes'
+    } else if (newTab === 'detail') {
+      if (isOrganizerOrAdmin.value) {
+        currentTab.value = 'detail'
+      }
     }
   }
 )
@@ -1073,7 +1130,12 @@ const loadEventDetail = async () => {
     selectedAttendeeIds.value = ev.attendees ? ev.attendees.map(a => a.userId) : []
     checkActiveRolePreset()
 
-    if (route.query.tab === 'notes' || !isOrganizerOrAdmin.value) {
+    if (!isOrganizerOrAdmin.value) {
+      if (ev.notesVisibility === 'ORGANIZER_ONLY') {
+        return
+      }
+      currentTab.value = 'notes'
+    } else if (route.query.tab === 'notes') {
       currentTab.value = 'notes'
     }
   } catch (err: any) {
