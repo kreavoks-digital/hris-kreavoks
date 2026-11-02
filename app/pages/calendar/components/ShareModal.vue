@@ -1,6 +1,6 @@
 <template>
   <Dialog :open="open" @update:open="(val) => emit('update:open', val)">
-    <DialogContent class="w-[95vw] sm:max-w-[620px] bg-card border-border rounded-2xl p-5 sm:p-6 shadow-2xl">
+    <DialogContent class="w-[95vw] sm:max-w-[620px] max-h-[90vh] overflow-y-auto bg-card border-border rounded-3xl p-4 sm:p-6 shadow-2xl">
       <!-- Header -->
       <DialogHeader class="space-y-1 pb-3.5 border-b border-border pr-8">
         <DialogTitle class="text-base font-bold text-foreground flex items-center gap-2">
@@ -73,12 +73,7 @@
                     </AvatarFallback>
                   </Avatar>
                   <div class="min-w-0">
-                    <div class="flex items-center gap-1.5">
-                      <p class="font-medium text-foreground truncate text-xs">{{ cand.fullName }}</p>
-                      <Badge v-if="cand.customRole || cand.role" variant="secondary" size="sm" class="text-[9px] px-1 py-0 h-4 font-normal">
-                        {{ cand.customRole || cand.role }}
-                      </Badge>
-                    </div>
+                    <p class="font-medium text-foreground truncate text-xs">{{ cand.fullName }}</p>
                     <p class="text-[10px] text-muted-foreground truncate">{{ cand.email }}</p>
                   </div>
                 </div>
@@ -140,26 +135,26 @@
 
         <!-- Existing People with Access List -->
         <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <label class="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Orang yang Memiliki Akses ({{ totalPeopleWithAccess }})
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <label class="text-xs font-semibold text-muted-foreground">
+              Orang yang memiliki akses ({{ totalPeopleWithAccess }})
             </label>
             <span class="text-[11px] text-muted-foreground">
               {{ currentVisibility === 'ATTENDEES_EDIT' ? 'Semua peserta bisa edit catatan' : (currentVisibility === 'ORGANIZER_ONLY' ? 'Catatan terkunci' : 'Peserta hanya melihat catatan') }}
             </span>
           </div>
 
-          <div class="max-h-48 overflow-y-auto space-y-1.5 pr-1 -mr-1">
+          <div class="max-h-52 overflow-y-auto space-y-1.5 pr-1 -mr-1">
             <!-- Organizer (Owner) -->
-            <div class="flex items-center justify-between p-2 rounded-xl bg-muted/20 border border-border/50">
-              <div class="flex items-center gap-2.5 min-w-0">
+            <div class="flex items-center justify-between p-2 rounded-xl bg-muted/20 border border-border/50 gap-2">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <Avatar class="h-8 w-8 rounded-full border border-border shrink-0">
                   <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(event?.createdBy?.profile?.fullName || event?.createdBy?.email || 'Admin')}`" />
                   <AvatarFallback class="bg-kv-primary/10 text-kv-primary font-bold text-xs">
                     {{ (event?.createdBy?.profile?.fullName || event?.createdBy?.email || 'O').charAt(0).toUpperCase() }}
                   </AvatarFallback>
                 </Avatar>
-                <div class="min-w-0">
+                <div class="min-w-0 flex-1">
                   <p class="text-xs font-semibold text-foreground truncate">
                     {{ event?.createdBy?.profile?.fullName || 'Penyelenggara' }}
                   </p>
@@ -175,25 +170,20 @@
             <div
               v-for="att in event?.attendees || []"
               :key="att.id"
-              class="flex items-center justify-between p-2 rounded-xl hover:bg-muted/40 transition-colors group"
+              class="flex items-center justify-between p-2 rounded-xl hover:bg-muted/40 transition-colors group gap-2"
             >
-              <div class="flex items-center gap-2.5 min-w-0">
+              <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <Avatar class="h-8 w-8 rounded-full border border-border shrink-0">
                   <AvatarImage :src="`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(att.user?.profile?.fullName || att.user?.email || 'User')}`" />
                   <AvatarFallback class="bg-muted text-muted-foreground font-semibold text-xs">
                     {{ (att.user?.profile?.fullName || att.user?.email || 'U').charAt(0).toUpperCase() }}
                   </AvatarFallback>
                 </Avatar>
-                <div class="min-w-0">
-                  <div class="flex items-center gap-1.5">
-                    <p class="text-xs font-medium text-foreground truncate">
-                      {{ att.user?.profile?.fullName || att.user?.email }}
-                    </p>
-                    <Badge v-if="att.user?.customRole?.displayName || att.user?.role" variant="secondary" size="sm" class="text-[9px] px-1 py-0 h-3.5 font-normal">
-                      {{ att.user?.customRole?.displayName || att.user?.role }}
-                    </Badge>
-                  </div>
-                  <p class="text-xs text-muted-foreground truncate">{{ att.user?.email }}</p>
+                <div class="min-w-0 flex-1">
+                  <p class="text-xs font-medium text-foreground truncate">
+                    {{ att.user?.profile?.fullName || att.user?.email }}
+                  </p>
+                  <p class="text-[10px] text-muted-foreground truncate">{{ att.user?.email }}</p>
                 </div>
               </div>
 
@@ -203,7 +193,7 @@
                   variant="outline"
                   size="sm"
                   :class="[
-                    'text-xs px-2 py-0 h-5 font-normal flex items-center gap-1',
+                    'text-[10px] px-2 py-0 h-5 font-normal flex items-center gap-1 shrink-0 rounded-full',
                     att.status === 'ACCEPTED' ? 'text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-950/30' :
                     att.status === 'DECLINED' ? 'text-rose-600 border-rose-200 bg-rose-50 dark:bg-rose-950/30' :
                     att.status === 'TENTATIVE' ? 'text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-950/30' :
@@ -224,7 +214,7 @@
                   type="button"
                   :disabled="isRemovingAttendee === att.userId"
                   @click="handleRemoveAttendee(att.userId)"
-                  class="opacity-0 group-hover:opacity-100 p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
+                  class="opacity-70 sm:opacity-0 sm:group-hover:opacity-100 p-1 rounded-md text-muted-foreground hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer"
                   title="Hapus peserta dari jadwal"
                 >
                   <X class="w-3.5 h-3.5" />
@@ -243,6 +233,7 @@
           size="sm"
           :icon-left="copied ? Check : Link2"
           :label="copied ? 'Tautan Berhasil Disalin!' : 'Salin Tautan Jadwal'"
+          class="w-full sm:w-auto justify-center"
           @click="copyShareLink"
         />
 
@@ -251,6 +242,7 @@
           variant="primary"
           size="sm"
           label="Selesai"
+          class="w-full sm:w-auto justify-center"
           @click="emit('update:open', false)"
         />
       </DialogFooter>
