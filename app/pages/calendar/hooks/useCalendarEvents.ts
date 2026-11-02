@@ -209,6 +209,10 @@ export const useCalendarEvents = () => {
     if (eventIdParam) {
       const id = Number(eventIdParam)
       if (!isNaN(id)) {
+        if (route.query.tab === 'notes') {
+          navigateTo(`/calendar/edit/${id}?tab=notes`)
+          return
+        }
         await openDetailById(id)
       }
     }

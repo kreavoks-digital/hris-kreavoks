@@ -85,6 +85,16 @@
           />
 
           <Button
+            variant="outline"
+            size="sm"
+            :icon="true"
+            :icon-left="FileText"
+            class="shrink-0 text-kv-primary hover:text-kv-primary"
+            title="Catatan Agenda"
+            @click="navigateTo(`/calendar/edit/${event.id}?tab=notes`)"
+          />
+
+          <Button
             type="button"
             variant="outline"
             size="sm"
@@ -240,6 +250,7 @@ import {
   Video,
   Pencil,
   Share2,
+  FileText,
   MapPin,
   Link2,
   Copy,

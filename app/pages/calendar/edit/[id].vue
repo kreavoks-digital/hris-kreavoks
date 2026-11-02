@@ -80,6 +80,7 @@
         />
 
         <Button
+          v-if="isOrganizerOrAdmin"
           type="button"
           variant="link"
           size="sm"
@@ -680,6 +681,7 @@
 
     <!-- Fixed Bottom Action Bar -->
     <div
+      v-if="currentTab === 'detail' && isOrganizerOrAdmin"
       :class="[
         'fixed bottom-0 right-0 z-30 transition-all duration-300 ease-in-out border-t border-border bg-background/95 backdrop-blur-md px-4 py-3 sm:px-8 sm:py-3.5 shadow-lg',
         isSidebarCollapsed ? 'left-0 lg:left-[76px]' : 'left-0 lg:left-[240px]'
@@ -806,6 +808,7 @@ definePageMeta({
 const router = useRouter()
 const route = useRoute()
 const calendarApi = useCalendarApi()
+const { user } = useAuth()
 
 const eventId = computed(() => Number(route.params.id))
 
@@ -819,7 +822,7 @@ const candidates = ref<CandidateUser[]>([])
 const searchQuery = ref('')
 const selectedAttendeeIds = ref<number[]>([])
 const activeRolePreset = ref<'ALL' | 'INTERN' | 'MENTOR' | 'ADMIN' | null>(null)
-const currentTab = ref('detail')
+const currentTab = ref(route.query.tab === 'notes' ? 'notes' : 'detail')
 const rawEventData = ref<CalendarEventItem | null>(null)
 const showShareModal = ref(false)
 const tabsList: TabItem[] = [
@@ -831,6 +834,21 @@ const notesVisibility = ref<NotesVisibility>('ATTENDEES_VIEW')
 const isSavingNotes = ref(false)
 const autoSaveStatus = ref<'idle' | 'saving' | 'saved' | 'error'>('idle')
 const isInitialLoaded = ref(false)
+
+const isOrganizerOrAdmin = computed(() => {
+  if (!rawEventData.value || !user.value) return false
+  const roleName = user.value.role?.name || user.value.role
+  return roleName === 'ADMIN' || roleName === 'SUPERADMIN' || rawEventData.value.createdById === user.value.id
+})
+
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab === 'notes' || newTab === 'detail') {
+      currentTab.value = newTab
+    }
+  }
+)
 
 // Viewer Profiles logic for active viewers avatar stack in header
 interface ActiveViewer {
@@ -1047,6 +1065,10 @@ const loadEventDetail = async () => {
 
     selectedAttendeeIds.value = ev.attendees ? ev.attendees.map(a => a.userId) : []
     checkActiveRolePreset()
+
+    if (route.query.tab === 'notes' || !isOrganizerOrAdmin.value) {
+      currentTab.value = 'notes'
+    }
   } catch (err: any) {
     toast.error('Gagal memuat data agenda: ' + (err.message || 'Terjadi kesalahan'))
     navigateTo('/calendar')

@@ -476,11 +476,11 @@ const getRsvpLabel = (status: AttendeeStatus) => {
 const copyShareLink = async () => {
   if (typeof window === 'undefined' || !props.event) return
 
-  const url = `${window.location.origin}/calendar?eventId=${props.event.id}`
+  const url = `${window.location.origin}/calendar/edit/${props.event.id}?tab=notes`
   try {
     await navigator.clipboard.writeText(url)
     copied.value = true
-    toast.success('Tautan agenda berhasil disalin ke clipboard.')
+    toast.success('Tautan catatan agenda berhasil disalin ke clipboard.')
     setTimeout(() => {
       copied.value = false
     }, 2500)
