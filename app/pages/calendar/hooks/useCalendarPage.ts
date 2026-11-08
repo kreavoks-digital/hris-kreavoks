@@ -58,7 +58,8 @@ export const useCalendarPage = (
     }
 
     // Check end condition if specified
-    if (e.recurrence.endDate && targetDateStr > e.recurrence.endDate) {
+    const recEndDateStr = e.recurrence.endDate ? e.recurrence.endDate.slice(0, 10) : ''
+    if (recEndDateStr && targetDateStr > recEndDateStr) {
       return false
     }
 
@@ -317,21 +318,21 @@ export const useCalendarPage = (
   })
 
   const agendaGroupedEvents = computed(() => {
-    const sorted = [...events.value].sort(
-      (a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
-    )
+    const y = currentYear.value
+    const m = currentMonth.value - 1
+    const lastDayOfMonth = new Date(y, m + 1, 0).getDate()
     const groups: { dateStr: string; date: Date; events: CalendarEventItem[] }[] = []
-    const groupMap = new Map<string, { dateStr: string; date: Date; events: CalendarEventItem[] }>()
 
-    for (const ev of sorted) {
-      const d = new Date(ev.startDate)
-      const dStr = getIsoDateStr(d)
-      if (!groupMap.has(dStr)) {
-        const item = { dateStr: dStr, date: d, events: [] }
-        groupMap.set(dStr, item)
-        groups.push(item)
+    for (let day = 1; day <= lastDayOfMonth; day++) {
+      const d = new Date(y, m, day)
+      const dayEvs = getEventsForDate(d)
+      if (dayEvs.length > 0) {
+        groups.push({
+          dateStr: getIsoDateStr(d),
+          date: d,
+          events: dayEvs
+        })
       }
-      groupMap.get(dStr)!.events.push(ev)
     }
 
     return groups
