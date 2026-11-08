@@ -145,10 +145,10 @@
           </div>
 
           <!-- Catatan / Deskripsi -->
-          <div v-if="displayDescription" class="flex items-start gap-3">
+          <div class="flex items-start gap-3">
             <AlignLeft class="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
             <p class="whitespace-pre-wrap text-muted-foreground flex-1">
-              {{ displayDescription }}
+              {{ displayDescription || '-' }}
             </p>
           </div>
 
