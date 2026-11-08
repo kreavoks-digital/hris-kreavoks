@@ -167,19 +167,90 @@ npm run typecheck
 
 ---
 
-## 📦 Changelog & Versi
+## 📦 Changelog & Riwayat Versi Lengkap
 
-### **v2.0.0 (Unified Project & Kanban Ecosystem Release)**
-- **New Feature:** Peluncuran Unified Multi-View Workspace di `/kanban` (Board, Gantt Timeline, Calendar, List).
-- **New Feature:** ClickUp-Style Subtask Creator container berbingkai ungu dengan pintasan atribut lengkap.
-- **New Feature:** Sistem diskusi tugas real-time terintegrasi tabel `TaskComment` di PostgreSQL.
-- **New Feature:** Manajemen Proyek terpusat di `/projects` dengan dual view (Table & Grid) dan analitik metrik.
-- **Improvement:** Format tanggal ringkas seragam menggunakan ikon `Clock` (`🕒 Nov 16 - Nov 30`).
-- **Improvement:** Avatar stack dinamis maksimal 3-4 avatar dengan badge pelimpahan `+N`.
-- **Improvement:** Auto-collapsing sidebar pada viewport mobile dan modal detail responsif.
-- **Cleanup:** Penghapusan 100% data mock hardcode, migrasi penuh ke backend REST API.
-- **Security:** Validasi input, sanitasi komentar, dan pengamanan hak akses penghapusan.
+### **v2.0.0 (8 November 2026) — Unified Project & Kanban Ecosystem Release**
+- **Unified Multi-View Workspace (`/kanban`):**
+  - Implementasi 4 pilihan tampilan terpadu ala ClickUp: **Board (Kanban)**, **Gantt Timeline**, **Calendar**, dan **List View**.
+  - State sinkron antar-view: perubahan status, deadline, assignees, dan progres langsung tercermin di semua tampilan secara instan.
+- **ClickUp-Style Subtask Creator:**
+  - Kontainer pembuatan subtask inline berbingkai ungu dengan shortcut terintegrasi: *Subtask Name*, `Save ↵`, *Add Assignee*, *Add Dates*, *Add Priority*, dan *Add Tag*.
+- **Diskusi Tim & Komentar Real-Time (`TaskComment`):**
+  - Integrasi penuh dengan database PostgreSQL: riwayat diskusi tugas persisten, avatar dan nama penulis, serta waktu relatif (*"Baru saja"*, *"X menit lalu"*).
+  - Shortcut kirim `Ctrl + Enter` dan proteksi penghapusan komentar berbasis kepemilikan/Super Admin.
+- **Format Tanggal Ringkas & Mark as Completed:**
+  - Standarisasi tampilan tanggal dengan ikon `Clock` ringkas (`🕒 Nov 16 - Nov 30` atau `🕒 Nov 16`).
+  - Tombol centang penyelesaian tugas cepat dengan efek coret teks (*strikethrough*) pada judul tugas berstatus `DONE`.
+- **Manajemen Proyek Terpusat (`/projects`):**
+  - Registrasi proyek dengan slug acak aman (*secure token*), penugasan Project Lead, pemilihan anggota tim, dan pemantauan status kesehatan (*On Track*, *At Risk*, *Delayed*, *Completed*).
+  - Pilihan visualisasi ganda: *Project Table View* dan *Project Card Grid* beserta kartu analitik metrik eksekutif.
+- **Pembersihan & Keamanan Sistem:**
+  - Pembersihan total 100% mock data/dummy JSON hardcode menjadi koneksi aktif database PostgreSQL via Express REST API.
+  - Penonaktifan terproteksi untuk tab masa depan (*Doc*, *Reminder*, *Whiteboard*, *Dashboard*) dengan badge status *"Soon"*.
+  - Auto-collapsing sidebar pada layar mobile (`< 768px`) dan layout modal responsif.
 
-### **v1.0.0 (Initial Foundation)**
-- Inisialisasi sistem HRIS inti (Dashboard, Karyawan, Absensi, Cuti, Payroll).
-- Integrasi autentikasi JWT dan layout navigasi dasar.
+---
+
+### **v1.9.0 (1–3 November 2026) — Advanced Event Notes, Tiptap WYSIWYG & Sharing**
+- **Tiptap WYSIWYG Editor untuk Event Notes:**
+  - Implementasi rich-text editor Tiptap dengan *sticky toolbar*, tabel dinamis yang dapat di-*resize*, kontrol ukuran gambar langsung di GUI, dan avatar peserta acara.
+  - Kontrol visibilitas catatan acara (*Organizer Only* vs *Attendee View/Edit*) dengan proteksi maskot visual jika hak akses dibatasi.
+- **Figma-Like Share Modal:**
+  - Dialog berbagi acara interaktif dengan pencarian pengguna, hak akses visibilitas, dan salin tautan undangan instan (*copy link*).
+- **Pengelompokan Navigasi Sidebar:**
+  - Reorganisasi menu sidebar ke dalam grup terstruktur: *Workspace & Projects*, *Operasional*, dan *HRIS Kepegawaian*.
+- **Resilience:**
+  - Penanganan otomatis *vite chunk mismatch* pasca-deployment baru dan fallback halaman error.
+
+---
+
+### **v1.8.0 (25–31 Oktober 2026) — Teams-Style Calendar & Public Verification Portal**
+- **Kalender Jadwal Gaya Microsoft Teams:**
+  - Tampilan jadwal terintegrasi dengan opsi multi-view: *Monthly Grid*, *Day Timeline*, dan *Agenda List*.
+  - Dialog konfirmasi kehadiran (RSVP), penugasan role peserta cepat, dan undangan email otomatis.
+- **Portal Verifikasi Sertifikat Publik (`/verify/[serialNumber]`):**
+  - Halaman verifikasi keaslian sertifikat magang yang dapat diakses publik tanpa login (*auth bypass*).
+- **Sistem Kehadiran Hybrid (Teams-Style Presence):**
+  - Indikator status kehadiran rekan kerja (*Active*, *Away*, *Busy*, *Offline*), pencarian kolega, dan modal profil publik.
+- **Revamp Role-Based Access Control (RBAC):**
+  - Tampilan manajemen role dan matriks permission dinamis dengan identitas visual KreaUI tabs.
+
+---
+
+### **v1.7.0 (8–21 September 2026) — RBAC Viewer Mode & Dynamic Leave Analytics**
+- **Manajemen Riwayat Sertifikat:**
+  - Komponen `CertificateHistoryTable` untuk melacak status penerbitan sertifikat digital karyawan/magang.
+- **Analitik Cuti Dinamis:**
+  - Penggantian kuota cuti statis dengan statistik saldo cuti dinamis, visualisasi sisa hari, dan auto-fill formulir pengajuan.
+- **Read-Only Viewer Mode:**
+  - Hak akses peninjau (*viewer mode*) untuk dokumentasi internal dan audit kepegawaian tanpa risiko manipulasi data.
+- **KreaHCIS Telegram Bot Integration:**
+  - Integrasi bot asisten Telegram untuk notifikasi absensi masuk/pulang dan monitoring kontrak.
+- **Keamanan:**
+  - Penerapan proteksi *global rate limiting* dan proteksi pemindai IP langsung (*direct IP scanner protection*).
+
+---
+
+### **v1.6.0 (8–31 Agustus 2026) — Certificate Studio & Mentorship Onboarding**
+- **Interactive Certificate Studio:**
+  - Studio desain sertifikat magang interaktif dengan live-preview, kustomisasi nomor sertifikat, serta ekspor PDF dan HTML-to-Image resolusi tinggi.
+- **Workflow Aplikasi Mentor:**
+  - Manajemen aplikasi mentor, filter status, lencana dinamis, aksi peninjauan ulang (*re-review*), dan pengiriman email konfirmasi (penerimaan/penolakan).
+  - Formulir unggah dokumen *onboarding* mentor lengkap dengan panduan terintegrasi.
+- **Modul Administrasi Absensi:**
+  - Pemantauan rekapitulasi absensi harian dan status izin/sakit/hadir dengan filter tanggal presisi.
+- **Keamanan:**
+  - Sanitasi ketat input terhadap serangan XSS pada widget dan formulir, serta pengetatan regex validasi email.
+
+---
+
+### **v1.5.0 (24–27 Juli 2026) — HRIS Core Foundation & SSO Architecture**
+- **Autentikasi Single Sign-On (SSO):**
+  - Implementasi login SSO lintas aplikasi ekosistem Kreavoks dengan verifikasi state anti-CSRF dan whitelist redirect URL yang aman.
+  - Composable `useAuth` dengan dukungan token refresh otomatis, manajemen sesi terproteksi, dan optimistic UI.
+- **Infrastruktur Push Notification:**
+  - Setup integrasi Firebase Cloud Messaging (FCM) untuk pengiriman notifikasi instan di peramban.
+- **Manajemen Surat Resmi (`/letters`):**
+  - Pembuatan dan pengarsipan surat resmi digital dengan penomoran otomatis dan template terstandarisasi.
+- **Modul Dasar Kepegawaian:**
+  - Inisialisasi master data karyawan, rekap kehadiran, alur cuti, dan pemrosesan payroll.
