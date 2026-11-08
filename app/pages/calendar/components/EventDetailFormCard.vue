@@ -147,12 +147,38 @@
             <SelectItem value="DOES_NOT_REPEAT" class="text-sm">Does not repeat</SelectItem>
             <SelectItem value="EVERY_WEEKDAY" class="text-sm">Every weekday (Mon - Fri)</SelectItem>
             <SelectItem value="DAILY" class="text-sm">Daily</SelectItem>
-            <SelectItem value="WEEKLY" class="text-sm">Weekly</SelectItem>
+            <SelectItem value="WEEKLY" class="text-sm">Weekly (Every {{ currentStartDayName }})</SelectItem>
             <SelectItem value="MONTHLY" class="text-sm">Monthly</SelectItem>
             <SelectItem value="YEARLY" class="text-sm">Yearly</SelectItem>
-            <SelectItem value="CUSTOM" class="text-sm">Custom</SelectItem>
+            <SelectItem value="CUSTOM" class="text-sm">Custom...</SelectItem>
           </SelectContent>
         </Select>
+
+        <!-- Teams Recurrence Summary Card with 'Set recurrence' action -->
+        <div
+          v-if="recurrence.type !== 'DOES_NOT_REPEAT'"
+          class="flex items-center justify-between p-3.5 rounded-2xl bg-muted/30 border border-border/60 gap-3"
+        >
+          <div class="flex items-center gap-2.5 min-w-0">
+            <RotateCw class="w-4 h-4 text-primary shrink-0" />
+            <div class="min-w-0">
+              <p class="text-xs sm:text-sm font-medium text-foreground truncate">
+                {{ currentRecurrenceSummaryText }}
+              </p>
+              <p class="text-[11px] text-muted-foreground truncate">
+                Pengulangan terjadwal di kalender
+              </p>
+            </div>
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="xs"
+            label="Set recurrence"
+            class="shrink-0 text-xs"
+            @click="showRecurrenceModal = true"
+          />
+        </div>
 
         <!-- Sub-Panel: Monthly Recurrence ("Tiap tanggal berapa aja") -->
         <div
@@ -477,10 +503,18 @@
       </div>
     </CardContent>
   </Card>
+
+  <!-- Set Recurrence Modal (Microsoft Teams Style) -->
+  <SetRecurrenceModal
+    v-model:open="showRecurrenceModal"
+    v-model="recurrence"
+    :start-date="startDateOnly"
+    @update:start-date="(val: string) => emit('update:startDateOnly', val)"
+  />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import {
   Calendar,
   Clock,
@@ -511,7 +545,9 @@ import {
   SelectValue
 } from '~/components/ui/select'
 import { DatePicker } from '~/components/ui/date-picker'
+import { DatePicker } from '~/components/ui/date-picker'
 import { TimePicker } from '~/components/ui/time-picker'
+import SetRecurrenceModal from './SetRecurrenceModal.vue'
 import type {
   CreateEventPayload,
   EventType,
@@ -539,6 +575,79 @@ const emit = defineEmits<{
   'update:endTimeOnly': [value: string]
   applyDurationPreset: [minutes: number]
 }>()
+
+const showRecurrenceModal = ref(false)
+
+const daysNames: Record<number, string> = {
+  0: 'Sunday',
+  1: 'Monday',
+  2: 'Tuesday',
+  3: 'Wednesday',
+  4: 'Thursday',
+  5: 'Friday',
+  6: 'Saturday'
+}
+
+const getDayOfWeekFromDate = (dateStr: string): number => {
+  if (!dateStr) return new Date().getDay()
+  const parts = dateStr.split('-').map(Number)
+  if (parts.length === 3) {
+    return new Date(parts[0], parts[1] - 1, parts[2]).getDay()
+  }
+  return new Date(dateStr).getDay()
+}
+
+const currentStartDayName = computed(() => {
+  const dayIdx = getDayOfWeekFromDate(props.startDateOnly)
+  return daysNames[dayIdx] || 'Sunday'
+})
+
+const formatDisplayDate = (dStr: string): string => {
+  if (!dStr) return ''
+  const parts = dStr.split('-')
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  }
+  return dStr
+}
+
+const currentRecurrenceSummaryText = computed(() => {
+  const rec = recurrence.value
+  const startDayIdx = getDayOfWeekFromDate(props.startDateOnly)
+  const startDayName = daysNames[startDayIdx] || 'Sunday'
+  const startFormatted = formatDisplayDate(props.startDateOnly) || 'start date'
+
+  if (rec.type === 'DOES_NOT_REPEAT') return 'Does not repeat'
+  if (rec.type === 'EVERY_WEEKDAY') return `Occurs every weekday (Mon - Fri) starting ${startFormatted}`
+  if (rec.type === 'DAILY') return `Occurs every day starting ${startFormatted}`
+  if (rec.type === 'WEEKLY') {
+    const days = (rec.daysOfWeek && rec.daysOfWeek.length > 0)
+      ? rec.daysOfWeek.map(d => daysNames[d]).filter(Boolean).join(', ')
+      : startDayName
+    return `Occurs every ${days} starting ${startFormatted}`
+  }
+  if (rec.type === 'MONTHLY') {
+    if (rec.monthlyMode === 'SPECIFIC_DATES' && rec.daysOfMonth?.length) {
+      return `Occurs every month on day ${rec.daysOfMonth.join(', ')} starting ${startFormatted}`
+    }
+    return `Occurs every month on day ${currentStartDay.value} starting ${startFormatted}`
+  }
+  if (rec.type === 'YEARLY') return `Occurs every year starting ${startFormatted}`
+  if (rec.type === 'CUSTOM') {
+    const interval = rec.interval || 1
+    const unit = rec.unit || 'WEEK'
+    if (unit === 'DAY') return `Occurs every ${interval === 1 ? 'day' : `${interval} days`} starting ${startFormatted}`
+    if (unit === 'WEEK') {
+      const days = (rec.daysOfWeek && rec.daysOfWeek.length > 0)
+        ? rec.daysOfWeek.map(d => daysNames[d]).filter(Boolean).join(', ')
+        : startDayName
+      return `Occurs every ${interval === 1 ? '' : `${interval} weeks on `}${days} starting ${startFormatted}`
+    }
+    if (unit === 'MONTH') return `Occurs every ${interval === 1 ? 'month' : `${interval} months`} starting ${startFormatted}`
+    if (unit === 'YEAR') return `Occurs every ${interval === 1 ? 'year' : `${interval} years`} starting ${startFormatted}`
+  }
+  return 'Custom recurrence active'
+})
 
 // Ensure recurrence and notifications are initialized on the form
 if (!props.form.recurrence) {
@@ -612,17 +721,35 @@ const daysOfWeekOptions = [
 ]
 
 const onRecurrenceTypeChange = (type: string) => {
-  if (type === 'MONTHLY') {
+  const startDay = getDayOfWeekFromDate(props.startDateOnly)
+  if (type === 'WEEKLY') {
+    recurrence.value.unit = 'WEEK'
+    recurrence.value.interval = 1
+    recurrence.value.daysOfWeek = [startDay]
+  } else if (type === 'DAILY') {
+    recurrence.value.unit = 'DAY'
+    recurrence.value.interval = 1
+  } else if (type === 'EVERY_WEEKDAY') {
+    recurrence.value.unit = 'WEEK'
+    recurrence.value.interval = 1
+    recurrence.value.daysOfWeek = [1, 2, 3, 4, 5]
+  } else if (type === 'MONTHLY') {
+    recurrence.value.unit = 'MONTH'
+    recurrence.value.interval = 1
     if (!recurrence.value.daysOfMonth || recurrence.value.daysOfMonth.length === 0) {
       recurrence.value.daysOfMonth = [currentStartDay.value]
     }
     if (!recurrence.value.monthlyMode) {
       recurrence.value.monthlyMode = 'SAME_DAY'
     }
+  } else if (type === 'YEARLY') {
+    recurrence.value.unit = 'YEAR'
+    recurrence.value.interval = 1
   } else if (type === 'CUSTOM') {
     if (!recurrence.value.interval) recurrence.value.interval = 1
     if (!recurrence.value.unit) recurrence.value.unit = 'WEEK'
     if (!recurrence.value.endType) recurrence.value.endType = 'NEVER'
+    showRecurrenceModal.value = true
   }
 }
 
