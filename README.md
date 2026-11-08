@@ -1,125 +1,118 @@
-# KREAVOKS HRIS - Human Resource Information System
+# KREAVOKS HRIS - Human Resource Information System & Workspace
 
-> Sistem Informasi Sumber Daya Manusia berbasis web menggunakan **Nuxt 3**, **Vue.js 3**, **MySQL**, dan **Prisma ORM**
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](package.json)
+[![Nuxt](https://img.shields.io/badge/Nuxt-4.x-00DC82.svg)](https://nuxt.com)
+[![Vue](https://img.shields.io/badge/Vue-3.5-4FC08D.svg)](https://vuejs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg)](https://www.typescriptlang.org)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg)](https://www.postgresql.org)
+
+> Sistem Informasi Sumber Daya Manusia dan Manajemen Proyek kolaboratif modern berbasis web menggunakan **Nuxt 4**, **Vue 3**, **TypeScript**, **Tailwind CSS**, dan **Express API + Prisma ORM (PostgreSQL)**.
+
+---
 
 ## 📋 Daftar Isi
 
-- [Overview](#overview)
-- [Fitur Utama](#fitur-utama)
-- [Struktur Project](#struktur-project)
-- [Teknologi Stack](#teknologi-stack)
-- [Setup & Instalasi](#setup--instalasi)
-- [Panduan Pengembangan](#panduan-pengembangan)
-- [API Endpoints](#api-endpoints)
+- [Overview](#-overview)
+- [Fitur Utama](#-fitur-utama)
+  - [1. Manajemen Proyek (`/projects`)](#1-manajemen-proyek-projects)
+  - [2. Unified Workspace & Kanban (`/kanban`)](#2-unified-workspace--kanban-kanban)
+  - [3. Fitur HRIS Inti](#3-fitur-hris-inti)
+- [Struktur Project](#-struktur-project)
+- [Teknologi Stack](#-teknologi-stack)
+- [Panduan Instalasi & Menjalankan](#-panduan-instalasi--menjalankan)
+- [Changelog & Versi](#-changelog--versi)
 
 ---
 
 ## 🎯 Overview
 
-Kreavoks HRIS adalah aplikasi manajemen SDM yang mencakup fitur-fitur penting seperti:
-
-- **Dashboard** - Monitoring statistik karyawan
-- **Manajemen Karyawan** - CRUD data karyawan
-- **Absensi** - Pencatatan kehadiran karyawan
-- **Cuti** - Pengajuan dan persetujuan cuti
-- **Payroll** - Perhitungan dan pengelolaan gaji
+Kreavoks HRIS v2.0.0 adalah platform terpadu yang memadukan kebutuhan operasional kepegawaian internal (HRIS) dengan sistem manajemen proyek dan eksekusi tugas bergaya **ClickUp**. Seluruh data disimpan dan disinkronkan secara langsung ke database relasional PostgreSQL tanpa menggunakan mock data.
 
 ---
 
 ## ✨ Fitur Utama
 
-### 1. Dashboard
+### 1. Manajemen Proyek (`/projects`)
 
-- Statistik total karyawan
-- Monitoring kehadiran harian
-- Tracking cuti bulanan
-- Pending approval notifications
+- **Katalog & Registrasi Proyek:** Buat dan kelola proyek klien maupun inisiatif internal lengkap dengan kode identifikasi acak yang aman (*secure token*).
+- **Project Lead & Assignment:** Penunjukan PIC / Project Lead dan anggota tim pelaksana secara fleksibel.
+- **Health & Progress Monitoring:** Status kesehatan proyek (*On Track*, *At Risk*, *Delayed*, *Completed*).
+- **Dual Presentation Mode:** Tampilan tabel terstruktur (*Project Table View*) dan kartu visual (*Project Card Grid*).
+- **Executive Metric Cards:** Ringkasan statistik performa seluruh proyek secara *real-time*.
 
-### 2. Manajemen Karyawan
+### 2. Unified Workspace & Kanban (`/kanban`)
 
-- Tambah/Edit/Hapus data karyawan
-- Filter berdasarkan departemen
-- Search by nama/NIK
-- Export data karyawan
+Modul workspace berbasis ClickUp dengan navigasi multi-view yang terintegrasi penuh:
 
-### 3. Absensi
+#### A. 4 Pilihan Tampilan Sinkron (*Multi-View Tabs*)
+1. **Board View (Kanban):** Kolom status kustom yang dapat diubah nama dan warnanya, kartu tugas dengan *drag-and-drop*, inline rename, dan quick create.
+2. **Gantt Timeline View:** Chart linimasa bulanan interaktif dengan visualisasi durasi tugas, navigasi bulan, indikator progres, dan badge tanggal ringkas (`🕒 Nov 16 - Nov 30`).
+3. **Calendar View:** Distribusi jadwal tugas bulanan, indikator avatar mini assignee, penghitung checklist, dan klik tanggal untuk pembuatan tugas instan.
+4. **List View:** Pengelompokan tugas berdasarkan status kolom dengan hirarki subtask yang dapat di-expand/collapse, checkbox penyelesaian tugas, dan aksi hover.
 
-- Rekap absensi harian
-- Status: Hadir, Izin, Sakit, Alfa
-- Filter by date & status
-- Export laporan absensi
+#### B. ClickUp-Style Subtask Creator
+- Tombol `⊕ Add subtask` membuka kontainer pembuatan subtask berbingkai ungu khas ClickUp langsung pada kartu Kanban maupun baris List View.
+- Dilengkapi input cepat: *Subtask Name*, tombol `Save ↵`, pemilih *Assignee*, *Date Range*, bendera *Priority*, dan *Tag*.
 
-### 4. Manajemen Cuti
+#### C. Mark as Completed & Format Tanggal Ringkas
+- Checkbox penyelesaian tugas interaktif dengan ikon centang hijau dan efek *strikethrough* pada judul tugas yang berstatus selesai (`DONE` / `COMPLETED`).
+- Penyajian tanggal ringkas yang konsisten menggunakan ikon `Clock` (`🕒 Nov 16 - Nov 30` atau `🕒 Nov 16`).
 
-- Pengajuan cuti (tahunan, sakit, darurat)
-- Approval workflow
-- Sisa kuota cuti
-- Riwayat pengajuan
+#### D. Diskusi Tim Real-Time (*Task Comments & Activity Feed*)
+- Terintegrasi langsung dengan tabel `TaskComment` di database PostgreSQL.
+- Menampilkan avatar anggota tim, nama lengkap, konten pesan, dan waktu relatif (*"Baru saja"*, *"X menit yang lalu"*, *"X jam yang lalu"*).
+- Fitur kirim cepat via tombol atau shortcut keyboard `Ctrl + Enter`.
+- Proteksi penghapusan komentar berbasis kepemilikan user (*author ownership*) dan hak akses Super Admin.
 
-### 5. Payroll
+#### E. Task Detail Modal Interaktif
+- Dialog rincian tugas komprehensif tanpa reload halaman.
+- Pengaturan langsung untuk Status, Prioritas (*Urgent*, *High*, *Medium*, *Low*), Rentang Tanggal Kalender, Assignee Stack (maksimal 3-4 avatar + badge `+N`), Tag Chip (`#tag`), serta Checklist subtasks.
+- Tab ekspansi masa depan (*Doc*, *Reminder*, *Whiteboard*, *Dashboard*) ditandai dengan badge status **"Soon"** (*disabled*) agar aman dan siap untuk roadmap berikutnya.
 
-- Perhitungan gaji otomatis
-- Tunjangan dan potongan
-- Generate slip gaji
-- Export laporan payroll
+#### F. Mobile Responsive & Auto-Collapsing Sidebar
+- Pada viewport perangkat mobile (`width < 768px`), panel navigasi proyek otomatis masuk mode *collapsed* (`w-14`) untuk memaksimalkan area kerja.
+- Modal detail tugas menyesuaikan layout secara vertikal (*single column scrollable*) sehingga konten diskusi dan rincian tugas tetap nyaman diakses di smartphone.
+
+### 3. Fitur HRIS Inti
+
+- **Dashboard:** Monitoring absensi harian, tracking kuota cuti, dan notifikasi persetujuan.
+- **Manajemen Karyawan:** Pencatatan profil karyawan, departemen, jabatan, dan riwayat.
+- **Absensi & Kehadiran:** Presensi online, status Hadir/Sakit/Izin/Alfa, serta rekapitulasi kehadiran.
+- **Pengajuan Cuti:** Workflow persetujuan cuti berjenjang.
+- **Penggajian (Payroll):** Perhitungan gaji, tunjangan, potongan, dan slip gaji digital.
 
 ---
 
 ## 📁 Struktur Project
 
-```
-kreavoks-hris/
+```text
+KvHRIS/
 ├─ app/
-│  ├─ components/          # Komponen Vue reusable
-│  │  ├─ ActivityList.vue
-│  │  ├─ AttendanceCard.vue
-│  │  ├─ DashboardCard.vue
-│  │  ├─ DataTable.vue
-│  │  ├─ FormInput.vue
-│  │  ├─ FormSelect.vue
-│  │  └─ Pagination.vue
-│  ├─ composables/         # Composable functions
-│  ├─ layouts/             # Layout templates
-│  │  └─ default.vue       # Layout utama dengan sidebar
-│  ├─ middleware/          # Route middleware
-│  │  └─ auth.ts           # Authentication middleware
-│  ├─ pages/               # Halaman aplikasi (auto-routing)
-│  │  ├─ index.vue         # Dashboard
-│  │  ├─ karyawan/
-│  │  │  ├─ index.vue      # List karyawan
-│  │  │  └─ tambah.vue     # Form tambah karyawan
-│  │  ├─ absensi/
-│  │  │  └─ index.vue      # Halaman absensi
-│  │  ├─ cuti/
-│  │  │  └─ index.vue      # Halaman cuti
-│  │  └─ payroll/
-│  │     └─ index.vue      # Halaman payroll
-│  └─ app.vue              # Root component
-├─ server/
-│  ├─ api/                 # REST API endpoints
-│  │  ├─ dashboard/
-│  │  │  └─ stats.get.ts
-│  │  ├─ employees/
-│  │  │  ├─ index.get.ts   # GET all employees
-│  │  │  ├─ index.post.ts  # CREATE employee
-│  │  │  └─ [id].delete.ts # DELETE employee
-│  │  ├─ attendance/
-│  │  │  └─ index.get.ts
-│  │  ├─ leaves/
-│  │  │  └─ index.get.ts
-│  │  └─ payroll/
-│  │     ├─ index.get.ts
-│  │     └─ process.post.ts
-│  ├─ middleware/          # Server middleware
-│  └─ utils/               # Server utilities
-│     └─ prisma.ts         # Prisma client instance
-├─ prisma/
-│  ├─ schema.prisma        # Database schema
-│  └─ migrations/          # Database migrations
-├─ public/                 # Static assets
-├─ .env                    # Environment variables
-├─ nuxt.config.ts          # Nuxt configuration
-├─ package.json            # Dependencies
+│  ├─ components/                 # Komponen antarmuka reusable
+│  │  ├─ ui/                      # Base primitives (Calendar, Dialog, Popover, DatePicker)
+│  │  └─ ...
+│  ├─ composables/                # Vue composables (useApi, useAuth, useBreakpoints)
+│  ├─ layouts/
+│  │  └─ default.vue              # Layout utama dengan sidebar & header terpadu
+│  ├─ pages/                      # File-based routing
+│  │  ├─ dashboard/               # Monitoring statistik
+│  │  ├─ projects/                # Modul Manajemen Proyek
+│  │  │  ├─ api/projects.api.ts
+│  │  │  ├─ components/           # Table, Grid Cards, Stats, Modals
+│  │  │  ├─ hooks/useProjects.ts
+│  │  │  └─ index.vue
+│  │  ├─ kanban/                  # Modul Workspace & Kanban Multi-View
+│  │  │  ├─ api/kanban.api.ts
+│  │  │  ├─ components/           # KanbanColumn, KanbanCard, ListView, CalendarView, Modals
+│  │  │  ├─ hooks/useKanban.ts
+│  │  │  └─ index.vue
+│  │  ├─ timeline/                # Gantt Grid Components & Hooks
+│  │  ├─ calendar/                # Modul Kalender Acara
+│  │  └─ ...
+│  └─ types/                      # TypeScript declarations (kreaui.d.ts, dll)
+├─ public/                        # Aset publik statis
+├─ nuxt.config.ts                 # Konfigurasi Nuxt 4
+├─ package.json                   # Dependensi Frontend (v2.0.0)
 └─ README.md
 ```
 
@@ -127,311 +120,66 @@ kreavoks-hris/
 
 ## 🛠 Teknologi Stack
 
-### Frontend
-
-- **Nuxt 3** - Full-stack Vue framework
-- **Vue 3** - Progressive JavaScript framework
-- **TypeScript** - Type-safe JavaScript
-- **Composition API** - Modern Vue patterns
-
-### Backend
-
-- **Nitro** - Nuxt server engine
-- **H3** - HTTP framework
-- **Prisma ORM** - Database toolkit
-- **MySQL** - Relational database
-
-### Styling
-
-- **CSS Scoped** - Component-scoped styling
-- Responsive design
-- Custom UI components
+| Komponen | Teknologi |
+| :--- | :--- |
+| **Framework** | [Nuxt 4](https://nuxt.com/) (Vue.js 3.5 Composition API) |
+| **Bahasa** | [TypeScript 5](https://www.typescriptlang.org/) (Strict Mode) |
+| **Styling** | [Tailwind CSS 3](https://tailwindcss.com/) + [KreaUI Design System](https://kreavoks.com) |
+| **Iconography** | [Lucide Vue Next](https://lucide.dev/) |
+| **Backend API** | [Express 5](https://expressjs.com/) + [Prisma ORM 5](https://www.prisma.io/) (`KvHRISBE`) |
+| **Database** | [PostgreSQL 16](https://www.postgresql.org/) |
+| **Otentikasi** | JSON Web Tokens (JWT) & Refresh Tokens |
 
 ---
 
-## 🚀 Setup & Instalasi
+## 🚀 Panduan Instalasi & Menjalankan
 
-### Prerequisites
+### Prasyarat
+- Node.js v18.0 atau lebih baru
+- npm / pnpm / yarn
+- Backend API (`KvHRISBE`) berjalan pada port 3001
 
-- Node.js (v18 atau lebih baru)
-- MySQL (v8.0 atau lebih baru)
-- npm/yarn/pnpm/bun
-
-### 1. Clone Repository
-
+### 1. Setup Frontend
 ```bash
-git clone <repository-url>
-cd kreavoks-hris
-```
+# Masuk ke direktori frontend
+cd KvHRIS
 
-### 2. Install Dependencies
-
-```bash
+# Pasang dependensi
 npm install
 ```
 
-### 3. Setup Database
-
-#### Buat database MySQL:
-
-```sql
-CREATE DATABASE kreavoks_hris;
-```
-
-#### Konfigurasi `.env`:
-
+### 2. Konfigurasi Environment (`.env`)
+Buat file `.env` pada root project:
 ```env
-DATABASE_URL="mysql://username:password@localhost:3306/kreavoks_hris"
+NUXT_PUBLIC_API_BASE=http://localhost:3001/api/v1
 ```
 
-### 4. Setup Prisma
-
-#### Generate Prisma Client:
-
-```bash
-npx prisma generate
-```
-
-#### Buat migrations:
-
-```bash
-npx prisma migrate dev --name init
-```
-
-#### (Optional) Seed database:
-
-```bash
-npx prisma db seed
-```
-
-### 5. Jalankan Development Server
-
+### 3. Menjalankan Server Pengembangan
 ```bash
 npm run dev
 ```
+Buka peramban pada `http://localhost:3000`.
 
-Aplikasi akan berjalan di `http://localhost:3000`
-
----
-
-## 📚 Panduan Pengembangan
-
-### Menambah Halaman Baru
-
-Nuxt 3 menggunakan **file-based routing**. Buat file baru di folder `app/pages/`:
-
-```vue
-<!-- app/pages/nama-halaman.vue -->
-<template>
-  <div>
-    <h1>Halaman Baru</h1>
-  </div>
-</template>
-
-<script setup lang="ts">
-definePageMeta({
-  layout: "default",
-  middleware: "auth",
-});
-</script>
-```
-
-### Membuat Komponen Baru
-
-Buat file di `app/components/`:
-
-```vue
-<!-- app/components/MyComponent.vue -->
-<template>
-  <div class="my-component">
-    {{ message }}
-  </div>
-</template>
-
-<script setup lang="ts">
-defineProps<{
-  message: string;
-}>();
-</script>
-
-<style scoped>
-.my-component {
-  padding: 1rem;
-}
-</style>
-```
-
-### Membuat API Endpoint Baru
-
-Buat file di `server/api/`:
-
-```typescript
-// server/api/my-endpoint.get.ts
-import { H3Event } from "h3";
-
-export default defineEventHandler(async (event: H3Event) => {
-  // Your logic here
-  return {
-    message: "Success",
-  };
-});
-```
-
-### Menggunakan Prisma
-
-```typescript
-// Di dalam API handler
-import { H3Event } from "h3";
-
-export default defineEventHandler(async (event: H3Event) => {
-  const prisma = event.context.prisma;
-
-  const employees = await prisma.employee.findMany();
-
-  return { employees };
-});
-```
-
-### Update Prisma Schema
-
-1. Edit `prisma/schema.prisma`
-2. Jalankan migration:
-
+### 4. Pengecekan Type Safety
 ```bash
-npx prisma migrate dev --name nama_perubahan
-```
-
-3. Generate ulang Prisma Client:
-
-```bash
-npx prisma generate
+npm run typecheck
 ```
 
 ---
 
-## 🔌 API Endpoints
+## 📦 Changelog & Versi
 
-### Dashboard
+### **v2.0.0 (Unified Project & Kanban Ecosystem Release)**
+- **New Feature:** Peluncuran Unified Multi-View Workspace di `/kanban` (Board, Gantt Timeline, Calendar, List).
+- **New Feature:** ClickUp-Style Subtask Creator container berbingkai ungu dengan pintasan atribut lengkap.
+- **New Feature:** Sistem diskusi tugas real-time terintegrasi tabel `TaskComment` di PostgreSQL.
+- **New Feature:** Manajemen Proyek terpusat di `/projects` dengan dual view (Table & Grid) dan analitik metrik.
+- **Improvement:** Format tanggal ringkas seragam menggunakan ikon `Clock` (`🕒 Nov 16 - Nov 30`).
+- **Improvement:** Avatar stack dinamis maksimal 3-4 avatar dengan badge pelimpahan `+N`.
+- **Improvement:** Auto-collapsing sidebar pada viewport mobile dan modal detail responsif.
+- **Cleanup:** Penghapusan 100% data mock hardcode, migrasi penuh ke backend REST API.
+- **Security:** Validasi input, sanitasi komentar, dan pengamanan hak akses penghapusan.
 
-- `GET /api/dashboard/stats` - Get dashboard statistics
-
-### Employees
-
-- `GET /api/employees` - Get all employees (with pagination)
-- `POST /api/employees` - Create new employee
-- `GET /api/employees/:id` - Get employee by ID
-- `PUT /api/employees/:id` - Update employee
-- `DELETE /api/employees/:id` - Delete employee
-
-### Attendance
-
-- `GET /api/attendance` - Get attendance records
-- `POST /api/attendance` - Record attendance
-
-### Leaves
-
-- `GET /api/leaves` - Get leave requests
-- `POST /api/leaves` - Submit leave request
-- `PUT /api/leaves/:id` - Update leave status
-- `DELETE /api/leaves/:id` - Cancel leave request
-
-### Payroll
-
-- `GET /api/payroll` - Get payroll data
-- `POST /api/payroll/process` - Process payroll
-- `GET /api/payroll/slip/:id` - Get salary slip
-
----
-
-## 🔐 Environment Variables
-
-Buat file `.env` di root project:
-
-```env
-# Database
-DATABASE_URL="mysql://username:password@localhost:3306/kreavoks_hris"
-
-# App
-NODE_ENV=development
-
-# (Optional) JWT Secret untuk authentication
-JWT_SECRET=your-secret-key
-```
-
----
-
-# Nuxt 3 Documentation
-
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
-
-## Setup
-
-Make sure to install dependencies:
-
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+### **v1.0.0 (Initial Foundation)**
+- Inisialisasi sistem HRIS inti (Dashboard, Karyawan, Absensi, Cuti, Payroll).
+- Integrasi autentikasi JWT dan layout navigasi dasar.
