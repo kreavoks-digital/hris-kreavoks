@@ -457,3 +457,4 @@ const getProjectsCount = (key: string): number => {
   return projects.value.filter(p => p.category === key).length
 }
 </script>
+

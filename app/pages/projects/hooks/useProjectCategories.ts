@@ -164,3 +164,4 @@ export const useProjectCategories = () => {
     defaultCategories: DEFAULT_CATEGORIES
   }
 }
+
