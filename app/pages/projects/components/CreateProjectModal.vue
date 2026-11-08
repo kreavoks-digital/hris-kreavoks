@@ -1,17 +1,17 @@
 <template>
   <Dialog :open="open" @update:open="$emit('update:open', $event)">
     <DialogContent class="w-[calc(100%-1.5rem)] sm:max-w-[560px] max-h-[92dvh] p-0 rounded-2xl sm:rounded-3xl bg-popover border border-border flex flex-col overflow-hidden shadow-2xl">
-      <!-- Header with Icon Badge -->
-      <DialogHeader class="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-border/50 shrink-0">
-        <div class="flex items-center gap-3">
+      <!-- Header with Icon Badge (Rata Kiri) -->
+      <DialogHeader class="p-4 sm:p-6 pb-3 sm:pb-4 border-b border-border/50 shrink-0 !text-left items-start">
+        <div class="flex items-center gap-3 text-left w-full">
           <div class="w-10 h-10 rounded-xl sm:rounded-2xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
             <FolderPlus class="w-5 h-5" />
           </div>
-          <div>
-            <DialogTitle class="text-base sm:text-lg font-bold text-foreground">
+          <div class="text-left flex-1 min-w-0">
+            <DialogTitle class="text-base sm:text-lg font-bold text-foreground text-left">
               Buat Proyek Baru
             </DialogTitle>
-            <p class="text-xs text-muted-foreground mt-0.5">
+            <p class="text-xs text-muted-foreground mt-0.5 text-left">
               Tambahkan ruang kerja proyek klien atau inisiatif tim baru.
             </p>
           </div>
@@ -125,19 +125,19 @@
           </div>
         </div>
 
-        <!-- Mobile-friendly Footer Actions -->
-        <DialogFooter class="p-4 sm:p-5 pt-3 sm:pt-3 border-t border-border/50 bg-muted/15 flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-2.5 shrink-0">
+        <!-- Footer Actions: Kiri Kanan Flex -->
+        <DialogFooter class="p-4 sm:p-5 pt-3 sm:pt-3 border-t border-border/50 bg-muted/15 !flex-row flex-row items-center justify-between sm:justify-end gap-3 shrink-0">
           <Button
             type="button"
             variant="ghost"
-            class="h-11 sm:h-10 rounded-xl sm:rounded-2xl text-sm w-full sm:w-auto"
+            class="flex-1 sm:flex-none sm:min-w-[100px] h-11 sm:h-10 rounded-xl sm:rounded-2xl text-sm"
             label="Batal"
             @click="$emit('update:open', false)"
           />
           <Button
             type="submit"
             variant="primary"
-            class="h-11 sm:h-10 rounded-xl sm:rounded-2xl text-sm font-medium w-full sm:w-auto shadow-sm"
+            class="flex-1 sm:flex-none sm:min-w-[130px] h-11 sm:h-10 rounded-xl sm:rounded-2xl text-sm font-medium shadow-sm"
             label="Buat Proyek"
             :disabled="!isValid"
           />
