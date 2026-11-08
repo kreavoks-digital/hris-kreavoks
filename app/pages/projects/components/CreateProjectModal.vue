@@ -94,21 +94,82 @@
             </div>
           </div>
 
-          <!-- Project Lead -->
+          <!-- Project Lead (Searchable User Picker with Avatar & Position) -->
           <div class="space-y-1.5">
             <label class="text-xs sm:text-sm font-medium text-foreground flex items-center gap-1">
               Project Lead <span class="text-rose-500 font-semibold">*</span>
             </label>
-            <Select v-model="form.leadId">
-              <SelectTrigger class="rounded-xl sm:rounded-2xl h-11 border-border bg-background px-3.5 text-sm transition-all focus:border-primary">
-                <SelectValue placeholder="Pilih Lead Proyek" />
-              </SelectTrigger>
-              <SelectContent class="rounded-xl border-border bg-popover z-50 shadow-lg max-h-56">
-                <SelectItem v-for="member in members" :key="member.id" :value="member.id">
-                  {{ member.name }} ({{ member.position }})
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            <Popover v-model:open="isLeadPopoverOpen">
+              <PopoverTrigger as-child>
+                <button
+                  type="button"
+                  class="rounded-xl sm:rounded-2xl h-11 border border-border bg-background px-3.5 text-sm transition-all hover:border-primary/50 focus:border-primary focus:outline-none w-full flex items-center justify-between gap-2"
+                >
+                  <div v-if="selectedLead" class="flex items-center gap-2.5 min-w-0">
+                    <img
+                      :src="selectedLead.avatar || getAvataaarUrl(selectedLead.name)"
+                      :alt="selectedLead.name"
+                      class="w-6 h-6 rounded-full object-cover shrink-0 border border-border/40 bg-muted"
+                    />
+                    <span class="text-xs sm:text-sm font-medium text-foreground truncate">
+                      {{ selectedLead.name }}
+                    </span>
+                    <span class="text-[10px] sm:text-xs text-muted-foreground bg-muted/60 px-2 py-0.5 rounded-md truncate max-w-[140px]">
+                      {{ selectedLead.position || 'Member' }}
+                    </span>
+                  </div>
+                  <div v-else class="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm">
+                    <User class="w-4 h-4 opacity-50" />
+                    <span>Pilih Lead Proyek...</span>
+                  </div>
+                  <ChevronDown class="w-4 h-4 text-muted-foreground shrink-0 opacity-70" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                class="w-[calc(100vw-3rem)] sm:w-[510px] p-2.5 rounded-2xl border border-border bg-popover shadow-xl z-50"
+                align="start"
+              >
+                <!-- Search Input -->
+                <div class="relative mb-2">
+                  <Search class="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+                  <input
+                    v-model="leadSearch"
+                    type="text"
+                    placeholder="Cari nama atau jabatan lead..."
+                    class="w-full text-xs rounded-xl border border-border/50 bg-background pl-8 pr-2.5 py-2 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-1 focus:ring-primary"
+                  />
+                </div>
+
+                <!-- Members List -->
+                <div class="max-h-56 overflow-y-auto space-y-1 pr-1">
+                  <button
+                    v-for="member in filteredMembers"
+                    :key="member.id"
+                    type="button"
+                    @click="selectLead(member.id)"
+                    class="w-full flex items-center justify-between p-2 rounded-xl text-left hover:bg-muted/60 transition-colors"
+                    :class="{ 'bg-primary/10 text-primary font-medium': String(form.leadId) === String(member.id) }"
+                  >
+                    <div class="flex items-center gap-2.5 min-w-0">
+                      <img
+                        :src="member.avatar || getAvataaarUrl(member.name)"
+                        :alt="member.name"
+                        class="w-7 h-7 rounded-full object-cover bg-muted shrink-0 border border-border/40"
+                      />
+                      <div class="min-w-0">
+                        <p class="text-xs font-medium text-foreground truncate">{{ member.name }}</p>
+                        <p class="text-[11px] text-muted-foreground truncate">{{ member.position || 'Member' }}</p>
+                      </div>
+                    </div>
+                    <Check v-if="String(form.leadId) === String(member.id)" class="w-4 h-4 text-primary shrink-0" />
+                  </button>
+
+                  <div v-if="filteredMembers.length === 0" class="py-4 text-center text-xs text-muted-foreground">
+                    Tidak ada anggota yang cocok dengan "{{ leadSearch }}"
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <!-- Description -->
@@ -149,13 +210,15 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { FolderPlus } from 'lucide-vue-next'
+import { FolderPlus, Search, ChevronDown, Check, User } from 'lucide-vue-next'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog'
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover'
 import { Input } from '~/components/ui/input'
 import { Textarea } from '~/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Button } from '@kreavoks/kreaui'
 import type { ProjectMember, CreateProjectPayload } from '../types'
+import { getAvataaarUrl } from '../hooks/useProjects'
 
 const props = defineProps<{
   open: boolean
@@ -178,6 +241,28 @@ const form = ref<CreateProjectPayload>({
   memberIds: [],
   health: 'ON_TRACK'
 })
+
+// Searchable Lead Picker State
+const isLeadPopoverOpen = ref(false)
+const leadSearch = ref('')
+
+const selectedLead = computed(() => {
+  return props.members.find(m => String(m.id) === String(form.value.leadId)) || null
+})
+
+const filteredMembers = computed(() => {
+  const query = leadSearch.value.toLowerCase().trim()
+  if (!query) return props.members
+  return props.members.filter(m =>
+    m.name.toLowerCase().includes(query) ||
+    (m.position && m.position.toLowerCase().includes(query))
+  )
+})
+
+const selectLead = (id: string) => {
+  form.value.leadId = id
+  isLeadPopoverOpen.value = false
+}
 
 watch(() => props.members, (newMembers) => {
   if (newMembers.length > 0 && !form.value.leadId) {
