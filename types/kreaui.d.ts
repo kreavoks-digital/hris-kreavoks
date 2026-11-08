@@ -18,7 +18,7 @@ declare module '@kreavoks/kreaui' {
 
   export interface BadgeProps {
     type?: 'label' | 'notification' | 'hint'
-    variant?: 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'outline' | 'destructive'
+    variant?: 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info' | 'outline' | 'destructive' | 'danger' | string
     size?: 'sm' | 'md' | 'lg'
     rounded?: 'sm' | 'md' | 'lg' | 'full'
     appearance?: 'soft' | 'solid'

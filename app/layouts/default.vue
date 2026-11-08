@@ -388,16 +388,16 @@
       </header>
 
       <!-- Main Section -->
-      <main class="flex-1 p-4 lg:p-8 min-w-0 w-full max-w-full">
-        <div class="mx-auto max-w-7xl min-w-0 w-full">
+      <main class="flex-1 p-3 sm:p-4 lg:p-5 min-w-0 w-full max-w-full">
+        <div :class="route.meta.fullWidth ? 'w-full min-w-0' : 'mx-auto max-w-[1600px] min-w-0 w-full'">
           <slot />
         </div>
       </main>
 
       <!-- Footer -->
-      <footer class="border-t border-border py-6 px-4 lg:px-8 w-full max-w-full">
+      <footer class="border-t border-border py-4 px-3 sm:px-4 lg:px-6 w-full max-w-full">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p class="text-sm text-muted-foreground text-center sm:text-left">© 2024 Kreavoks Digital Agency - HRIS Ecosystem</p>
+          <p class="text-sm text-muted-foreground text-center sm:text-left">© {{ new Date().getFullYear() }} Kreavoks Digital Agency - HRIS Ecosystem</p>
           <div class="flex gap-4 text-sm text-muted-foreground">
             <span>Support</span>
             <span>Terms</span>
@@ -440,7 +440,6 @@ import {
   FolderKanban,
   Kanban,
   ChartNoAxesGantt,
-  Folders,
 } from 'lucide-vue-next'
 import { useDark, useToggle, onClickOutside } from '@vueuse/core'
 import { Button } from '~/components/ui/button'
@@ -595,9 +594,8 @@ const navigationGroups: NavGroup[] = [
     title: 'Projects',
     items: [
       { name: 'Project Tracker', to: '/projects', icon: FolderKanban },
-      { name: 'Kanban Board', to: '/projects/kanban', icon: Kanban },
-      { name: 'Timeline', to: '/projects/timeline', icon: ChartNoAxesGantt },
-      { name: 'Folders', to: '/projects/folders', icon: Folders },
+      { name: 'Kanban Board', to: '/kanban', icon: Kanban },
+      { name: 'Timeline', to: '/timeline', icon: ChartNoAxesGantt },
     ]
   },
   {

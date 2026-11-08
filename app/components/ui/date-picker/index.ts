@@ -1,3 +1,5 @@
 export { default as DatePicker } from './DatePicker.vue'
 export { default as DateRangePicker } from './DateRangePicker.vue'
+export { default as TaskDateRangePicker } from './TaskDateRangePicker.vue'
 export type { DateRangeValue } from './DateRangePicker.vue'
+export type { TaskDateRangeValue } from './TaskDateRangePicker.vue'
