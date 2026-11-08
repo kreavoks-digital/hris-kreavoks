@@ -65,7 +65,20 @@ export const useEventEdit = () => {
     startDate: '',
     endDate: undefined,
     isAllDay: false,
-    color: '#4082E6'
+    color: '#4082E6',
+    recurrence: {
+      type: 'DOES_NOT_REPEAT',
+      interval: 1,
+      unit: 'WEEK',
+      daysOfWeek: [],
+      daysOfMonth: [],
+      monthlyMode: 'SAME_DAY',
+      endType: 'NEVER',
+      endDate: ''
+    },
+    notifications: [
+      { id: 'notif-1', minutesBefore: 30 }
+    ]
   })
 
   // Constants
@@ -469,6 +482,19 @@ export const useEventEdit = () => {
       form.value.eventUrl = ev.eventUrl || ''
       form.value.color = ev.color || '#4082E6'
       form.value.isAllDay = ev.isAllDay
+      form.value.recurrence = ev.recurrence || {
+        type: 'DOES_NOT_REPEAT',
+        interval: 1,
+        unit: 'WEEK',
+        daysOfWeek: [],
+        daysOfMonth: [],
+        monthlyMode: 'SAME_DAY',
+        endType: 'NEVER',
+        endDate: ''
+      }
+      form.value.notifications = ev.notifications && ev.notifications.length > 0
+        ? ev.notifications
+        : [{ id: 'notif-1', minutesBefore: 30 }]
       notesContent.value = ev.notesContent || ''
       notesVisibility.value = ev.notesVisibility || 'ATTENDEES_VIEW'
       setTimeout(() => {
@@ -536,7 +562,9 @@ export const useEventEdit = () => {
         endDate: form.value.endDate ? new Date(form.value.endDate).toISOString() : undefined,
         isAllDay: form.value.isAllDay,
         color: form.value.color,
-        attendeeIds: selectedAttendeeIds.value
+        attendeeIds: selectedAttendeeIds.value,
+        recurrence: form.value.recurrence,
+        notifications: form.value.notifications
       }
 
       await calendarApi.updateEvent(eventId.value, payload)

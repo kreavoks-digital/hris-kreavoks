@@ -1,7 +1,19 @@
 import type { CalendarEventItem, CandidateUser, CreateEventPayload, AttendeeStatus } from '../types/calendar.types'
+import { encodeEventMetadata, decodeEventMetadata } from '../types/calendar.types'
 
 export const useCalendarApi = () => {
   const api = useApi()
+
+  const parseEventItem = (item: any): CalendarEventItem => {
+    if (!item) return item
+    const decoded = decodeEventMetadata(item.description)
+    return {
+      ...item,
+      description: decoded.cleanDescription,
+      recurrence: decoded.recurrence,
+      notifications: decoded.notifications
+    }
+  }
 
   const getEvents = async (query: { year?: number; month?: number; startDate?: string; endDate?: string; type?: string; view?: string }) => {
     const params = new URLSearchParams()
@@ -13,28 +25,49 @@ export const useCalendarApi = () => {
     if (query.view) params.append('view', query.view)
 
     const res = await api(`/events?${params.toString()}`)
-    return (res.data || []) as CalendarEventItem[]
+    const list = (res.data || []) as any[]
+    return list.map(parseEventItem)
   }
 
   const getEventById = async (id: number) => {
     const res = await api(`/events/${id}`)
-    return res.data as CalendarEventItem
+    return parseEventItem(res.data)
   }
 
   const createEvent = async (payload: CreateEventPayload) => {
+    const descriptionWithMeta = encodeEventMetadata(payload.description, {
+      recurrence: payload.recurrence,
+      notifications: payload.notifications
+    })
+
+    const body: any = {
+      ...payload,
+      description: descriptionWithMeta
+    }
+
     const res = await api('/events', {
       method: 'POST',
-      body: payload
+      body
     })
-    return res.data as CalendarEventItem
+    return parseEventItem(res.data)
   }
 
   const updateEvent = async (id: number, payload: Partial<CreateEventPayload>) => {
+    const descriptionWithMeta = encodeEventMetadata(payload.description, {
+      recurrence: payload.recurrence,
+      notifications: payload.notifications
+    })
+
+    const body: any = {
+      ...payload,
+      description: descriptionWithMeta
+    }
+
     const res = await api(`/events/${id}`, {
       method: 'PUT',
-      body: payload
+      body
     })
-    return res.data as CalendarEventItem
+    return parseEventItem(res.data)
   }
 
   const deleteEvent = async (id: number) => {
@@ -102,7 +135,7 @@ export const useCalendarApi = () => {
     updateEvent,
     deleteEvent,
     updateRsvp,
-    updateNotes,
-    getCandidates
+    getCandidates,
+    updateNotes
   }
 }

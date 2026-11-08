@@ -163,6 +163,21 @@
             </div>
           </div>
 
+          <!-- Recurrence / Repeat Info (Teams style) -->
+          <div v-if="event.recurrence && event.recurrence.type !== 'DOES_NOT_REPEAT'" class="flex items-center gap-3">
+            <RotateCw class="w-4 h-4 text-muted-foreground shrink-0" />
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="font-medium truncate">{{ recurrenceText }}</span>
+              <Badge variant="outline" size="sm" class="text-[10px] shrink-0">Berulang</Badge>
+            </div>
+          </div>
+
+          <!-- Notifications / Reminders Info (Google Calendar style) -->
+          <div v-if="notificationsSummaryText" class="flex items-center gap-3">
+            <Bell class="w-4 h-4 text-muted-foreground shrink-0" />
+            <span class="text-muted-foreground truncate">{{ notificationsSummaryText }}</span>
+          </div>
+
           <!-- Peserta & Status RSVP -->
           <div class="flex items-start gap-3 pt-0.5">
             <Users class="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
@@ -266,7 +281,9 @@ import {
   Copy,
   AlignLeft,
   User,
-  Users
+  Users,
+  RotateCw,
+  Bell
 } from 'lucide-vue-next'
 import { Button } from '@kreavoks/kreaui'
 import { Badge } from '~/components/ui/badge'
@@ -358,6 +375,39 @@ const formattedTime = computed(() => {
 
   const start = formatTime(props.event.startDate)
   return props.event.endDate ? `${start} - ${formatTime(props.event.endDate)} WIB` : `${start} WIB`
+})
+
+const recurrenceLabels: Record<string, string> = {
+  DOES_NOT_REPEAT: 'Does not repeat',
+  EVERY_WEEKDAY: 'Every weekday (Mon - Fri)',
+  DAILY: 'Daily',
+  WEEKLY: 'Weekly',
+  MONTHLY: 'Monthly',
+  YEARLY: 'Yearly',
+  CUSTOM: 'Custom'
+}
+
+const recurrenceText = computed(() => {
+  if (!props.event?.recurrence) return ''
+  const rec = props.event.recurrence
+  if (rec.type === 'MONTHLY' && rec.monthlyMode === 'SPECIFIC_DATES' && rec.daysOfMonth?.length) {
+    return `Monthly (Setiap tanggal ${rec.daysOfMonth.join(', ')})`
+  }
+  if (rec.type === 'CUSTOM') {
+    const unitLabel = rec.unit === 'DAY' ? 'hari' : rec.unit === 'WEEK' ? 'minggu' : rec.unit === 'MONTH' ? 'bulan' : 'tahun'
+    return `Setiap ${rec.interval || 1} ${unitLabel}`
+  }
+  return recurrenceLabels[rec.type] || rec.type
+})
+
+const notificationsSummaryText = computed(() => {
+  if (!props.event?.notifications || props.event.notifications.length === 0) return ''
+  const parts = props.event.notifications.map(n => {
+    if (n.minutesBefore >= 1440) return `${Math.floor(n.minutesBefore / 1440)} hari sebelumnya`
+    if (n.minutesBefore >= 60) return `${Math.floor(n.minutesBefore / 60)} jam sebelumnya`
+    return `${n.minutesBefore} menit sebelumnya`
+  })
+  return `Pengingat: ${parts.join(', ')}`
 })
 
 const copyLink = async (url?: string | null) => {

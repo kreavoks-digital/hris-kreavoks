@@ -20,7 +20,7 @@ export const useEventCreate = () => {
   const endDateOnly = ref('')
   const endTimeOnly = ref('10:00')
 
-  const form = ref({
+  const form = ref<CreateEventPayload>({
     title: '',
     description: '',
     type: 'MEETING' as EventType,
@@ -29,7 +29,20 @@ export const useEventCreate = () => {
     startDate: '',
     endDate: '',
     isAllDay: false,
-    color: '#4082E6'
+    color: '#4082E6',
+    recurrence: {
+      type: 'DOES_NOT_REPEAT',
+      interval: 1,
+      unit: 'WEEK',
+      daysOfWeek: [],
+      daysOfMonth: [],
+      monthlyMode: 'SAME_DAY',
+      endType: 'NEVER',
+      endDate: ''
+    },
+    notifications: [
+      { id: 'notif-1', minutesBefore: 30 }
+    ]
   })
 
   // Sync separated dates into form payload
@@ -270,15 +283,17 @@ export const useEventCreate = () => {
     try {
       const payload: CreateEventPayload = {
         title: form.value.title.trim(),
-        description: form.value.description.trim() || undefined,
+        description: form.value.description?.trim() || undefined,
         type: form.value.type,
-        location: form.value.location.trim() || undefined,
-        eventUrl: form.value.eventUrl.trim() || undefined,
+        location: form.value.location?.trim() || undefined,
+        eventUrl: form.value.eventUrl?.trim() || undefined,
         startDate: new Date(form.value.startDate).toISOString(),
         endDate: form.value.endDate ? new Date(form.value.endDate).toISOString() : undefined,
         isAllDay: form.value.isAllDay,
         color: form.value.color,
-        attendeeIds: selectedAttendeeIds.value
+        attendeeIds: selectedAttendeeIds.value,
+        recurrence: form.value.recurrence,
+        notifications: form.value.notifications
       }
 
       await calendarApi.createEvent(payload)

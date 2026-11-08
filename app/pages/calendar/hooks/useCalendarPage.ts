@@ -36,13 +36,97 @@ export const useCalendarPage = (
     return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
   }
 
+  const isEventMatchingDate = (e: CalendarEventItem, targetDate: Date, targetDateStr: string): boolean => {
+    const evDate = new Date(e.startDate)
+    const evDateStr = `${evDate.getFullYear()}-${pad(evDate.getMonth() + 1)}-${pad(evDate.getDate())}`
+
+    // Exact date match (single event or original start date)
+    if (evDateStr === targetDateStr) return true
+
+    // If target date is before the event start date, it cannot match
+    if (targetDateStr < evDateStr) return false
+
+    // Check if recurrence is configured
+    if (!e.recurrence || e.recurrence.type === 'DOES_NOT_REPEAT') {
+      // Check multi-day non-recurring event
+      if (e.endDate) {
+        const endD = new Date(e.endDate)
+        const endDStr = `${endD.getFullYear()}-${pad(endD.getMonth() + 1)}-${pad(endD.getDate())}`
+        return targetDateStr >= evDateStr && targetDateStr <= endDStr
+      }
+      return false
+    }
+
+    // Check end condition if specified
+    if (e.recurrence.endDate && targetDateStr > e.recurrence.endDate) {
+      return false
+    }
+
+    const type = e.recurrence.type
+
+    if (type === 'DAILY') {
+      return true
+    }
+
+    if (type === 'EVERY_WEEKDAY') {
+      const day = targetDate.getDay() // 0 = Sunday, 1 = Monday ... 5 = Friday, 6 = Saturday
+      return day >= 1 && day <= 5
+    }
+
+    if (type === 'WEEKLY') {
+      const targetDay = targetDate.getDay()
+      if (e.recurrence.daysOfWeek && e.recurrence.daysOfWeek.length > 0) {
+        return e.recurrence.daysOfWeek.includes(targetDay)
+      }
+      return targetDay === evDate.getDay()
+    }
+
+    if (type === 'MONTHLY') {
+      // If specific dates in month are configured (e.g. [1, 15, 28] - "tiap tanggal berapa aja")
+      if (e.recurrence.daysOfMonth && e.recurrence.daysOfMonth.length > 0) {
+        return e.recurrence.daysOfMonth.includes(targetDate.getDate())
+      }
+      return targetDate.getDate() === evDate.getDate()
+    }
+
+    if (type === 'YEARLY') {
+      return (
+        targetDate.getMonth() === evDate.getMonth() &&
+        targetDate.getDate() === evDate.getDate()
+      )
+    }
+
+    if (type === 'CUSTOM') {
+      if (e.recurrence.unit === 'DAY') {
+        const interval = Math.max(1, e.recurrence.interval || 1)
+        const diffTime = targetDate.getTime() - evDate.getTime()
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+        return diffDays >= 0 && diffDays % interval === 0
+      }
+      if (e.recurrence.unit === 'WEEK') {
+        const targetDay = targetDate.getDay()
+        if (e.recurrence.daysOfWeek && e.recurrence.daysOfWeek.length > 0) {
+          if (!e.recurrence.daysOfWeek.includes(targetDay)) return false
+        } else if (targetDay !== evDate.getDay()) {
+          return false
+        }
+        return true
+      }
+      if (e.recurrence.unit === 'MONTH') {
+        if (e.recurrence.daysOfMonth && e.recurrence.daysOfMonth.length > 0) {
+          return e.recurrence.daysOfMonth.includes(targetDate.getDate())
+        }
+        return targetDate.getDate() === evDate.getDate()
+      }
+      return true
+    }
+
+    return false
+  }
+
   const getEventsForDate = (date: Date) => {
     const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-    return events.value.filter(e => {
-      const evDate = new Date(e.startDate)
-      const evDateStr = `${evDate.getFullYear()}-${pad(evDate.getMonth() + 1)}-${pad(evDate.getDate())}`
-      return evDateStr === dateStr
-    })
+    return events.value.filter(e => isEventMatchingDate(e, date, dateStr))
   }
 
   const isInSelectedRange = (d: Date) => {
