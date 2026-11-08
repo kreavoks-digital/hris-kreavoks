@@ -127,7 +127,16 @@ export const encodeEventMetadata = (
   description?: string,
   meta?: { recurrence?: RecurrenceConfig; notifications?: EventNotificationItem[] }
 ): string => {
-  const cleanDesc = (description || '').replace(/^\[KV_CALENDAR_META:.*?\]\n?/s, '').trim()
+  let cleanDesc = description || ''
+  const prefix = '[KV_CALENDAR_META:'
+  const trimmed = cleanDesc.trim()
+  if (trimmed.startsWith(prefix)) {
+    const endMetaIdx = trimmed.indexOf('}]')
+    if (endMetaIdx !== -1) {
+      cleanDesc = trimmed.slice(endMetaIdx + 2).replace(/^\n/, '').trim()
+    }
+  }
+
   const hasRecurrence = meta?.recurrence && meta.recurrence.type !== 'DOES_NOT_REPEAT'
   const hasNotifications = meta?.notifications && meta.notifications.length > 0
 
@@ -139,7 +148,8 @@ export const encodeEventMetadata = (
   if (hasRecurrence) payload.recurrence = meta.recurrence
   if (hasNotifications) payload.notifications = meta.notifications
 
-  return `[KV_CALENDAR_META:${JSON.stringify(payload)}]\n${cleanDesc}`
+  const jsonStr = JSON.stringify(payload)
+  return cleanDesc ? `[KV_CALENDAR_META:${jsonStr}]\n${cleanDesc}` : `[KV_CALENDAR_META:${jsonStr}]`
 }
 
 export const decodeEventMetadata = (rawDescription?: string | null): {
@@ -155,22 +165,25 @@ export const decodeEventMetadata = (rawDescription?: string | null): {
     }
   }
 
-  const match = rawDescription.match(/^\[KV_CALENDAR_META:(.*?)\]\n?(.*)$/s)
-  if (match) {
-    try {
-      const parsed = JSON.parse(match[1])
-      return {
-        cleanDescription: (match[2] || '').trim(),
-        recurrence: parsed.recurrence || { type: 'DOES_NOT_REPEAT' },
-        notifications: parsed.notifications && parsed.notifications.length > 0
-          ? parsed.notifications
-          : [{ id: 'notif-1', minutesBefore: 30 }]
-      }
-    } catch {
-      return {
-        cleanDescription: rawDescription,
-        recurrence: { type: 'DOES_NOT_REPEAT' },
-        notifications: [{ id: 'notif-1', minutesBefore: 30 }]
+  const trimmed = rawDescription.trim()
+  const prefix = '[KV_CALENDAR_META:'
+  if (trimmed.startsWith(prefix)) {
+    const endMetaIdx = trimmed.indexOf('}]')
+    if (endMetaIdx !== -1) {
+      const jsonStr = trimmed.slice(prefix.length, endMetaIdx + 1)
+      const rest = trimmed.slice(endMetaIdx + 2).replace(/^\n/, '').trim()
+
+      try {
+        const parsed = JSON.parse(jsonStr)
+        return {
+          cleanDescription: rest,
+          recurrence: parsed.recurrence || { type: 'DOES_NOT_REPEAT' },
+          notifications: parsed.notifications && parsed.notifications.length > 0
+            ? parsed.notifications
+            : [{ id: 'notif-1', minutesBefore: 30 }]
+        }
+      } catch (e) {
+        console.error('Failed to parse KV_CALENDAR_META JSON:', e)
       }
     }
   }

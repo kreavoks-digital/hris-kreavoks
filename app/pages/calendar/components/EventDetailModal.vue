@@ -145,10 +145,10 @@
           </div>
 
           <!-- Catatan / Deskripsi -->
-          <div v-if="event.description" class="flex items-start gap-3">
+          <div v-if="displayDescription" class="flex items-start gap-3">
             <AlignLeft class="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
             <p class="whitespace-pre-wrap text-muted-foreground flex-1">
-              {{ event.description }}
+              {{ displayDescription }}
             </p>
           </div>
 
@@ -408,6 +408,21 @@ const notificationsSummaryText = computed(() => {
     return `${n.minutesBefore} menit sebelumnya`
   })
   return `Pengingat: ${parts.join(', ')}`
+})
+
+const displayDescription = computed(() => {
+  const desc = props.event?.description || ''
+  if (!desc) return ''
+  const trimmed = desc.trim()
+  const prefix = '[KV_CALENDAR_META:'
+  if (trimmed.startsWith(prefix)) {
+    const endMetaIdx = trimmed.indexOf('}]')
+    if (endMetaIdx !== -1) {
+      return trimmed.slice(endMetaIdx + 2).replace(/^\n/, '').trim()
+    }
+    return ''
+  }
+  return desc
 })
 
 const copyLink = async (url?: string | null) => {
