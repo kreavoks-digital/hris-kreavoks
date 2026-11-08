@@ -546,7 +546,6 @@ import {
   SelectValue
 } from '~/components/ui/select'
 import { DatePicker } from '~/components/ui/date-picker'
-import { DatePicker } from '~/components/ui/date-picker'
 import { TimePicker } from '~/components/ui/time-picker'
 import SetRecurrenceModal from './SetRecurrenceModal.vue'
 import type {
