@@ -591,8 +591,9 @@ const daysNames: Record<number, string> = {
 const getDayOfWeekFromDate = (dateStr: string): number => {
   if (!dateStr) return new Date().getDay()
   const parts = dateStr.split('-').map(Number)
-  if (parts.length === 3) {
-    return new Date(parts[0], parts[1] - 1, parts[2]).getDay()
+  const [year, month, day] = parts
+  if (year !== undefined && month !== undefined && day !== undefined && !isNaN(year) && !isNaN(month) && !isNaN(day)) {
+    return new Date(year, month - 1, day).getDay()
   }
   return new Date(dateStr).getDay()
 }
@@ -605,8 +606,9 @@ const currentStartDayName = computed(() => {
 const formatDisplayDate = (dStr: string): string => {
   if (!dStr) return ''
   const parts = dStr.split('-')
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`
+  const [year, month, day] = parts
+  if (year && month && day) {
+    return `${day}/${month}/${year}`
   }
   return dStr
 }
@@ -705,7 +707,8 @@ const notifications = computed<EventNotificationItem[]>({
 const currentStartDay = computed(() => {
   if (props.startDateOnly) {
     const parts = props.startDateOnly.split('-').map(Number)
-    if (parts[2]) return parts[2]
+    const day = parts[2]
+    if (day !== undefined && !isNaN(day)) return day
   }
   return new Date().getDate()
 })
