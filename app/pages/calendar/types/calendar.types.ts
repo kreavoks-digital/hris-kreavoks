@@ -127,15 +127,8 @@ export const encodeEventMetadata = (
   description?: string,
   meta?: { recurrence?: RecurrenceConfig; notifications?: EventNotificationItem[] }
 ): string => {
-  let cleanDesc = description || ''
-  const prefix = '[KV_CALENDAR_META:'
-  const trimmed = cleanDesc.trim()
-  if (trimmed.startsWith(prefix)) {
-    const endMetaIdx = trimmed.indexOf('}]')
-    if (endMetaIdx !== -1) {
-      cleanDesc = trimmed.slice(endMetaIdx + 2).replace(/^\n/, '').trim()
-    }
-  }
+  const decoded = decodeEventMetadata(description)
+  const cleanDesc = decoded.cleanDescription
 
   const hasRecurrence = meta?.recurrence && meta.recurrence.type !== 'DOES_NOT_REPEAT'
   const hasNotifications = meta?.notifications && meta.notifications.length > 0
@@ -167,16 +160,48 @@ export const decodeEventMetadata = (rawDescription?: string | null): {
 
   const trimmed = rawDescription.trim()
   const prefix = '[KV_CALENDAR_META:'
+
   if (trimmed.startsWith(prefix)) {
-    const endMetaIdx = trimmed.indexOf('}]')
-    if (endMetaIdx !== -1) {
-      const jsonStr = trimmed.slice(prefix.length, endMetaIdx + 1)
-      const rest = trimmed.slice(endMetaIdx + 2).replace(/^\n/, '').trim()
+    let depth = 0
+    let inString = false
+    let escape = false
+    let endIdx = -1
+
+    for (let i = 0; i < trimmed.length; i++) {
+      const ch = trimmed[i]
+      if (escape) {
+        escape = false
+        continue
+      }
+      if (ch === '\\') {
+        escape = true
+        continue
+      }
+      if (ch === '"') {
+        inString = !inString
+        continue
+      }
+      if (!inString) {
+        if (ch === '[') depth++
+        else if (ch === ']') {
+          depth--
+          if (depth === 0) {
+            endIdx = i
+            break
+          }
+        }
+      }
+    }
+
+    if (endIdx !== -1) {
+      const jsonStr = trimmed.slice(prefix.length, endIdx)
+      const rest = trimmed.slice(endIdx + 1).replace(/^\r?\n/, '').trim()
+      const clean = rest.replace(/^(\]\}|\})\]?\s*/, '').trim()
 
       try {
         const parsed = JSON.parse(jsonStr)
         return {
-          cleanDescription: rest,
+          cleanDescription: clean,
           recurrence: parsed.recurrence || { type: 'DOES_NOT_REPEAT' },
           notifications: parsed.notifications && parsed.notifications.length > 0
             ? parsed.notifications
@@ -188,8 +213,14 @@ export const decodeEventMetadata = (rawDescription?: string | null): {
     }
   }
 
+  // Fallback cleanup if metadata or brackets are present
+  const cleaned = trimmed
+    .replace(/^\[KV_CALENDAR_META:.*?\]\n?/s, '')
+    .replace(/^(\]\}|\})\]?\s*/, '')
+    .trim()
+
   return {
-    cleanDescription: rawDescription,
+    cleanDescription: cleaned,
     recurrence: { type: 'DOES_NOT_REPEAT' },
     notifications: [{ id: 'notif-1', minutesBefore: 30 }]
   }

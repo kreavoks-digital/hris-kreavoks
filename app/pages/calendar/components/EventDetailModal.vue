@@ -290,6 +290,7 @@ import { Badge } from '~/components/ui/badge'
 import { toast } from 'vue-sonner'
 import ShareModal from './ShareModal.vue'
 import type { CalendarEventItem, AttendeeStatus } from '../types/calendar.types'
+import { decodeEventMetadata } from '../types/calendar.types'
 
 const props = defineProps<{
   open: boolean
@@ -411,18 +412,8 @@ const notificationsSummaryText = computed(() => {
 })
 
 const displayDescription = computed(() => {
-  const desc = props.event?.description || ''
-  if (!desc) return ''
-  const trimmed = desc.trim()
-  const prefix = '[KV_CALENDAR_META:'
-  if (trimmed.startsWith(prefix)) {
-    const endMetaIdx = trimmed.indexOf('}]')
-    if (endMetaIdx !== -1) {
-      return trimmed.slice(endMetaIdx + 2).replace(/^\n/, '').trim()
-    }
-    return ''
-  }
-  return desc
+  if (!props.event?.description) return ''
+  return decodeEventMetadata(props.event.description).cleanDescription
 })
 
 const copyLink = async (url?: string | null) => {
