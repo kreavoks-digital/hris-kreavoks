@@ -135,6 +135,10 @@ function handleViewTab(tab: ViewTab) {
 }
 
 function handleCreateTask(status: TaskStatus = 'TODO') {
+  if (!selectedProject.value) {
+    isCreateProjectModalOpen.value = true
+    return
+  }
   createStatusTarget.value = status
   isCreateModalOpen.value = true
 }
@@ -347,9 +351,18 @@ function getStatusLabel(status: TimelineItemStatus): string {
           <!-- Quick Action Button -->
           <div class="flex items-center gap-2">
             <Button
+              v-if="!selectedProject"
               variant="primary"
               size="sm"
-              :disabled="!selectedProject"
+              @click="isCreateProjectModalOpen = true"
+            >
+              <Plus class="w-4 h-4 mr-1.5" />
+              Buat Proyek
+            </Button>
+            <Button
+              v-else
+              variant="primary"
+              size="sm"
               @click="handleCreateTask('TODO')"
             >
               <Plus class="w-4 h-4 mr-1.5" />
@@ -470,102 +483,149 @@ function getStatusLabel(status: TimelineItemStatus): string {
 
       <!-- 3. DYNAMIC VIEWS CONTAINER (Tergantung Tab yang Dipilih) -->
 
-      <!-- VIEW A: BOARD VIEW (Kanban Columns) -->
+      <!-- GUARD: Jika Belum Ada Proyek Sama Sekali atau Belum Ada yang Dipilih -->
       <div
-        v-if="activeViewTab === 'board'"
-        class="flex gap-3 overflow-x-auto pb-4 items-start flex-1 min-h-[480px]"
+        v-if="!isLoadingKanban && (projects.length === 0 || !selectedProject)"
+        class="rounded-3xl border border-dashed border-border/70 bg-card p-8 sm:p-14 text-center flex flex-col items-center justify-center min-h-[460px] space-y-4"
       >
-        <KanbanColumn
-          v-for="col in columns"
-          :key="col.id"
-          :status="col.id"
-          :title="col.label"
-          :color="col.color"
-          :color-presets="colorPresets"
-          :tasks="getTasksByStatus(col.id)"
-          :project-id="selectedProjectId || undefined"
-          :members="members"
-          @task-click="openDetailModal"
-          @task-move="moveTask"
-          @create-task="handleCreateTask"
-          @quick-create="addTask"
-          @rename="renameColumn"
-          @update-color="updateColumnColor"
-          @clear-tasks="clearColumnTasks"
-          @toggle-complete="toggleTaskComplete"
-          @toggle-favorite="toggleTaskFavorite"
-          @rename-task="renameTask"
-          @add-subtask="addSubtask"
-          @update-assignees="updateTaskAssignees"
-          @update-priority="updateTaskPriority"
-          @update-dates="updateTaskDates"
-          @update-tags="updateTaskTags"
-          @delete-task="deleteTask"
-        />
-      </div>
+        <div class="h-16 w-16 rounded-3xl bg-kv-primary/10 text-kv-primary flex items-center justify-center shadow-xs">
+          <FolderKanban class="h-8 w-8 text-kv-primary" />
+        </div>
 
-      <!-- VIEW B: GANTT TIMELINE VIEW -->
-      <div v-else-if="activeViewTab === 'gantt'" class="flex-1 min-h-[480px]">
-        <div
-          v-if="timelineItems.length === 0"
-          class="rounded-3xl border border-border/40 bg-card p-12 text-center flex flex-col items-center justify-center min-h-[360px]"
-        >
-          <div class="h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground mb-3">
-            <ChartNoAxesGantt class="h-6 w-6 text-muted-foreground" />
-          </div>
-          <h3 class="text-base font-semibold text-foreground mb-1">
-            Belum ada tugas terjadwal di proyek ini
+        <div class="max-w-md space-y-1.5">
+          <h3 class="text-base font-bold text-foreground">
+            {{ projects.length === 0 ? 'Belum Ada Proyek di Workspace' : 'Pilih atau Buat Proyek Terlebih Dahulu' }}
           </h3>
-          <p class="text-xs text-muted-foreground max-w-sm mb-4">
-            Tambahkan tugas baru dan tentukan target deadline agar otomatis terpetakan di chart Gantt ini.
+          <p class="text-xs text-muted-foreground leading-relaxed">
+            {{ projects.length === 0
+              ? 'Untuk mulai menambahkan tugas, mengelola kanban, dan memantau linimasa kerja tim, Anda harus membuat proyek terlebih dahulu.'
+              : 'Silakan pilih salah satu proyek dari panel navigasi di sebelah kiri, atau buat proyek baru untuk mulai mengelola tugas.'
+            }}
           </p>
+        </div>
+
+        <div class="flex items-center gap-2.5 pt-2 flex-wrap justify-center">
           <Button
             variant="primary"
             size="sm"
-            @click="handleCreateTask('TODO')"
+            class="h-9 px-4 rounded-xl text-xs font-semibold"
+            @click="isCreateProjectModalOpen = true"
           >
-            <Plus class="w-3.5 h-3.5 mr-1.5" />
-            Tambah Tugas Sekarang
+            <Plus class="w-4 h-4 mr-1.5" />
+            {{ projects.length === 0 ? 'Buat Proyek Pertama Anda' : 'Buat Proyek Baru' }}
+          </Button>
+
+          <Button
+            v-if="projects.length > 0 && !selectedProject"
+            variant="outline"
+            size="sm"
+            class="h-9 px-4 rounded-xl text-xs font-semibold"
+            @click="setProjectId(projects[0].id)"
+          >
+            Pilih Proyek: {{ projects[0].name }}
           </Button>
         </div>
-
-        <TimelineGanttGrid
-          v-else
-          :items="timelineItems"
-          :days-header="daysHeader"
-          :calculate-bar-position="calculateBarPosition"
-          :get-status-variant="getStatusVariant"
-          :get-status-label="getStatusLabel"
-          @item-click="handleTimelineItemClick"
-          @toggle-complete="toggleTaskComplete"
-        />
       </div>
 
-      <!-- VIEW C: CALENDAR VIEW (Monthly Calendar Grid Ala Calendar Module) -->
-      <div v-else-if="activeViewTab === 'calendar'" class="flex-1 min-h-[480px]">
-        <KanbanCalendarView
-          :tasks="filteredTasks"
-          :columns="columns"
-          @task-click="openDetailModal"
-          @create-task="handleCreateTask"
-          @toggle-complete="toggleTaskComplete"
-        />
-      </div>
+      <!-- Jika Proyek Telah Dipilih: Render Tampilan Aktif -->
+      <template v-else>
+        <!-- VIEW A: BOARD VIEW (Kanban Columns) -->
+        <div
+          v-if="activeViewTab === 'board'"
+          class="flex gap-3 overflow-x-auto pb-4 items-start flex-1 min-h-[480px]"
+        >
+          <KanbanColumn
+            v-for="col in columns"
+            :key="col.id"
+            :status="col.id"
+            :title="col.label"
+            :color="col.color"
+            :color-presets="colorPresets"
+            :tasks="getTasksByStatus(col.id)"
+            :project-id="selectedProjectId || undefined"
+            :members="members"
+            @task-click="openDetailModal"
+            @task-move="moveTask"
+            @create-task="handleCreateTask"
+            @quick-create="addTask"
+            @rename="renameColumn"
+            @update-color="updateColumnColor"
+            @clear-tasks="clearColumnTasks"
+            @toggle-complete="toggleTaskComplete"
+            @toggle-favorite="toggleTaskFavorite"
+            @rename-task="renameTask"
+            @add-subtask="addSubtask"
+            @update-assignees="updateTaskAssignees"
+            @update-priority="updateTaskPriority"
+            @update-dates="updateTaskDates"
+            @update-tags="updateTaskTags"
+            @delete-task="deleteTask"
+          />
+        </div>
 
-      <!-- VIEW D: LIST VIEW (ClickUp-Style Grouped List) -->
-      <div v-else-if="activeViewTab === 'list'" class="flex-1 min-h-[480px]">
-        <KanbanListView
-          :columns="columns"
-          :tasks="filteredTasks"
-          :members="members"
-          @task-click="openDetailModal"
-          @create-task="handleCreateTask"
-          @toggle-checklist="toggleChecklist"
-          @toggle-complete="toggleTaskComplete"
-          @rename-task="renameTask"
-          @add-subtask="addSubtask"
-        />
-      </div>
+        <!-- VIEW B: GANTT TIMELINE VIEW -->
+        <div v-else-if="activeViewTab === 'gantt'" class="flex-1 min-h-[480px]">
+          <div
+            v-if="timelineItems.length === 0"
+            class="rounded-3xl border border-border/40 bg-card p-12 text-center flex flex-col items-center justify-center min-h-[360px]"
+          >
+            <div class="h-12 w-12 rounded-2xl bg-muted/60 flex items-center justify-center text-muted-foreground mb-3">
+              <ChartNoAxesGantt class="h-6 w-6 text-muted-foreground" />
+            </div>
+            <h3 class="text-base font-semibold text-foreground mb-1">
+              Belum ada tugas terjadwal di proyek ini
+            </h3>
+            <p class="text-xs text-muted-foreground max-w-sm mb-4">
+              Tambahkan tugas baru dan tentukan target deadline agar otomatis terpetakan di chart Gantt ini.
+            </p>
+            <Button
+              variant="primary"
+              size="sm"
+              @click="handleCreateTask('TODO')"
+            >
+              <Plus class="w-3.5 h-3.5 mr-1.5" />
+              Tambah Tugas Sekarang
+            </Button>
+          </div>
+
+          <TimelineGanttGrid
+            v-else
+            :items="timelineItems"
+            :days-header="daysHeader"
+            :calculate-bar-position="calculateBarPosition"
+            :get-status-variant="getStatusVariant"
+            :get-status-label="getStatusLabel"
+            @item-click="handleTimelineItemClick"
+            @toggle-complete="toggleTaskComplete"
+          />
+        </div>
+
+        <!-- VIEW C: CALENDAR VIEW (Monthly Calendar Grid Ala Calendar Module) -->
+        <div v-else-if="activeViewTab === 'calendar'" class="flex-1 min-h-[480px]">
+          <KanbanCalendarView
+            :tasks="filteredTasks"
+            :columns="columns"
+            @task-click="openDetailModal"
+            @create-task="handleCreateTask"
+            @toggle-complete="toggleTaskComplete"
+          />
+        </div>
+
+        <!-- VIEW D: LIST VIEW (ClickUp-Style Grouped List) -->
+        <div v-else-if="activeViewTab === 'list'" class="flex-1 min-h-[480px]">
+          <KanbanListView
+            :columns="columns"
+            :tasks="filteredTasks"
+            :members="members"
+            @task-click="openDetailModal"
+            @create-task="handleCreateTask"
+            @toggle-checklist="toggleChecklist"
+            @toggle-complete="toggleTaskComplete"
+            @rename-task="renameTask"
+            @add-subtask="addSubtask"
+          />
+        </div>
+      </template>
     </main>
 
     <!-- Modals -->

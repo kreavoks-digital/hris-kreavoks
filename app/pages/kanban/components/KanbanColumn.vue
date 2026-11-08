@@ -82,6 +82,7 @@ function hexToRgba(hex: string, alpha: number) {
 }
 
 function onQuickTaskSave(data: Omit<KanbanTask, 'id' | 'createdAt' | 'updatedAt'>) {
+  if (!props.projectId) return
   emit('quickCreate', data)
   isInlineCreating.value = false
 }
@@ -352,9 +353,11 @@ function onDrop(e: DragEvent) {
         <!-- + Button (Add Task Quick Inline) -->
         <button
           type="button"
-          class="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-background/80 transition-colors cursor-pointer"
-          title="Tambah tugas di kolom ini"
-          @click="isInlineCreating = !isInlineCreating"
+          class="p-1.5 rounded-xl transition-colors cursor-pointer"
+          :class="projectId ? 'text-muted-foreground hover:text-foreground hover:bg-background/80' : 'text-muted-foreground/30 cursor-not-allowed'"
+          :disabled="!projectId"
+          :title="projectId ? 'Tambah tugas di kolom ini' : 'Pilih proyek terlebih dahulu'"
+          @click="projectId ? (isInlineCreating = !isInlineCreating) : null"
         >
           <Plus class="w-4 h-4" />
         </button>
@@ -365,7 +368,7 @@ function onDrop(e: DragEvent) {
     <div class="flex flex-col gap-3">
       <!-- Quick Inline Task Creator Card (Reference from user) -->
       <QuickCreateTaskCard
-        v-if="isInlineCreating"
+        v-if="isInlineCreating && projectId"
         :status="status"
         :project-id="projectId"
         :members="members"
@@ -393,9 +396,9 @@ function onDrop(e: DragEvent) {
         />
       </template>
 
-      <!-- Quick Add Task bottom trigger (Ref Image 3) — ONLY VISIBLE ON HOVER -->
+      <!-- Quick Add Task bottom trigger — ONLY VISIBLE IF PROJECT EXISTS -->
       <button
-        v-if="!isInlineCreating"
+        v-if="!isInlineCreating && projectId"
         type="button"
         class="opacity-0 group-hover/col:opacity-100 focus-within:opacity-100 transition-opacity duration-200 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer w-full justify-start select-none mt-1 hover:brightness-95 border border-transparent"
         :style="{

@@ -78,14 +78,17 @@ const filteredProjects = computed(() => {
 
       <!-- Action Buttons (Expand Mode) -->
       <div v-if="!isCollapsed" class="flex items-center gap-1">
+        <!-- Icon Kelola Proyek (di posisi Add sebelumnya) -->
         <button
           type="button"
           class="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
-          title="Buat Proyek Baru"
-          @click="emit('createProject')"
+          title="Kelola Semua Proyek (/projects)"
+          @click="navigateTo('/projects')"
         >
-          <Plus class="w-3.5 h-3.5" />
+          <Layers class="w-3.5 h-3.5" />
         </button>
+
+        <!-- Toggle Collapse Sidebar -->
         <button
           type="button"
           class="p-1.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
@@ -200,15 +203,38 @@ const filteredProjects = computed(() => {
       </template>
     </div>
 
-    <!-- 4. Bottom Footer Link -->
-    <div v-if="!isCollapsed" class="p-2 border-t border-border/30 bg-muted/20">
+    <!-- 4. Bottom Footer Link: Add Project (di posisi Manage Project sebelumnya) -->
+    <div v-if="!isCollapsed" class="p-2.5 border-t border-border/30 bg-muted/20">
       <button
         type="button"
-        class="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-background rounded-xl transition-colors cursor-pointer"
+        class="w-full flex items-center justify-center gap-2 py-2 text-xs font-semibold text-kv-primary hover:bg-kv-primary/10 rounded-2xl border border-kv-primary/20 transition-all cursor-pointer shadow-2xs group/btn"
+        title="Buat Proyek Baru"
+        @click="emit('createProject')"
+      >
+        <div class="w-4 h-4 rounded-md bg-kv-primary/15 text-kv-primary flex items-center justify-center group-hover/btn:bg-kv-primary group-hover/btn:text-white transition-colors">
+          <Plus class="w-3 h-3 stroke-[3]" />
+        </div>
+        <span>Tambah Proyek Baru</span>
+      </button>
+    </div>
+
+    <!-- Collapsed Bottom Footer: Add Project & Kelola Icons -->
+    <div v-else class="p-2 border-t border-border/30 bg-muted/20 flex flex-col items-center gap-1.5">
+      <button
+        type="button"
+        class="w-9 h-9 rounded-xl flex items-center justify-center text-kv-primary bg-kv-primary/10 hover:bg-kv-primary/20 transition-colors cursor-pointer"
+        title="Tambah Proyek Baru"
+        @click="emit('createProject')"
+      >
+        <Plus class="w-4 h-4 stroke-[2.5]" />
+      </button>
+      <button
+        type="button"
+        class="w-9 h-9 rounded-xl flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+        title="Kelola Semua Proyek (/projects)"
         @click="navigateTo('/projects')"
       >
-        <Layers class="w-3.5 h-3.5" />
-        <span>Kelola Semua Proyek</span>
+        <Layers class="w-4 h-4" />
       </button>
     </div>
   </aside>

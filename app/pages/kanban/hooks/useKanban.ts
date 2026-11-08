@@ -379,9 +379,13 @@ export function useKanban(initialProjectId?: string) {
   }
 
   function addTask(newTask: Omit<KanbanTask, 'id' | 'createdAt' | 'updatedAt'>) {
+    const assignedProjectId = newTask.projectId || selectedProjectId.value || projects.value[0]?.id
+    if (!assignedProjectId) {
+      isCreateProjectModalOpen.value = true
+      return
+    }
     const id = `TSK-${Math.floor(100 + Math.random() * 900)}`
     const now = new Date().toISOString().slice(0, 10)
-    const assignedProjectId = newTask.projectId || selectedProjectId.value || (projects.value[0]?.id || 'prj-1')
     const task: KanbanTask = {
       ...newTask,
       projectId: assignedProjectId,

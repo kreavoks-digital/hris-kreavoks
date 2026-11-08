@@ -187,13 +187,17 @@ function resetForm() {
 
 function handleSubmit() {
   if (!title.value.trim()) return
+  if (!props.projectId) {
+    alert('Silakan pilih atau buat proyek terlebih dahulu sebelum membuat tugas.')
+    return
+  }
 
   const finalAssignees = selectedAssignees.value.length > 0
     ? selectedAssignees.value
     : [getActiveUserMember()]
 
   emit('submit', {
-    projectId: props.projectId || 'prj-1',
+    projectId: props.projectId,
     title: title.value.trim(),
     description: description.value.trim(),
     status: status.value,
