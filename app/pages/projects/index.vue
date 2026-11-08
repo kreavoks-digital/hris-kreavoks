@@ -65,10 +65,21 @@
             </SelectTrigger>
             <SelectContent class="rounded-2xl border-border bg-popover z-50 shadow-none">
               <SelectItem value="ALL">Semua Kategori</SelectItem>
-              <SelectItem value="WEB">Web</SelectItem>
-              <SelectItem value="MOBILE">Mobile</SelectItem>
-              <SelectItem value="BRANDING">Branding</SelectItem>
-              <SelectItem value="INTERNAL">Internal</SelectItem>
+              <SelectItem v-for="cat in projectCategories" :key="cat.key" :value="cat.key">
+                {{ cat.label }}
+              </SelectItem>
+              <div class="pt-1 mt-1 border-t border-border/50 px-1">
+                <Button
+                  type="button"
+                  variant="link"
+                  size="sm"
+                  class="w-full justify-start text-xs text-primary h-8 px-2 hover:no-underline font-medium gap-1.5"
+                  @click="navigateTo('/projects/categories')"
+                >
+                  <Settings2 class="w-3.5 h-3.5" />
+                  <span>Kelola Kategori</span>
+                </Button>
+              </div>
             </SelectContent>
           </Select>
 
@@ -156,7 +167,7 @@ import { Card } from '~/components/ui/card'
 import { Input } from '~/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select'
 import { Button } from '@kreavoks/kreaui'
-import { Plus, Search, List, LayoutGrid, FolderKanban, RefreshCw } from 'lucide-vue-next'
+import { Plus, Search, List, LayoutGrid, FolderKanban, RefreshCw, Settings2 } from 'lucide-vue-next'
 
 import ProjectStatsCards from './components/ProjectStatsCards.vue'
 import ProjectTableView from './components/ProjectTableView.vue'
@@ -164,11 +175,21 @@ import ProjectCardGrid from './components/ProjectCardGrid.vue'
 import CreateProjectModal from './components/CreateProjectModal.vue'
 
 import { useProjects } from './hooks/useProjects'
+import { useProjectCategories } from './hooks/useProjectCategories'
 
 definePageMeta({
   title: 'Project Tracker',
   layout: 'default',
   middleware: 'auth'
+})
+
+const { categories: projectCategories } = useProjectCategories()
+const route = useRoute()
+
+onMounted(() => {
+  if (route.query.category) {
+    categoryFilter.value = String(route.query.category)
+  }
 })
 
 const {
