@@ -154,7 +154,7 @@
           variant="outline"
           size="sm"
           label="Cancel"
-          @click="emit('update:open', false)"
+          @click="handleCancel"
         />
         <Button
           type="button"
@@ -200,7 +200,13 @@ const emit = defineEmits<{
   'update:open': [val: boolean]
   'update:modelValue': [val: RecurrenceConfig]
   'update:startDate': [val: string]
+  'cancel': []
 }>()
+
+const handleCancel = () => {
+  emit('cancel')
+  emit('update:open', false)
+}
 
 // Teams single-letter days: Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday
 const daysOfWeekList = [
@@ -338,7 +344,15 @@ const liveSummaryText = computed(() => {
       6: 'Saturday'
     }
     const selectedDays = (tempConfig.value.daysOfWeek || []).map(d => daysNames[d]).filter(Boolean)
-    const daysStr = selectedDays.length > 0 ? selectedDays.join(', ') : 'week'
+    const isMonToFri = selectedDays.length === 5 &&
+      [1, 2, 3, 4, 5].every(d => (tempConfig.value.daysOfWeek || []).includes(d))
+
+    let daysStr = ''
+    if (isMonToFri && interval === 1) {
+      daysStr = 'Monday through Friday'
+    } else {
+      daysStr = selectedDays.length > 0 ? selectedDays.join(', ') : 'week'
+    }
     text = interval === 1 ? `Occurs every ${daysStr}` : `Occurs every ${interval} weeks on ${daysStr}`
   } else if (unit === 'MONTH') {
     if (tempConfig.value.monthlyMode === 'SPECIFIC_DATES' && tempConfig.value.daysOfMonth?.length) {
@@ -362,8 +376,13 @@ const liveSummaryText = computed(() => {
 const handleSave = () => {
   // Determine recurrence type based on unit
   let recType: any = 'CUSTOM'
+  const isMonToFri = (tempConfig.value.daysOfWeek || []).length === 5 &&
+    [1, 2, 3, 4, 5].every(d => (tempConfig.value.daysOfWeek || []).includes(d))
+
   if (tempConfig.value.unit === 'DAY' && tempConfig.value.interval === 1 && !tempConfig.value.endDate) {
     recType = 'DAILY'
+  } else if (tempConfig.value.unit === 'WEEK' && tempConfig.value.interval === 1 && isMonToFri && !tempConfig.value.endDate) {
+    recType = 'EVERY_WEEKDAY'
   } else if (tempConfig.value.unit === 'WEEK' && tempConfig.value.interval === 1 && (tempConfig.value.daysOfWeek?.length === 1) && !tempConfig.value.endDate) {
     recType = 'WEEKLY'
   } else if (tempConfig.value.unit === 'MONTH' && tempConfig.value.interval === 1 && tempConfig.value.monthlyMode !== 'SPECIFIC_DATES' && !tempConfig.value.endDate) {

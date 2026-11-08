@@ -510,6 +510,7 @@
     v-model="recurrence"
     :start-date="startDateOnly"
     @update:start-date="(val: string) => emit('update:startDateOnly', val)"
+    @cancel="onRecurrenceCancel"
   />
 </template>
 
@@ -620,7 +621,7 @@ const currentRecurrenceSummaryText = computed(() => {
   const startFormatted = formatDisplayDate(props.startDateOnly) || 'start date'
 
   if (rec.type === 'DOES_NOT_REPEAT') return 'Does not repeat'
-  if (rec.type === 'EVERY_WEEKDAY') return `Occurs every weekday (Mon - Fri) starting ${startFormatted}`
+  if (rec.type === 'EVERY_WEEKDAY') return `Occurs every Monday through Friday starting ${startFormatted}`
   if (rec.type === 'DAILY') return `Occurs every day starting ${startFormatted}`
   if (rec.type === 'WEEKLY') {
     const days = (rec.daysOfWeek && rec.daysOfWeek.length > 0)
@@ -723,20 +724,38 @@ const daysOfWeekOptions = [
   { value: 0, label: 'Min' }
 ]
 
+const previousRecurrenceType = ref('DOES_NOT_REPEAT')
+
+const onRecurrenceCancel = () => {
+  recurrence.value.type = (previousRecurrenceType.value as any) || 'DOES_NOT_REPEAT'
+}
+
 const onRecurrenceTypeChange = (type: string) => {
+  if (type === 'DOES_NOT_REPEAT') {
+    recurrence.value.type = 'DOES_NOT_REPEAT'
+    previousRecurrenceType.value = 'DOES_NOT_REPEAT'
+    return
+  }
+
   const startDay = getDayOfWeekFromDate(props.startDateOnly)
+
   if (type === 'WEEKLY') {
+    recurrence.value.type = 'WEEKLY'
     recurrence.value.unit = 'WEEK'
     recurrence.value.interval = 1
     recurrence.value.daysOfWeek = [startDay]
   } else if (type === 'DAILY') {
+    recurrence.value.type = 'DAILY'
     recurrence.value.unit = 'DAY'
     recurrence.value.interval = 1
+    recurrence.value.daysOfWeek = []
   } else if (type === 'EVERY_WEEKDAY') {
+    recurrence.value.type = 'EVERY_WEEKDAY'
     recurrence.value.unit = 'WEEK'
     recurrence.value.interval = 1
     recurrence.value.daysOfWeek = [1, 2, 3, 4, 5]
   } else if (type === 'MONTHLY') {
+    recurrence.value.type = 'MONTHLY'
     recurrence.value.unit = 'MONTH'
     recurrence.value.interval = 1
     if (!recurrence.value.daysOfMonth || recurrence.value.daysOfMonth.length === 0) {
@@ -746,14 +765,17 @@ const onRecurrenceTypeChange = (type: string) => {
       recurrence.value.monthlyMode = 'SAME_DAY'
     }
   } else if (type === 'YEARLY') {
+    recurrence.value.type = 'YEARLY'
     recurrence.value.unit = 'YEAR'
     recurrence.value.interval = 1
   } else if (type === 'CUSTOM') {
     if (!recurrence.value.interval) recurrence.value.interval = 1
     if (!recurrence.value.unit) recurrence.value.unit = 'WEEK'
     if (!recurrence.value.endType) recurrence.value.endType = 'NEVER'
-    showRecurrenceModal.value = true
   }
+
+  // Buka modal Set recurrence secara otomatis persis seperti Microsoft Teams!
+  showRecurrenceModal.value = true
 }
 
 const toggleDayOfMonth = (day: number) => {
