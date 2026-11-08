@@ -273,13 +273,14 @@ const calendarGridDays = computed<CalendarDay[]>(() => {
               </span>
 
               <!-- Mini Assignee Avatar (if present) -->
-              <img
-                v-if="task.assignees && task.assignees.length > 0"
-                :src="task.assignees[0].avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(task.assignees[0].name)}`"
-                :alt="task.assignees[0].name"
-                :title="task.assignees[0].name"
-                class="w-3.5 h-3.5 rounded-full object-cover shrink-0"
-              />
+              <template v-for="assignee in (task.assignees || []).slice(0, 1)" :key="assignee.id">
+                <img
+                  :src="assignee.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(assignee.name || 'User')}`"
+                  :alt="assignee.name"
+                  :title="assignee.name"
+                  class="w-3.5 h-3.5 rounded-full object-cover shrink-0"
+                />
+              </template>
             </div>
           </div>
 
