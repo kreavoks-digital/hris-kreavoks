@@ -35,6 +35,11 @@ export const generateSecureProjectCode = (length = 18): string => {
 // Singleton In-Flight Promises untuk mencegah duplicate requests
 let inFlightProjectsPromise: Promise<Project[]> | null = null
 let inFlightMembersPromise: Promise<ProjectMember[]> | null = null
+// Revisi daftar proyek: dinaikkan setiap kali ada perubahan (hapus) agar
+// respons GET yang sudah kedaluwarsa tidak menimpa state lokal.
+let projectsRevision = 0
+// ID proyek yang sedang dihapus (mencegah double-submit)
+const deletingIds = new Set<string>()
 
 export const useProjects = () => {
   const api = useApi()
@@ -60,13 +65,24 @@ export const useProjects = () => {
 
     // 2. Jika ada request yang sedang terbang (in-flight), reuse promise yang sama
     if (inFlightProjectsPromise) {
-      return inFlightProjectsPromise
+      if (!force) {
+        return inFlightProjectsPromise
+      }
+      try {
+        await inFlightProjectsPromise
+      } catch {
+        // Abaikan, fetch baru tetap jalan di bawah
+      }
     }
 
     isLoading.value = true
     inFlightProjectsPromise = (async () => {
       try {
+        const revisionAtStart = projectsRevision
         const res: any = await api('/projects')
+        if (revisionAtStart !== projectsRevision) {
+          return projects.value || []
+        }
         const projectList = res?.data || []
         if (Array.isArray(projectList)) {
           projects.value = projectList
@@ -143,7 +159,7 @@ export const useProjects = () => {
   const filteredProjects = computed(() => {
     return projects.value.filter(project => {
       const query = searchQuery.value.toLowerCase().trim()
-      const matchesSearch = !query || 
+      const matchesSearch = !query ||
         project.name.toLowerCase().includes(query) ||
         project.clientName.toLowerCase().includes(query)
 
@@ -221,6 +237,8 @@ export const useProjects = () => {
   }
 
   const deleteProject = async (id: string) => {
+    if (deletingIds.has(id)) return
+    deletingIds.add(id)
     const previous = [...projects.value]
     projects.value = projects.value.filter(p => p.id !== id)
 
@@ -229,10 +247,23 @@ export const useProjects = () => {
       await api(`/projects/${rawId}`, {
         method: 'DELETE'
       })
+      // Server sudah berubah, batalkan respons GET yang kedaluwarsa
+      projectsRevision++
       toast.success('Proyek berhasil dihapus.')
-    } catch {
+      await fetchProjects(true)
+    } catch (err: any) {
+      const status = err?.response?.status ?? err?.status
+      if (status === 404) {
+        // Sudah terhapus di server (mis. klik ganda), anggap sukses dan jangan kembalikan baris
+        projectsRevision++
+        toast.success('Proyek berhasil dihapus.')
+        await fetchProjects(true)
+        return
+      }
       projects.value = previous
       toast.error('Gagal menghapus proyek di server.')
+    } finally {
+      deletingIds.delete(id)
     }
   }
 
