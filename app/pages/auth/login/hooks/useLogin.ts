@@ -31,7 +31,9 @@ export const useLogin = () => {
         }
 
         // Redirect ke target yang diteruskan (untuk SSO/fallback) atau default ke /dashboard
-        const redirectPath = redirectUrl || '/dashboard'
+        // Hanya izinkan redirect internal (cegah open redirect ke situs lain)
+        const isSafeRedirect = (url?: string) => !!url && url.startsWith('/') && !url.startsWith('//') && !url.startsWith('/\\')
+        const redirectPath = isSafeRedirect(redirectUrl) ? redirectUrl as string : '/dashboard'
         await navigateTo(redirectPath)
       } else {
         error.value = response.message || 'Login gagal'
