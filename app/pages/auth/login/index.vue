@@ -166,11 +166,14 @@ const form = reactive({
 
 const { loading, error, handleLogin: apiLogin } = useLogin()
 
+const route = useRoute()
+
 const handleLogin = async () => {
+  const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : undefined
   await apiLogin({
     email: form.email,
     password: form.password
-  })
+  }, redirect)
 }
 </script>
 
