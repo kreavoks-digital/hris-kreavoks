@@ -35,7 +35,13 @@ export const useApi = () => {
           return await buildFetcher(newToken)(request, retryOpts)
         } catch {
           logout()
-          await navigateTo('/auth/login')
+          const currentPath = typeof window !== 'undefined'
+            ? `${window.location.pathname}${window.location.search}`
+            : ''
+          const redirect = currentPath && !currentPath.startsWith('/auth/') && !currentPath.startsWith('/verify')
+            ? currentPath
+            : undefined
+          await navigateTo(redirect ? { path: '/auth/login', query: { redirect } } : '/auth/login')
           throw error
         }
       }
