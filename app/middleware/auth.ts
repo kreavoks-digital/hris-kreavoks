@@ -15,7 +15,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
 
   // Jika belum login dan bukan halaman publik → redirect login
   if (!isLoggedIn && !isPublicPage) {
-    return navigateTo('/auth/login')
+    return navigateTo({ path: '/auth/login', query: { redirect: to.fullPath } })
   }
 
   // Jika sudah login:
