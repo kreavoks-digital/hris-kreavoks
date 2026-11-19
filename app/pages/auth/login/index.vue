@@ -89,12 +89,19 @@
             </div>
           </div>
 
+          <Turnstile
+            :site-key="config.public.turnstileSiteKey"
+            @verify="(t) => (turnstileToken = t)"
+            @expire="() => (turnstileToken = '')"
+          />
+
           <Button
             type="submit"
             class="w-full text-base font-medium"
             variant="primary"
             size="md"
             :loading="loading"
+            :disabled="!turnstileToken"
           >
             Masuk HRIS
           </Button>
@@ -164,6 +171,9 @@ const form = reactive({
   password: "",
 });
 
+const config = useRuntimeConfig()
+const turnstileToken = ref('')
+
 const { loading, error, handleLogin: apiLogin } = useLogin()
 
 const route = useRoute()
@@ -172,7 +182,8 @@ const handleLogin = async () => {
   const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : undefined
   await apiLogin({
     email: form.email,
-    password: form.password
+    password: form.password,
+    turnstileToken: turnstileToken.value
   }, redirect)
 }
 </script>
