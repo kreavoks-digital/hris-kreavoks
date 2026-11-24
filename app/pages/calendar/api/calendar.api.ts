@@ -1,4 +1,4 @@
-import type { CalendarEventItem, CandidateUser, CreateEventPayload, AttendeeStatus } from '../types/calendar.types'
+import type { CalendarEventItem, CalendarNoteItem, CandidateUser, CreateEventPayload, AttendeeStatus } from '../types/calendar.types'
 import { encodeEventMetadata, decodeEventMetadata } from '../types/calendar.types'
 
 export const useCalendarApi = () => {
@@ -29,8 +29,9 @@ export const useCalendarApi = () => {
     return list.map(parseEventItem)
   }
 
-  const getEventById = async (id: number) => {
-    const res = await api(`/events/${id}`)
+  const getEventById = async (id: number, occurrenceDate?: string) => {
+    const qs = occurrenceDate ? `?occurrenceDate=${occurrenceDate}` : ''
+    const res = await api(`/events/${id}${qs}`)
     return parseEventItem(res.data)
   }
 
@@ -119,7 +120,7 @@ export const useCalendarApi = () => {
 
   const updateNotes = async (
     eventId: number,
-    payload: { notesContent?: string | null; notesVisibility?: string }
+    payload: { notesContent?: string | null; notesVisibility?: string; occurrenceDate?: string }
   ) => {
     const res = await api(`/events/${eventId}/notes`, {
       method: "PATCH",
@@ -128,9 +129,16 @@ export const useCalendarApi = () => {
     return res.data
   }
 
+  // Daftar semua catatan agenda yang bisa dilihat user (halaman /calendar/notes).
+  const getAllNotes = async () => {
+    const res = await api('/events/notes')
+    return (res.data || []) as CalendarNoteItem[]
+  }
+
   return {
     getEvents,
     getEventById,
+    getAllNotes,
     createEvent,
     updateEvent,
     deleteEvent,

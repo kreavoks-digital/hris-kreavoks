@@ -112,7 +112,8 @@ export const useCalendarEvents = () => {
     // Refresh detail in background for latest RSVPs
     try {
       const full = await api.getEventById(event.id)
-      selectedEvent.value = full
+      // Jangan buang occurrenceDate: getEventById tidak mengembalikannya.
+      selectedEvent.value = { ...full, occurrenceDate: event.occurrenceDate }
     } catch {}
   }
 

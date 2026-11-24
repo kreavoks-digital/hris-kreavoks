@@ -586,7 +586,15 @@ const navigationGroups: NavGroup[] = [
   {
     items: [
       { name: 'Dashboard', to: '/dashboard', icon: BarChart3 },
-      { name: 'Calendar', to: '/calendar', icon: Calendar },
+      {
+        name: 'Calendar',
+        to: '/calendar',
+        icon: Calendar,
+        children: [
+          { name: 'Kalender', to: '/calendar' },
+          { name: 'Catatan', to: '/calendar/notes' }
+        ]
+      },
       { name: 'Attendance', to: '/attendance', icon: CheckCircle2 },
     ]
   },

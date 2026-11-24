@@ -127,7 +127,12 @@ export const useCalendarPage = (
 
   const getEventsForDate = (date: Date) => {
     const dateStr = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
-    return events.value.filter(e => isEventMatchingDate(e, date, dateStr))
+    // Kembalikan salinan dengan occurrenceDate = tanggal yang diklik, supaya
+    // halaman edit tahu catatan tanggal pertemuan mana yang dibuka
+    // (event berulang tampil di banyak tanggal tapi hanya punya satu baris).
+    return events.value
+      .filter(e => isEventMatchingDate(e, date, dateStr))
+      .map(e => ({ ...e, occurrenceDate: dateStr }))
   }
 
   const isInSelectedRange = (d: Date) => {

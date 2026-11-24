@@ -21,6 +21,12 @@ export const useEventEdit = () => {
   const { user } = useAuth()
 
   const eventId = computed(() => Number(route.params.id))
+  // Tanggal occurrence "YYYY-MM-DD" dari query (?occurrence=...), diisi saat
+  // event berulang dibuka dari tanggal tertentu di kalender. Dipakai untuk
+  // membaca/menyimpan catatan per tanggal pertemuan.
+  const occurrenceDate = computed(() =>
+    typeof route.query.occurrence === 'string' ? route.query.occurrence : undefined
+  )
   const isSidebarCollapsed = useState<boolean>('sidebar_is_collapsed', () => false)
 
   // Modals & Action Loaders
@@ -403,6 +409,9 @@ export const useEventEdit = () => {
       if (isOrganizerOrAdmin.value) {
         payload.notesVisibility = notesVisibility.value
       }
+      if (occurrenceDate.value) {
+        payload.occurrenceDate = occurrenceDate.value
+      }
 
       await calendarApi.updateNotes(eventId.value, payload)
       autoSaveStatus.value = 'saved'
@@ -434,6 +443,9 @@ export const useEventEdit = () => {
       }
       if (isOrganizerOrAdmin.value) {
         payload.notesVisibility = notesVisibility.value
+      }
+      if (occurrenceDate.value) {
+        payload.occurrenceDate = occurrenceDate.value
       }
 
       await calendarApi.updateNotes(eventId.value, payload)
@@ -473,7 +485,7 @@ export const useEventEdit = () => {
 
     isLoadingData.value = true
     try {
-      const ev: CalendarEventItem = await calendarApi.getEventById(eventId.value)
+      const ev: CalendarEventItem = await calendarApi.getEventById(eventId.value, occurrenceDate.value)
       rawEventData.value = ev
       form.value.title = ev.title
       form.value.description = ev.description || ''

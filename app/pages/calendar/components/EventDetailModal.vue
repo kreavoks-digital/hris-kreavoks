@@ -106,7 +106,7 @@
             :icon="true"
             :icon-left="FileText"
             title="Catatan Agenda"
-            @click="navigateTo(`/calendar/edit/${event.id}?tab=notes`)"
+            @click="navigateTo(editUrl('notes'))"
           />
         </div>
 
@@ -377,6 +377,22 @@ const formattedTime = computed(() => {
   const start = formatTime(props.event.startDate)
   return props.event.endDate ? `${start} - ${formatTime(props.event.endDate)} WIB` : `${start} WIB`
 })
+
+// URL halaman edit; untuk event berulang sertakan tanggal occurrence yang
+// sedang dibuka supaya catatan dibaca/disimpan per tanggal pertemuan.
+const editUrl = (tab?: string) => {
+  const params = new URLSearchParams()
+  if (tab) params.set('tab', tab)
+  if (
+    props.event?.occurrenceDate &&
+    props.event?.recurrence &&
+    props.event.recurrence.type !== 'DOES_NOT_REPEAT'
+  ) {
+    params.set('occurrence', props.event.occurrenceDate)
+  }
+  const qs = params.toString()
+  return `/calendar/edit/${props.event?.id}${qs ? `?${qs}` : ''}`
+}
 
 const recurrenceLabels: Record<string, string> = {
   DOES_NOT_REPEAT: 'Does not repeat',

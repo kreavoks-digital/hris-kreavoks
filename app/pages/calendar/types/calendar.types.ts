@@ -88,6 +88,25 @@ export interface CalendarEventItem {
   declinedCount?: number
   recurrence?: RecurrenceConfig
   notifications?: EventNotificationItem[]
+  // Tanggal occurrence "YYYY-MM-DD" dari kalender saat event ini diklik.
+  // Dipakai halaman edit untuk membaca/menyimpan catatan per tanggal
+  // pertemuan (bug 24 Nov 2026: event berulang berbagi satu notesContent).
+  // Hanya diisi oleh getEventsForDate; tidak datang dari API.
+  occurrenceDate?: string
+}
+
+// Satu baris catatan dari GET /events/notes (halaman /calendar/notes).
+// occurrenceDate "YYYY-MM-DD" untuk catatan per tanggal pertemuan;
+// null untuk catatan level event (event sekali saja).
+export interface CalendarNoteItem {
+  eventId: number
+  eventTitle: string
+  eventType: EventType
+  eventStartDate: string
+  occurrenceDate: string | null
+  notesContent: string
+  notesVisibility: NotesVisibility
+  updatedAt: string
 }
 
 export interface CandidateUser {

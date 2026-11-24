@@ -76,7 +76,7 @@
       :is-loading="isActionLoading"
       @update:open="(val) => isDetailModalOpen = val"
       @select-event="(ev) => selectedEvent = ev"
-      @edit="(ev) => navigateTo(`/calendar/edit/${ev.id}`)"
+      @edit="(ev) => navigateTo(editUrlFor(ev))"
       @cancel="cancelEvent"
       @rsvp="submitRsvp"
       @refresh="loadEvents"
@@ -123,6 +123,17 @@ const {
   cancelEvent,
   submitRsvp
 } = useCalendarEvents()
+
+// URL halaman edit; untuk event berulang sertakan tanggal occurrence yang
+// sedang dibuka supaya catatan dibaca/disimpan per tanggal pertemuan.
+const editUrlFor = (ev: any) => {
+  const params = new URLSearchParams()
+  if (ev?.occurrenceDate && ev?.recurrence && ev.recurrence.type !== 'DOES_NOT_REPEAT') {
+    params.set('occurrence', ev.occurrenceDate)
+  }
+  const qs = params.toString()
+  return `/calendar/edit/${ev.id}${qs ? `?${qs}` : ''}`
+}
 
 const {
   currentViewMode,
